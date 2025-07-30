@@ -23,6 +23,7 @@ This is a full-stack restaurant online menu management system built with React, 
 - ✅ **Favorites & Visibility System**: Added ability to mark dishes as favorites and hide/show dishes from public menu
 - ✅ **Real-time Updates**: Implemented WebSocket system for instant menu updates in guest view when admin makes changes
 - ✅ **Professional Food Photography**: Enhanced AI image generation with professional photography prompts for realistic dish photos
+- ✅ **Favorites as First Category**: Redesigned favorites to appear as the first category tab, always visible even when empty
 
 # User Preferences
 
