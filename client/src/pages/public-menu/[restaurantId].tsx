@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CategoryTabs } from "@/components/menu/category-tabs";
 import { DishCard } from "@/components/menu/dish-card";
+import { DishDetailsModal } from "@/components/modals/dish-details";
 import { Search, X } from "lucide-react";
 import type { PublicMenu, Dish } from "@shared/schema";
 
@@ -15,6 +16,7 @@ export default function PublicMenu() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [filteredDishes, setFilteredDishes] = useState<Dish[]>([]);
+  const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
 
   // Get public menu data
   const { data: menu, isLoading, error } = useQuery<PublicMenu>({
@@ -223,6 +225,7 @@ export default function PublicMenu() {
                 dish={dish}
                 currency={menu.restaurant.currency}
                 onFilterByTag={handleTagFilter}
+                onShowDetails={setSelectedDish}
                 showActions={false}
                 showDetails={true}
               />
@@ -238,6 +241,14 @@ export default function PublicMenu() {
           <p>Создано с помощью QRMenu</p>
         </footer>
       </div>
+      
+      {/* Dish Details Modal */}
+      <DishDetailsModal
+        dish={selectedDish}
+        isOpen={!!selectedDish}
+        onClose={() => setSelectedDish(null)}
+        currency={menu.restaurant.currency}
+      />
     </div>
   );
 }

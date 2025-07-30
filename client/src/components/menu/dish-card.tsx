@@ -10,6 +10,7 @@ interface DishCardProps {
   onEdit?: (dish: Dish) => void;
   onDelete?: (dish: Dish) => void;
   onFilterByTag?: (tag: string) => void;
+  onShowDetails?: (dish: Dish) => void;
   showActions?: boolean;
   showDetails?: boolean;
 }
@@ -19,7 +20,8 @@ export function DishCard({
   currency, 
   onEdit, 
   onDelete, 
-  onFilterByTag, 
+  onFilterByTag,
+  onShowDetails, 
   showActions = true,
   showDetails = false
 }: DishCardProps) {
@@ -115,6 +117,7 @@ export function DishCard({
               variant="ghost"
               size="sm"
               className="text-primary-600 hover:text-primary-700 p-0"
+              onClick={() => onShowDetails?.(dish)}
             >
               <Info size={16} className="mr-1" />
               Подробнее
