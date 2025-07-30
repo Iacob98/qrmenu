@@ -15,6 +15,9 @@ This is a full-stack restaurant online menu management system built with React, 
 - ✅ **File Upload System**: Added comprehensive file upload functionality with Sharp image processing and storage
 - ✅ **Dish Editing System**: Complete CRUD operations for dishes with modal interface and file upload support
 - ✅ **Category Editing System**: Complete CRUD operations for categories with modal interface and icon selection
+- ✅ **File Upload Interface**: Removed all URL input fields from file upload components for cleaner interface
+- ✅ **Public Menu Banner Display**: Fixed banner display in public menu with background overlay and proper styling
+- ✅ **Database Stability**: Resolved server crashes by cleaning up storage classes and maintaining PostgreSQL connection
 
 # User Preferences
 
