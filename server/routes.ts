@@ -38,9 +38,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       checkPeriod: 86400000 // prune expired entries every 24h
     }),
     cookie: { 
-      secure: false, // Disable secure for debugging
+      secure: process.env.NODE_ENV === 'production', 
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      httpOnly: false, // Allow JS access for debugging
+      httpOnly: true, // Secure cookies
       sameSite: 'lax' // Allow same-site cookies
     }
   }));
