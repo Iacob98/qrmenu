@@ -206,10 +206,15 @@ export class DatabaseStorage implements IStorage {
 
     const categoriesData = await this.getCategoriesByRestaurantId(restaurant.id);
     const categoriesWithDishes = await Promise.all(
-      categoriesData.map(async (category) => ({
-        ...category,
-        dishes: await this.getDishesByCategoryId(category.id),
-      }))
+      categoriesData.map(async (category) => {
+        // Get all dishes for category and filter out hidden ones for public view
+        const allDishes = await this.getDishesByCategoryId(category.id);
+        const visibleDishes = allDishes.filter(dish => !dish.isHidden);
+        return {
+          ...category,
+          dishes: visibleDishes,
+        };
+      })
     );
 
     return {

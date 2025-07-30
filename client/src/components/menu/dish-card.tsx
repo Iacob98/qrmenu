@@ -1,12 +1,14 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, Info, Utensils } from "lucide-react";
+import { Edit, Trash2, Info, Utensils, Heart, Eye, EyeOff } from "lucide-react";
+import { DishActions } from "@/components/dish/dish-actions";
 import type { Dish } from "@shared/schema";
 
 interface DishCardProps {
   dish: Dish;
   currency: string;
+  restaurantId?: string;
   onEdit?: (dish: Dish) => void;
   onDelete?: (dish: Dish) => void;
   onFilterByTag?: (tag: string) => void;
@@ -17,7 +19,8 @@ interface DishCardProps {
 
 export function DishCard({ 
   dish, 
-  currency, 
+  currency,
+  restaurantId,
   onEdit, 
   onDelete, 
   onFilterByTag,
@@ -66,14 +69,21 @@ export function DishCard({
         
         <div className="flex-1">
           <div className="flex justify-between items-start mb-2">
-            <h3 className="font-semibold text-gray-900">{dish.name}</h3>
+            <div className="flex items-center space-x-2">
+              <h3 className={`font-semibold ${dish.isHidden ? 'text-gray-400' : 'text-gray-900'}`}>
+                {dish.name}
+              </h3>
+              {dish.isFavorite && <Heart className="h-4 w-4 text-red-500 fill-current" />}
+              {dish.isHidden && <EyeOff className="h-4 w-4 text-gray-400" />}
+            </div>
             <div className="flex items-center space-x-2">
               <span className="text-primary-600 font-bold ml-2">
                 {currency === "EUR" ? "€" : currency === "USD" ? "$" : currency === "PLN" ? "zł" : ""}
                 {dish.price}
               </span>
-              {showActions && (
+              {showActions && restaurantId && (
                 <div className="flex space-x-1">
+                  <DishActions dish={dish} restaurantId={restaurantId} />
                   <Button
                     variant="ghost"
                     size="sm"

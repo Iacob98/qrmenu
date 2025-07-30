@@ -49,6 +49,8 @@ export const dishes = pgTable("dishes", {
   nutrition: jsonb("nutrition"), // { protein: number, fat: number, carbs: number, calories: number }
   tags: text("tags").array(), // ["spicy", "vegetarian", "gluten-free", etc.]
   available: boolean("available").default(true),
+  isFavorite: boolean("is_favorite").default(false),
+  isHidden: boolean("is_hidden").default(false),
   sortOrder: integer("sort_order").default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });

@@ -365,6 +365,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Dish favorites and visibility routes
+  app.patch("/api/dishes/:id/favorite", requireAuth, async (req, res) => {
+    try {
+      const { isFavorite } = req.body;
+      const dish = await storage.getDish(req.params.id);
+      if (!dish) {
+        return res.status(404).json({ message: "Dish not found" });
+      }
+
+      const category = await storage.getCategory(dish.categoryId);
+      const restaurant = await storage.getRestaurant(category!.restaurantId);
+      if (!restaurant || restaurant.userId !== req.session.userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const updatedDish = await storage.updateDish(req.params.id, { isFavorite });
+      
+      // Notify WebSocket clients about menu update
+      const { wsManager } = await import("./index");
+      if (wsManager && restaurant.slug) {
+        wsManager.notifyMenuUpdate(restaurant.slug, {
+          type: 'dish_updated',
+          dishId: dish.id,
+          changes: { isFavorite }
+        });
+      }
+      
+      res.json(updatedDish);
+    } catch (error) {
+      res.status(500).json({ message: handleError(error) });
+    }
+  });
+
+  app.patch("/api/dishes/:id/visibility", requireAuth, async (req, res) => {
+    try {
+      const { isHidden } = req.body;
+      const dish = await storage.getDish(req.params.id);
+      if (!dish) {
+        return res.status(404).json({ message: "Dish not found" });
+      }
+
+      const category = await storage.getCategory(dish.categoryId);
+      const restaurant = await storage.getRestaurant(category!.restaurantId);
+      if (!restaurant || restaurant.userId !== req.session.userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const updatedDish = await storage.updateDish(req.params.id, { isHidden });
+      
+      // Notify WebSocket clients about menu update
+      const { wsManager } = await import("./index");
+      if (wsManager && restaurant.slug) {
+        wsManager.notifyMenuUpdate(restaurant.slug, {
+          type: 'dish_updated',
+          dishId: dish.id,
+          changes: { isHidden }
+        });
+      }
+      
+      res.json(updatedDish);
+    } catch (error) {
+      res.status(500).json({ message: handleError(error) });
+    }
+  });
+
   // AI routes
   app.post("/api/ai/test-token", requireAuth, async (req, res) => {
     try {

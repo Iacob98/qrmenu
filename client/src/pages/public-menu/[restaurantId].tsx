@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { CategoryTabs } from "@/components/menu/category-tabs";
 import { DishCard } from "@/components/menu/dish-card";
 import { DishDetailsModal } from "@/components/modals/dish-details";
+import { useRealTimeMenu } from "@/hooks/useRealTimeMenu";
 import { Search, X } from "lucide-react";
 import type { PublicMenu, Dish } from "@shared/schema";
 
@@ -23,6 +24,9 @@ export default function PublicMenu() {
     queryKey: ["/api/public/menu", params?.slug],
     enabled: !!params?.slug,
   });
+
+  // Connect to real-time updates
+  const { isConnected } = useRealTimeMenu(params?.slug || "");
 
   // Filter dishes based on category, search, and tags
   useEffect(() => {

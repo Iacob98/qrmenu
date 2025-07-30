@@ -260,6 +260,7 @@ export default function MenuManagement() {
                               key={dish.id}
                               dish={dish}
                               currency={restaurant.currency}
+                              restaurantId={selectedRestaurant}
                               showActions={true}
                               onEdit={handleEditDish}
                               onDelete={handleDeleteDish}
