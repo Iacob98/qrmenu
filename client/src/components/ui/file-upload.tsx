@@ -17,6 +17,7 @@ interface FileUploadProps {
   width?: number;
   height?: number;
   className?: string;
+  hideUrlInput?: boolean;
 }
 
 export function FileUpload({
@@ -28,7 +29,8 @@ export function FileUpload({
   maxSize = 10,
   width = 300,
   height = 200,
-  className = ""
+  className = "",
+  hideUrlInput = false
 }: FileUploadProps) {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -180,15 +182,17 @@ export function FileUpload({
         className="hidden"
       />
       
-      <div className="mt-2">
-        <Input
-          type="url"
-          placeholder="Или введите URL изображения"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          disabled={uploadMutation.isPending}
-        />
-      </div>
+      {!hideUrlInput && (
+        <div className="mt-2">
+          <Input
+            type="url"
+            placeholder="Или введите URL изображения"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            disabled={uploadMutation.isPending}
+          />
+        </div>
+      )}
     </div>
   );
 }

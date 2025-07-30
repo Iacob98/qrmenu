@@ -287,6 +287,7 @@ export function AddDishModal({
               width={350}
               height={180}
               maxSize={8}
+              hideUrlInput={true}
             />
             <div className="mt-2">
               <Button
