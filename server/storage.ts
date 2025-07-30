@@ -96,12 +96,15 @@ export class MemStorage implements IStorage {
       slug,
       createdAt: new Date(),
       city: data.city || null,
-      phone: data.phone || null,
+      phone: data.phone || null,  
       aiToken: data.aiToken || null,
       logo: data.logo || null,
       design: data.design || null,
       currency: data.currency || "EUR",
-      language: data.language || "ru"
+      language: data.language || "ru",
+      aiProvider: data.aiProvider || null,
+      aiModel: data.aiModel || null,
+      banner: data.banner || null
     };
     this.restaurants.set(id, restaurant);
     return restaurant;
