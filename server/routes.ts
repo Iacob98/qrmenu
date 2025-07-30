@@ -331,7 +331,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updateData = {
         name: req.body.name,
         description: req.body.description || null,
-        price: parseFloat(req.body.price),
+        price: parseFloat(req.body.price).toString(),
         categoryId: req.body.categoryId,
         ingredients: req.body.ingredients || null,
         tags: req.body.tags || null,
@@ -379,7 +379,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "AI token not configured" });
       }
 
-      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider, restaurant.aiModel);
+      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
       const dishes = await aiService.analyzePDF(base64Data);
       
       res.json({ dishes });
@@ -401,7 +401,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "AI token not configured" });
       }
 
-      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider, restaurant.aiModel);
+      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
       const dishes = await aiService.analyzePhoto(base64Image);
       
       res.json({ dishes });
@@ -508,7 +508,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "AI token not configured" });
       }
 
-      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider, restaurant.aiModel);
+      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
       const dishes = await aiService.analyzeText(text);
       
       res.json({ dishes });
@@ -530,7 +530,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "AI token not configured" });
       }
 
-      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider, restaurant.aiModel);
+      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
       const imageUrl = await aiService.generateDishImage(dishName, description);
       
       res.json({ imageUrl });

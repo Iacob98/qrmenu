@@ -301,25 +301,7 @@ export default function Settings() {
                           </p>
                         </div>
 
-                        <div>
-                          <Label>🔗 Публичная ссылка</Label>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <Input
-                              value={`${window.location.origin}/menu/${restaurant.slug}`}
-                              readOnly
-                              className="bg-gray-50"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={copyPublicLink}
-                              className="whitespace-nowrap"
-                            >
-                              {copied ? <Check size={16} /> : <Copy size={16} />}
-                              {copied ? "Скопировано" : "Скопировать"}
-                            </Button>
-                          </div>
-                        </div>
+
 
                         <Button 
                           type="submit" 
@@ -420,6 +402,15 @@ export default function Settings() {
                       <p className="text-sm text-gray-500 mt-2">
                         Эти параметры влияют на отображение меню
                       </p>
+                      
+                      <Button 
+                        type="button"
+                        onClick={() => updateRestaurantMutation.mutate(restaurantForm)}
+                        disabled={updateRestaurantMutation.isPending}
+                        className="w-full mt-4"
+                      >
+                        {updateRestaurantMutation.isPending ? "Сохранение..." : "Сохранить изменения"}
+                      </Button>
                     </CardContent>
                   </Card>
 
@@ -498,6 +489,15 @@ export default function Settings() {
                           </p>
                         </div>
                       )}
+                      
+                      <Button 
+                        type="button"
+                        onClick={() => updateRestaurantMutation.mutate(restaurantForm)}
+                        disabled={updateRestaurantMutation.isPending}
+                        className="w-full mt-4"
+                      >
+                        {updateRestaurantMutation.isPending ? "Сохранение..." : "Сохранить изменения"}
+                      </Button>
                     </CardContent>
                   </Card>
 

@@ -74,6 +74,8 @@ export const insertCategorySchema = createInsertSchema(categories).omit({
 export const insertDishSchema = createInsertSchema(dishes).omit({
   id: true,
   createdAt: true,
+}).extend({
+  price: z.coerce.string(),
 });
 
 // Types
