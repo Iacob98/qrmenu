@@ -1,6 +1,13 @@
 # Overview
 
-This is a full-stack restaurant online menu management system built with React, Express, and TypeScript. The application allows restaurant owners to create, manage, and share digital menus via QR codes and public links. It features AI-powered menu generation capabilities and a comprehensive design customization system.
+This is a full-stack restaurant online menu management system built with React, Express, and PostgreSQL. The application allows restaurant owners to create, manage, and share digital menus via QR codes and public links. It features AI-powered menu generation capabilities and a comprehensive design customization system.
+
+## Recent Updates (July 30, 2025)
+- ✅ **Database Integration Complete**: Successfully migrated from in-memory storage to PostgreSQL with Drizzle ORM
+- ✅ **Authentication System Working**: Fixed session management and cookie handling for proper user authentication
+- ✅ **Restaurant Creation Fixed**: Added dedicated modal for creating restaurants with proper form validation
+- ✅ **API Endpoints Functional**: All CRUD operations working with PostgreSQL persistence
+- ✅ **Login System Complete**: Created proper login page to replace placeholder alerts
 
 # User Preferences
 

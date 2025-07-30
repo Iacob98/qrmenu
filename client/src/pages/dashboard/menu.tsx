@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sidebar } from "@/components/layout/sidebar";
 import { AddCategoryModal } from "@/components/modals/add-category";
 import { AddDishModal } from "@/components/modals/add-dish";
+import { CreateRestaurantModal } from "@/components/restaurant/create-restaurant-modal";
 import { DishCard } from "@/components/menu/dish-card";
 import { Plus, ExternalLink, User, Edit, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +17,7 @@ export default function MenuManagement() {
   const [selectedRestaurant, setSelectedRestaurant] = useState<string>("");
   const [addCategoryOpen, setAddCategoryOpen] = useState(false);
   const [addDishOpen, setAddDishOpen] = useState(false);
+  const [createRestaurantOpen, setCreateRestaurantOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const { toast } = useToast();
 
@@ -67,7 +69,7 @@ export default function MenuManagement() {
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-4">Добро пожаловать!</h2>
             <p className="text-gray-600 mb-6">У вас пока нет ресторанов. Создайте первый.</p>
-            <Button onClick={() => window.location.href = "/register"}>
+            <Button onClick={() => setCreateRestaurantOpen(true)}>
               Создать ресторан
             </Button>
           </div>
@@ -230,6 +232,12 @@ export default function MenuManagement() {
           />
         </>
       )}
+
+      {/* Create Restaurant Modal */}
+      <CreateRestaurantModal
+        open={createRestaurantOpen}
+        onOpenChange={setCreateRestaurantOpen}
+      />
     </div>
   );
 }
