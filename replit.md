@@ -1,0 +1,128 @@
+# Overview
+
+This is a full-stack restaurant online menu management system built with React, Express, and TypeScript. The application allows restaurant owners to create, manage, and share digital menus via QR codes and public links. It features AI-powered menu generation capabilities and a comprehensive design customization system.
+
+# User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+# System Architecture
+
+## Frontend Architecture
+- **Framework**: React 18 with TypeScript
+- **Routing**: Wouter (lightweight React router)
+- **State Management**: TanStack Query (React Query) for server state
+- **UI Components**: Radix UI primitives with shadcn/ui components
+- **Styling**: Tailwind CSS with CSS variables for theming
+- **Build Tool**: Vite with hot module replacement
+
+## Backend Architecture
+- **Framework**: Express.js with TypeScript
+- **Database**: PostgreSQL with Drizzle ORM
+- **Authentication**: Express sessions with bcrypt password hashing
+- **File Structure**: Monorepo with shared schemas between client and server
+- **API Design**: RESTful APIs with JSON responses
+
+## Database Design
+- **ORM**: Drizzle with PostgreSQL dialect
+- **Schema Location**: `/shared/schema.ts` for type sharing
+- **Tables**: Users, Restaurants, Categories, Dishes with proper foreign key relationships
+- **Features**: UUID primary keys, timestamps, JSONB for flexible data (design settings, nutrition info)
+
+# Key Components
+
+## Authentication System
+- Session-based authentication using express-session
+- Password hashing with bcrypt
+- Auth guard components for route protection
+- User context provider for global auth state
+
+## Menu Management
+- Hierarchical structure: Restaurant → Categories → Dishes
+- Rich dish data including images, nutrition facts, tags, and pricing
+- Drag-and-drop reordering with sortOrder fields
+- Tag-based filtering system for dietary restrictions
+
+## AI Integration
+- OpenAI GPT-4o integration for menu generation
+- Multiple input methods: PDF upload, image analysis, text input
+- Structured JSON output for consistent dish data
+- Nutrition calculation and ingredient extraction
+
+## Design Customization
+- Live preview system for menu appearance
+- Color scheme management with CSS variables
+- Typography and layout customization
+- Logo and branding integration
+
+## Public Menu System
+- SEO-friendly public URLs with restaurant slugs
+- Category-based navigation with tab switching
+- Mobile-responsive design
+- Tag-based filtering for dietary preferences
+
+# Data Flow
+
+## User Registration & Setup
+1. User registers with email/password
+2. Creates restaurant profile with basic info
+3. Optionally adds AI token for enhanced features
+4. Sets up menu categories and dishes
+
+## Menu Generation Workflow
+1. User uploads PDF/image or enters text
+2. AI service processes content and extracts menu items
+3. Structured data returned with dishes, prices, descriptions
+4. User reviews and selects items to add to menu
+5. Items integrated into restaurant's category structure
+
+## Public Menu Access
+1. Customer scans QR code or visits public URL
+2. Menu loads with restaurant branding and design
+3. Categories displayed as tabs for easy navigation
+4. Dishes can be filtered by dietary tags
+5. Responsive design adapts to mobile devices
+
+# External Dependencies
+
+## Core Dependencies
+- **@neondatabase/serverless**: PostgreSQL connection for Neon DB
+- **drizzle-orm**: Type-safe database operations
+- **@tanstack/react-query**: Server state management
+- **bcrypt**: Password hashing for security
+- **express-session**: User session management
+
+## UI Dependencies
+- **@radix-ui/***: Accessible component primitives
+- **tailwindcss**: Utility-first CSS framework
+- **class-variance-authority**: Component variant management
+- **lucide-react**: Icon library
+
+## AI & External Services
+- **OpenAI API**: Menu generation from various inputs
+- **QR Code Generation**: Via external API or library
+- **Image Processing**: For menu photo analysis
+
+# Deployment Strategy
+
+## Build Process
+- Frontend: Vite builds optimized production bundle
+- Backend: esbuild compiles TypeScript to ESM format
+- Shared schemas enable type safety across frontend/backend
+
+## Environment Configuration
+- Database URL required for Drizzle connection
+- Session secrets for authentication security
+- AI tokens for OpenAI integration
+- Replit-specific configurations for development
+
+## Database Management
+- Drizzle migrations in `/migrations` directory
+- Schema changes tracked and versioned
+- Push command for development database updates
+
+## Production Considerations
+- Static file serving for frontend assets
+- Session store configuration for scaling
+- Database connection pooling
+- Error handling and logging middleware
