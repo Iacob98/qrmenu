@@ -22,6 +22,7 @@ interface AIGeneratedDish {
 
 export class AIService {
   private openai: OpenAI;
+  public model: string;
 
   constructor(apiKey: string, provider: string = "openai", model?: string) {
     const baseURL = provider === "openrouter" 
@@ -34,8 +35,6 @@ export class AIService {
     });
     this.model = provider === "openrouter" ? (model || "gpt-4o") : "gpt-4o";
   }
-
-  private model: string;
 
   async analyzePDF(base64Data: string): Promise<AIGeneratedDish[]> {
     try {

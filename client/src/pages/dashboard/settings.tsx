@@ -194,21 +194,24 @@ export default function Settings() {
     
     setAiTokenStatus('checking');
     try {
-      // Simple test request to validate token
-      await apiRequest("POST", "/api/ai/analyze-text", {
-        restaurantId: selectedRestaurant,
-        text: "Test menu item"
+      const response = await apiRequest("POST", "/api/ai/test-token", {
+        token: restaurantForm.aiToken,
+        provider: restaurantForm.aiProvider,
+        model: restaurantForm.aiModel
       });
+      
+      const result = await response.json();
+      
       setAiTokenStatus('valid');
       toast({
         title: "Токен действителен",
-        description: "ИИ-токен работает корректно",
+        description: `${result.provider} API работает корректно (модель: ${result.model})`,
       });
     } catch (error) {
       setAiTokenStatus('invalid');
       toast({
-        title: "Токен недействителен",
-        description: "Проверьте правильность введённого токена",
+        title: "Токен недействителен", 
+        description: "Проверьте правильность токена и настройки провайдера",
         variant: "destructive",
       });
     }

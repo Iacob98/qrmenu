@@ -366,6 +366,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI routes
+  app.post("/api/ai/test-token", requireAuth, async (req, res) => {
+    try {
+      const { token, provider = 'openai', model } = req.body;
+      
+      if (!token) {
+        return res.status(400).json({ message: "Token is required" });
+      }
+
+      const aiService = createAIService(token, provider, model);
+      
+      // Test the token with a simple completion
+      const testResponse = await aiService.analyzeText("Test menu: Pizza Margherita - 12.99");
+      
+      res.json({ 
+        valid: true, 
+        message: "Token is valid",
+        provider,
+        model: aiService.model || model
+      });
+    } catch (error) {
+      console.error("Token validation error:", error);
+      res.status(400).json({ 
+        valid: false, 
+        message: `Invalid token: ${handleError(error)}` 
+      });
+    }
+  });
+
   app.post("/api/ai/analyze-pdf", requireAuth, async (req, res) => {
     try {
       const { restaurantId, base64Data } = req.body;
