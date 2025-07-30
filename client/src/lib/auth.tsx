@@ -40,19 +40,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const login = async (email: string, password: string) => {
-    const response = await apiRequest("POST", "/api/auth/login", { email, password });
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email, password }),
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Login failed");
+    }
+    
     const { user } = await response.json();
     setUser(user);
   };
 
   const register = async (email: string, password: string, name?: string) => {
-    const response = await apiRequest("POST", "/api/auth/register", { email, password, name });
+    const response = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email, password, name }),
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Registration failed");
+    }
+    
     const { user } = await response.json();
     setUser(user);
   };
 
   const logout = async () => {
-    await apiRequest("POST", "/api/auth/logout");
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Logout failed");
+    }
+    
     setUser(null);
   };
 

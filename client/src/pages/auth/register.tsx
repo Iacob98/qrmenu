@@ -36,7 +36,20 @@ export default function Register() {
 
   const createRestaurantMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest("POST", "/api/restaurants", data);
+      const response = await fetch("/api/restaurants", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Restaurant creation failed");
+      }
+
       return response.json();
     },
     onSuccess: () => {
