@@ -13,8 +13,7 @@ export default function Landing() {
   };
 
   const handleShowLogin = () => {
-    // TODO: Implement login modal or redirect to login page
-    alert("Функция входа будет реализована");
+    setLocation("/login");
   };
 
   return (

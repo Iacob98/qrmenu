@@ -7,6 +7,7 @@ import { AuthProvider } from "@/lib/auth";
 import { AuthGuard } from "@/components/auth/auth-guard";
 import Landing from "@/pages/landing";
 import Register from "@/pages/auth/register";
+import Login from "@/pages/auth/login";
 import Dashboard from "@/pages/dashboard";
 import MenuManagement from "@/pages/dashboard/menu";
 import AIGeneration from "@/pages/dashboard/ai";
@@ -21,6 +22,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Landing} />
       <Route path="/register" component={Register} />
+      <Route path="/login" component={Login} />
       <Route path="/dashboard">
         <AuthGuard>
           <Dashboard />
