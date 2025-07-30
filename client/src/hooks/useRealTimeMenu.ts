@@ -23,10 +23,17 @@ export function useRealTimeMenu(restaurantSlug: string) {
       try {
         const data = JSON.parse(event.data);
         
-        if (data.type === 'menu_update') {
+        if (data.type === 'menu_update' || data.type === 'dish_updated') {
+          console.log('Received real-time menu update:', data);
+          
           // Invalidate and refetch the menu data
           queryClient.invalidateQueries({ 
             queryKey: ["/api/public/menu", restaurantSlug] 
+          });
+          
+          // Also invalidate admin dashboard if available
+          queryClient.invalidateQueries({ 
+            queryKey: ["/api/restaurants"] 
           });
         }
       } catch (error) {
