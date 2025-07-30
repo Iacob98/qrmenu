@@ -371,6 +371,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const updatedDish = await storage.updateDish(req.params.id, updateData);
+      
+      // Notify WebSocket clients about dish update
+      const { wsManager } = await import("./index");
+      if (wsManager && restaurant.slug) {
+        wsManager.notifyMenuUpdate(restaurant.slug, {
+          type: 'dish_updated',
+          dish: updatedDish
+        });
+      }
+      
       res.json(updatedDish);
     } catch (error) {
       res.status(400).json({ message: handleError(error) });
