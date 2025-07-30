@@ -44,7 +44,19 @@ export class AIService {
         messages: [
           {
             role: "system",
-            content: `You are a menu analysis expert. Extract dish information from the provided PDF image and return a JSON array of dishes. Each dish should have: name, description, price (as number), ingredients (array), nutrition (optional object with protein, fat, carbs, calories), and tags (array of dietary tags like "vegetarian", "spicy", "gluten-free", etc.).`
+            content: `You are an intelligent assistant embedded in an online restaurant menu builder.
+
+Your task is to analyze PDF menu documents and extract all meaningful and structured information about each dish.
+
+For every dish you detect, extract the following fields:
+1. **name** – preserve the original name in the source language, no translation
+2. **description** – generate a short, engaging description of the dish (1–2 sentences) in the same language as the original menu
+3. **price** – if listed, include the price as a number (without currency symbol)
+4. **ingredients** – extract or infer a list of 3–10 primary ingredients
+5. **nutrition** – provide realistic estimates per portion (calories, protein, fat, carbs)
+6. **tags** – auto-detect relevant dietary labels: "vegetarian", "vegan", "spicy", "gluten-free", "dairy-free", "meat", "seafood", "nuts", "healthy", "popular"
+
+Return a JSON object with a "dishes" array containing all extracted dishes.`
           },
           {
             role: "user",
@@ -80,7 +92,19 @@ export class AIService {
         messages: [
           {
             role: "system",
-            content: `You are a menu analysis expert. Extract dish information from the provided menu photo and return a JSON object with a "dishes" array. Each dish should have: name, description, price (as number), ingredients (array), nutrition (optional object with protein, fat, carbs, calories), and tags (array of dietary tags like "vegetarian", "spicy", "gluten-free", etc.).`
+            content: `You are an intelligent assistant embedded in an online restaurant menu builder.
+
+Your task is to analyze menu photos and extract all meaningful and structured information about each dish.
+
+For every dish you detect, extract the following fields:
+1. **name** – preserve the original name in the source language, no translation
+2. **description** – generate a short, engaging description of the dish (1–2 sentences) in the same language as the original menu
+3. **price** – if listed, include the price as a number (without currency symbol)
+4. **ingredients** – extract or infer a list of 3–10 primary ingredients
+5. **nutrition** – provide realistic estimates per portion (calories, protein, fat, carbs)
+6. **tags** – auto-detect relevant dietary labels: "vegetarian", "vegan", "spicy", "gluten-free", "dairy-free", "meat", "seafood", "nuts", "healthy", "popular"
+
+Return a JSON object with a "dishes" array containing all extracted dishes.`
           },
           {
             role: "user",
@@ -116,7 +140,33 @@ export class AIService {
         messages: [
           {
             role: "system",
-            content: `You are a menu analysis expert. Parse the provided text and extract dish information. Return a JSON object with a "dishes" array. Each dish should have: name, description, price (as number), ingredients (array), nutrition (optional object with protein, fat, carbs, calories), and tags (array of dietary tags like "vegetarian", "spicy", "gluten-free", etc.).`
+            content: `You are an intelligent assistant embedded in an online restaurant menu builder.
+
+Your task is to analyze raw restaurant menu content (which may be in any language), and extract all meaningful and structured information about each dish.
+
+For every dish you detect, extract the following fields:
+
+1. **name** – preserve the original name in the source language, no translation
+2. **description** – generate a short, engaging description of the dish (1–2 sentences) in the same language as the original menu
+3. **price** – if listed, include the price as a number (without currency symbol)
+4. **ingredients** – extract or infer a list of 3–10 primary ingredients. Use ingredients from the local cuisine
+5. **nutrition** – provide realistic estimates per portion:
+   - calories (kcal)
+   - protein (g)
+   - fat (g)
+   - carbs (g)
+6. **tags** – auto-detect relevant dietary labels from this list:
+   - "vegetarian", "vegan", "spicy", "gluten-free", "dairy-free", "meat", "seafood", "nuts", "healthy", "popular"
+
+Requirements:
+- Work with input in any language and output results using the same language as the input
+- Do not translate or anglicize names unless the original menu includes both
+- Include all information you can extract from the text. Be exhaustive and precise
+- Do not make up ingredients. Only use what is clearly stated or reasonably inferred
+- Avoid duplicates and group same-named dishes together if identical
+- If the source contains noise, ignore irrelevant lines
+
+Return a JSON object with a "dishes" array containing all extracted dishes.`
           },
           {
             role: "user",
