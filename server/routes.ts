@@ -34,7 +34,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     cookie: { 
       secure: false, 
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      httpOnly: true,
+      httpOnly: false, // Allow JavaScript access for debugging
       sameSite: 'lax'
     }
   }));
@@ -70,9 +70,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Set session
       req.session.userId = user.id;
-      await req.session.save(); // Force session save
-
-      res.json({ user: { id: user.id, email: user.email, name: user.name } });
+      
+      // Save session and respond
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.status(500).json({ message: "Session save failed" });
+        }
+        res.json({ user: { id: user.id, email: user.email, name: user.name } });
+      });
     } catch (error) {
       res.status(400).json({ message: handleError(error) });
     }
@@ -93,8 +99,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       req.session.userId = user.id;
-      await req.session.save(); // Force session save
-      res.json({ user: { id: user.id, email: user.email, name: user.name } });
+      
+      // Save session and respond
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.status(500).json({ message: "Session save failed" });
+        }
+        res.json({ user: { id: user.id, email: user.email, name: user.name } });
+      });
     } catch (error) {
       res.status(400).json({ message: handleError(error) });
     }
@@ -407,7 +420,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Restaurant not found" });
       }
 
-      const qrData = await qrService.generateRestaurantQR(restaurant.slug);
+      const qrData = await qrService.generateRestaurantQR(restaurant.slug || restaurant.id);
       res.json(qrData);
     } catch (error) {
       res.status(500).json({ message: handleError(error) });
