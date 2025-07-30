@@ -185,12 +185,21 @@ Return a JSON object with a "dishes" array containing all extracted dishes.`
 
   async generateDishImage(dishName: string, description: string): Promise<string> {
     try {
+      // Create detailed professional food photography prompt
+      const dishDetails = `${dishName} - ${description}`;
+      
+      const prompt = `A highly realistic, professionally styled food photo of ${dishDetails}. The dish is served on a clean ceramic plate, placed on a neutral white background. The lighting is soft and natural, coming from the top left at a ~45° angle, creating gentle shadows and highlighting textures.
+
+The composition is minimal and elegant, focused on the food, with no distracting elements or background props. The image should be centered, with sharp details, realistic portion size, and natural color tones. High-quality photo style (not illustration, not AI-looking, no watercolor). No watermark. No text.
+
+Professional food photography, restaurant quality, appetizing presentation, commercial style.`;
+
       const response = await this.openai.images.generate({
         model: "dall-e-3",
-        prompt: `Professional food photography of ${dishName}: ${description}. High quality, appetizing, restaurant-style presentation, well-lit, neutral background`,
+        prompt,
         n: 1,
         size: "1024x1024",
-        quality: "standard",
+        quality: "hd", // Use HD quality for better results
       });
 
       return response.data?.[0]?.url || "";

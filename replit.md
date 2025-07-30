@@ -18,6 +18,11 @@ This is a full-stack restaurant online menu management system built with React, 
 - ✅ **File Upload Interface**: Removed all URL input fields from file upload components for cleaner interface
 - ✅ **Public Menu Banner Display**: Fixed banner display in public menu with background overlay and proper styling
 - ✅ **Database Stability**: Resolved server crashes by cleaning up storage classes and maintaining PostgreSQL connection
+- ✅ **Dish Details Modal**: Added comprehensive dish details viewing in public menu with ingredients, nutrition, and tags
+- ✅ **OpenAI Token Validation**: Fixed API token validation with dedicated endpoint supporting OpenAI and OpenRouter
+- ✅ **Favorites & Visibility System**: Added ability to mark dishes as favorites and hide/show dishes from public menu
+- ✅ **Real-time Updates**: Implemented WebSocket system for instant menu updates in guest view when admin makes changes
+- ✅ **Professional Food Photography**: Enhanced AI image generation with professional photography prompts for realistic dish photos
 
 # User Preferences
 
