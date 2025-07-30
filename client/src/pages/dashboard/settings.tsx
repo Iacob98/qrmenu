@@ -329,6 +329,7 @@ export default function Settings() {
                           width={150}
                           height={150}
                           maxSize={5}
+                          hideUrlInput={true}
                         />
                       </div>
 
@@ -342,6 +343,7 @@ export default function Settings() {
                           width={400}
                           height={150}
                           maxSize={8}
+                          hideUrlInput={true}
                         />
                         <div className="mt-2">
                           <Button
@@ -356,6 +358,15 @@ export default function Settings() {
                           </Button>
                         </div>
                       </div>
+                      
+                      <Button 
+                        type="button"
+                        onClick={() => updateRestaurantMutation.mutate(restaurantForm)}
+                        disabled={updateRestaurantMutation.isPending}
+                        className="w-full mt-4"
+                      >
+                        {updateRestaurantMutation.isPending ? "Сохранение..." : "Сохранить изменения"}
+                      </Button>
                     </CardContent>
                   </Card>
 
