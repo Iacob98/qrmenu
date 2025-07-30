@@ -3,7 +3,7 @@ import express from "express";
 import path from "path";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertRestaurantSchema, insertCategorySchema, insertDishSchema } from "@shared/schema";
+import { insertUserSchema, insertRestaurantSchema, insertCategorySchema, insertDishSchema, type Dish } from "@shared/schema";
 import { createAIService } from "./services/ai";
 import { qrService } from "./services/qr";
 import { upload, saveUploadedImage, deleteUploadedFile } from "./middleware/upload";
@@ -360,17 +360,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Validate the update data - allow partial updates
-      const updateData = {
+      const updateData: Partial<Dish> = {
         name: req.body.name,
         description: req.body.description || null,
-        price: parseFloat(req.body.price).toString(),
+        price: req.body.price,
         categoryId: req.body.categoryId,
         ingredients: req.body.ingredients || null,
         tags: req.body.tags || null,
         image: req.body.image || null,
       };
 
+      console.log('[Dish Update] Request body:', JSON.stringify(req.body, null, 2));
+      console.log('[Dish Update] Update data:', JSON.stringify(updateData, null, 2));
+
       const updatedDish = await storage.updateDish(req.params.id, updateData);
+      console.log('[Dish Update] Updated dish:', JSON.stringify(updatedDish, null, 2));
       
       // Notify WebSocket clients about dish update
       const { wsManager } = await import("./index");

@@ -26,6 +26,7 @@ This is a full-stack restaurant online menu management system built with React, 
 - ✅ **Favorites as First Category**: Redesigned favorites to appear as the first category tab, always visible even when empty
 - ✅ **Restaurant Creation Limit**: Added server-side validation limiting users to create maximum 1 restaurant per account
 - ✅ **AI Image Generation Fixed**: Resolved DALL-E API integration issues, now working with global OPENAI_API_KEY when restaurant doesn't have custom token
+- ✅ **Image Storage Fixed**: Fixed dish image saving to database - images now properly persist after AI generation and manual updates
 
 # User Preferences
 
