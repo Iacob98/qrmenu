@@ -238,6 +238,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Access denied" });
       }
 
+      // Validate the update data
+      const updateData = {
+        name: req.body.name,
+        icon: req.body.icon || null,
+      };
+
+      const updatedCategory = await storage.updateCategory(req.params.id, updateData);
+      res.json(updatedCategory);
+    } catch (error) {
+      res.status(400).json({ message: handleError(error) });
+    }
+  });
+
+  app.put("/api/categories/:id", requireAuth, async (req, res) => {
+    try {
+      const category = await storage.getCategory(req.params.id);
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+
+      const restaurant = await storage.getRestaurant(category.restaurantId);
+      if (!restaurant || restaurant.userId !== req.session.userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
       const updatedCategory = await storage.updateCategory(req.params.id, req.body);
       res.json(updatedCategory);
     } catch (error) {

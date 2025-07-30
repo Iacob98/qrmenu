@@ -8,22 +8,25 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { AddCategoryModal } from "@/components/modals/add-category";
 import { AddDishModal } from "@/components/modals/add-dish";
 import { EditDishModal } from "@/components/modals/edit-dish";
+import { EditCategoryModal } from "@/components/modals/edit-category";
 import { CreateRestaurantModal } from "@/components/restaurant/create-restaurant-modal";
 import { DishCard } from "@/components/menu/dish-card";
 import { Plus, ExternalLink, User, Edit, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import type { RestaurantWithCategories, Dish } from "@shared/schema";
+import type { RestaurantWithCategories, Dish, Category } from "@shared/schema";
 
 export default function MenuManagement() {
   const [selectedRestaurant, setSelectedRestaurant] = useState<string>("");
   const [addCategoryOpen, setAddCategoryOpen] = useState(false);
   const [addDishOpen, setAddDishOpen] = useState(false);
   const [editDishOpen, setEditDishOpen] = useState(false);
+  const [editCategoryOpen, setEditCategoryOpen] = useState(false);
   const [createRestaurantOpen, setCreateRestaurantOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -55,6 +58,11 @@ export default function MenuManagement() {
     setEditDishOpen(true);
   };
 
+  const handleEditCategory = (category: Category) => {
+    setSelectedCategory(category);
+    setEditCategoryOpen(true);
+  };
+
   const deleteDishMutation = useMutation({
     mutationFn: async (dishId: string) => {
       return await apiRequest("DELETE", `/api/dishes/${dishId}`);
@@ -75,6 +83,29 @@ export default function MenuManagement() {
   const handleDeleteDish = (dish: Dish) => {
     if (confirm(`Вы уверены, что хотите удалить блюдо "${dish.name}"?`)) {
       deleteDishMutation.mutate(dish.id);
+    }
+  };
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: async (categoryId: string) => {
+      return await apiRequest("DELETE", `/api/categories/${categoryId}`);
+    },
+    onSuccess: () => {
+      toast({ title: "Категория удалена" });
+      queryClient.invalidateQueries({ queryKey: ["/api/restaurants", selectedRestaurant] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ошибка удаления категории",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteCategory = (category: Category) => {
+    if (confirm(`Вы уверены, что хотите удалить категорию "${category.name}" и все блюда в ней?`)) {
+      deleteCategoryMutation.mutate(category.id);
     }
   };
 
@@ -194,10 +225,18 @@ export default function MenuManagement() {
                           </Badge>
                         </CardTitle>
                         <div className="flex space-x-2">
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleEditCategory(category)}
+                          >
                             <Edit size={16} />
                           </Button>
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleDeleteCategory(category)}
+                          >
                             <Trash2 size={16} />
                           </Button>
                         </div>
@@ -272,6 +311,13 @@ export default function MenuManagement() {
             onOpenChange={setEditDishOpen}
             categories={restaurant?.categories || []}
             dish={selectedDish}
+            restaurantId={selectedRestaurant}
+          />
+          
+          <EditCategoryModal
+            open={editCategoryOpen}
+            onOpenChange={setEditCategoryOpen}
+            category={selectedCategory}
             restaurantId={selectedRestaurant}
           />
         </>

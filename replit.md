@@ -13,6 +13,8 @@ This is a full-stack restaurant online menu management system built with React, 
 - ✅ **Enhanced Settings**: Updated restaurant settings with AI provider selection and model configuration
 - ✅ **Banner Upload System**: Added logo and banner support with AI generation for restaurant branding
 - ✅ **File Upload System**: Added comprehensive file upload functionality with Sharp image processing and storage
+- ✅ **Dish Editing System**: Complete CRUD operations for dishes with modal interface and file upload support
+- ✅ **Category Editing System**: Complete CRUD operations for categories with modal interface and icon selection
 
 # User Preferences
 
