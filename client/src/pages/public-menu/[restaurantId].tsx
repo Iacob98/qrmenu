@@ -38,15 +38,17 @@ export default function PublicMenu() {
 
     const categoriesWithFavorites = [];
 
-    // Always add favorites as first category (even if empty)
-    categoriesWithFavorites.push({
-      id: 'favorites',
-      name: menu.restaurant.favoritesTitle || 'Избранное',
-      restaurantId: '',
-      icon: '⭐',
-      sortOrder: -1,
-      dishes: favoritesDishes,
-    } as any);
+    // Add favorites as first category only if there are favorite dishes
+    if (favoritesDishes.length > 0) {
+      categoriesWithFavorites.push({
+        id: 'favorites',
+        name: menu.restaurant.favoritesTitle || 'Избранное',
+        restaurantId: '',
+        icon: '⭐',
+        sortOrder: -1,
+        dishes: favoritesDishes,
+      } as any);
+    }
 
     // Add regular categories
     categoriesWithFavorites.push(...menu.categories);
@@ -252,12 +254,6 @@ export default function PublicMenu() {
                   <Button variant="outline" size="sm" onClick={clearAllFilters}>
                     Показать все блюда
                   </Button>
-                </div>
-              ) : selectedCategory === 'favorites' ? (
-                <div>
-                  <p className="mb-2">🌟</p>
-                  <p className="text-lg font-medium mb-1">Пока нет избранных блюд</p>
-                  <p className="text-sm">Отметьте любимые блюда сердечком в других категориях</p>
                 </div>
               ) : (
                 <p>В этой категории пока нет блюд</p>
