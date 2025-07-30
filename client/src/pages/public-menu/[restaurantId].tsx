@@ -28,9 +28,41 @@ export default function PublicMenu() {
   // Connect to real-time updates
   const { isConnected } = useRealTimeMenu(params?.slug || "");
 
+  // Create categories with favorites as the first virtual category
+  const getMenuWithFavorites = () => {
+    if (!menu) return null;
+
+    const favoritesDishes = menu.categories
+      .flatMap(cat => cat.dishes)
+      .filter(dish => dish.isFavorite && !dish.isHidden);
+
+    const categoriesWithFavorites = [];
+
+    // Add favorites as first category if there are any favorite dishes
+    if (favoritesDishes.length > 0) {
+      categoriesWithFavorites.push({
+        id: 'favorites',
+        name: menu.restaurant.favoritesTitle || 'Избранное',
+        restaurantId: '',
+        icon: '⭐',
+        sortOrder: -1,
+        dishes: favoritesDishes,
+      } as any);
+    }
+
+    // Add regular categories
+    categoriesWithFavorites.push(...menu.categories);
+
+    return {
+      ...menu,
+      categories: categoriesWithFavorites,
+    };
+  };
+
   // Filter dishes based on category, search, and tags
   useEffect(() => {
-    if (!menu) {
+    const menuWithFavorites = getMenuWithFavorites();
+    if (!menuWithFavorites) {
       setFilteredDishes([]);
       return;
     }
@@ -38,10 +70,13 @@ export default function PublicMenu() {
     let dishes: Dish[] = [];
 
     if (selectedCategory) {
-      const category = menu.categories.find(cat => cat.id === selectedCategory);
+      const category = menuWithFavorites.categories.find(cat => cat.id === selectedCategory);
       dishes = category?.dishes || [];
     } else {
-      dishes = menu.categories.flatMap(cat => cat.dishes);
+      // Show all dishes from regular categories (excluding favorites to avoid duplicates)
+      dishes = menuWithFavorites.categories
+        .filter(cat => cat.id !== 'favorites')
+        .flatMap(cat => cat.dishes);
     }
 
     // Apply search filter
@@ -144,59 +179,11 @@ export default function PublicMenu() {
           </div>
         </header>
 
-        {/* Favorites Section */}
-        {menu.categories.some(cat => cat.dishes.some(dish => dish.isFavorite && !dish.isHidden)) && (
-          <div className="bg-amber-50 border-b border-amber-200">
-            <div className="p-4">
-              <h2 className="text-lg font-semibold text-amber-800 mb-3 flex items-center">
-                ⭐ {menu.restaurant.favoritesTitle || "Избранное"}  
-              </h2>
-              <div className="space-y-3">
-                {menu.categories.map(category => 
-                  category.dishes
-                    .filter(dish => dish.isFavorite && !dish.isHidden)
-                    .slice(0, 3)
-                    .map((dish) => (
-                      <div key={dish.id} className="bg-white rounded-lg p-3 shadow-sm border border-amber-200">
-                        <div className="flex items-start space-x-3">
-                          {dish.image && (
-                            <img
-                              src={dish.image}
-                              alt={dish.name}
-                              className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
-                            />
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-gray-900">{dish.name}</h3>
-                            {dish.description && (
-                              <p className="text-sm text-gray-600 mt-1 line-clamp-2">{dish.description}</p>
-                            )}
-                            <div className="flex justify-between items-center mt-2">
-                              <span className="text-lg font-bold text-amber-600">
-                                {dish.price} {getCurrencySymbol(menu.restaurant.currency)}
-                              </span>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-xs"
-                                onClick={() => setSelectedDish(dish)}
-                              >
-                                Подробнее
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                )}
-              </div>
-            </div>
-          </div>
-        )}
+
 
         {/* Category Tabs */}
         <CategoryTabs
-          categories={menu.categories}
+          categories={getMenuWithFavorites()?.categories || []}
           activeCategory={selectedCategory}
           onCategoryChange={setSelectedCategory}
         />
