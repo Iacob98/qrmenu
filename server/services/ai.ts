@@ -23,14 +23,24 @@ interface AIGeneratedDish {
 export class AIService {
   private openai: OpenAI;
 
-  constructor(apiKey: string) {
-    this.openai = new OpenAI({ apiKey });
+  constructor(apiKey: string, provider: string = "openai", model?: string) {
+    const baseURL = provider === "openrouter" 
+      ? "https://openrouter.ai/api/v1"
+      : undefined;
+      
+    this.openai = new OpenAI({ 
+      apiKey,
+      baseURL 
+    });
+    this.model = provider === "openrouter" ? (model || "gpt-4o") : "gpt-4o";
   }
+
+  private model: string;
 
   async analyzePDF(base64Data: string): Promise<AIGeneratedDish[]> {
     try {
       const response = await this.openai.chat.completions.create({
-        model: "gpt-4o",
+        model: this.model,
         messages: [
           {
             role: "system",
@@ -66,7 +76,7 @@ export class AIService {
   async analyzePhoto(base64Image: string): Promise<AIGeneratedDish[]> {
     try {
       const response = await this.openai.chat.completions.create({
-        model: "gpt-4o",
+        model: this.model,
         messages: [
           {
             role: "system",
@@ -102,7 +112,7 @@ export class AIService {
   async analyzeText(text: string): Promise<AIGeneratedDish[]> {
     try {
       const response = await this.openai.chat.completions.create({
-        model: "gpt-4o",
+        model: this.model,
         messages: [
           {
             role: "system",
@@ -143,7 +153,7 @@ export class AIService {
   async enhanceDish(dish: Partial<AIGeneratedDish>): Promise<AIGeneratedDish> {
     try {
       const response = await this.openai.chat.completions.create({
-        model: "gpt-4o",
+        model: this.model,
         messages: [
           {
             role: "system",
@@ -166,6 +176,6 @@ export class AIService {
   }
 }
 
-export function createAIService(apiKey: string): AIService {
-  return new AIService(apiKey);
+export function createAIService(apiKey: string, provider?: string, model?: string): AIService {
+  return new AIService(apiKey, provider, model);
 }

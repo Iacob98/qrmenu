@@ -20,7 +20,9 @@ export const restaurants = pgTable("restaurants", {
   currency: text("currency").notNull().default("EUR"),
   language: text("language").notNull().default("ru"),
   slug: text("slug").unique(),
+  aiProvider: text("ai_provider").default("openai"), // "openai" or "openrouter"
   aiToken: text("ai_token"),
+  aiModel: text("ai_model"), // For OpenRouter custom models
   logo: text("logo"),
   design: jsonb("design"),
   createdAt: timestamp("created_at").defaultNow(),

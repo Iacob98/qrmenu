@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { X, Upload, Wand2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -52,7 +52,10 @@ export function AddDishModal({
     categoryId: selectedCategoryId || "",
     ingredients: "",
     tags: [] as string[],
+    image: "",
   });
+  
+  const [imageGenerating, setImageGenerating] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -88,6 +91,42 @@ export function AddDishModal({
       categoryId: selectedCategoryId || "",
       ingredients: "",
       tags: [],
+      image: "",
+    });
+  };
+
+  const generateImageMutation = useMutation({
+    mutationFn: async ({ dishName, description }: { dishName: string; description: string }) => {
+      return await apiRequest("POST", `/api/ai/generate-image`, { 
+        restaurantId, 
+        dishName, 
+        description 
+      });
+    },
+    onSuccess: (data: any) => {
+      setFormData(prev => ({ ...prev, image: data.imageUrl }));
+      toast({ title: "Фото сгенерировано" });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ошибка генерации фото",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleGenerateImage = () => {
+    if (!formData.name.trim()) {
+      toast({
+        title: "Введите название блюда",
+        variant: "destructive",
+      });
+      return;
+    }
+    generateImageMutation.mutate({
+      dishName: formData.name,
+      description: formData.description,
     });
   };
 
@@ -107,6 +146,7 @@ export function AddDishModal({
       categoryId: formData.categoryId,
       ingredients: ingredients.length > 0 ? ingredients : undefined,
       tags: formData.tags.length > 0 ? formData.tags : undefined,
+      image: formData.image || undefined,
     });
   };
 
@@ -232,6 +272,51 @@ export function AddDishModal({
                     + {tag}
                   </Button>
                 ))}
+            </div>
+          </div>
+
+          {/* Photo Section */}
+          <div>
+            <Label>Фото блюда</Label>
+            <div className="mt-2 space-y-2">
+              {formData.image ? (
+                <div className="relative">
+                  <img 
+                    src={formData.image} 
+                    alt="Фото блюда" 
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={() => setFormData(prev => ({ ...prev, image: "" }))}
+                  >
+                    <X size={16} />
+                  </Button>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                  <p className="mt-2 text-sm text-gray-600">
+                    Пока нет фото блюда
+                  </p>
+                </div>
+              )}
+              
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleGenerateImage}
+                  disabled={generateImageMutation.isPending || !formData.name.trim()}
+                  className="flex-1"
+                >
+                  <Wand2 className="mr-2 h-4 w-4" />
+                  {generateImageMutation.isPending ? "Генерирую..." : "Сгенерировать ИИ"}
+                </Button>
+              </div>
             </div>
           </div>
           

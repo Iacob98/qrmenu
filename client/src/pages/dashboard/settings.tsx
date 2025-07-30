@@ -22,7 +22,9 @@ export default function Settings() {
     phone: "",
     currency: "EUR",
     language: "ru",
+    aiProvider: "openai",
     aiToken: "",
+    aiModel: "",
   });
   const [profileForm, setProfileForm] = useState({
     name: "",
@@ -55,7 +57,9 @@ export default function Settings() {
         phone: restaurant.phone || "",
         currency: restaurant.currency || "EUR",
         language: restaurant.language || "ru",
+        aiProvider: restaurant.aiProvider || "openai",
         aiToken: restaurant.aiToken || "",
+        aiModel: restaurant.aiModel || "",
       });
     }
   }, [restaurant]);
@@ -335,12 +339,28 @@ export default function Settings() {
                     </CardContent>
                   </Card>
 
-                  {/* AI Token */}
+                  {/* AI Configuration */}
                   <Card>
                     <CardHeader>
-                      <CardTitle>ИИ-токен</CardTitle>
+                      <CardTitle>Настройки ИИ</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                      <div>
+                        <Label htmlFor="aiProvider">🤖 AI провайдер</Label>
+                        <Select
+                          value={restaurantForm.aiProvider}
+                          onValueChange={(value) => setRestaurantForm(prev => ({ ...prev, aiProvider: value }))}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Выберите провайдера" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="openai">OpenAI</SelectItem>
+                            <SelectItem value="openrouter">OpenRouter</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
                       <div>
                         <Label htmlFor="aiToken">🔐 API Token</Label>
                         <div className="flex items-center space-x-2 mt-1">
@@ -372,10 +392,28 @@ export default function Settings() {
                             Ошибка
                           </p>
                         )}
+                        <p className="text-sm text-gray-500 mt-1">
+                          {restaurantForm.aiProvider === "openrouter" 
+                            ? "Токен OpenRouter для генерации меню" 
+                            : "Токен OpenAI для генерации меню из фото и текста"
+                          }
+                        </p>
                       </div>
-                      <p className="text-sm text-gray-500">
-                        Токен нужен для генерации фото, составов, БЖУ. Поддерживаются OpenRouter, OpenAI и др.
-                      </p>
+
+                      {restaurantForm.aiProvider === "openrouter" && (
+                        <div>
+                          <Label htmlFor="aiModel">🎯 Модель AI</Label>
+                          <Input
+                            id="aiModel"
+                            value={restaurantForm.aiModel}
+                            onChange={(e) => setRestaurantForm(prev => ({ ...prev, aiModel: e.target.value }))}
+                            placeholder="gpt-4o, claude-3-sonnet, etc."
+                          />
+                          <p className="text-sm text-gray-500 mt-1">
+                            Укажите конкретную модель для OpenRouter
+                          </p>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 

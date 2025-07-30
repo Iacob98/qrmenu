@@ -8,6 +8,9 @@ This is a full-stack restaurant online menu management system built with React, 
 - ✅ **Restaurant Creation Fixed**: Added dedicated modal for creating restaurants with proper form validation
 - ✅ **API Endpoints Functional**: All CRUD operations working with PostgreSQL persistence
 - ✅ **Login System Complete**: Created proper login page to replace placeholder alerts
+- ✅ **Multi-AI Provider Support**: Added OpenRouter support alongside OpenAI with configurable models
+- ✅ **Dish Photo Generation**: Added AI-powered photo generation for dishes in creation forms
+- ✅ **Enhanced Settings**: Updated restaurant settings with AI provider selection and model configuration
 
 # User Preferences
 

@@ -337,7 +337,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "AI token not configured" });
       }
 
-      const aiService = createAIService(restaurant.aiToken);
+      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider, restaurant.aiModel);
       const dishes = await aiService.analyzePDF(base64Data);
       
       res.json({ dishes });
@@ -359,7 +359,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "AI token not configured" });
       }
 
-      const aiService = createAIService(restaurant.aiToken);
+      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider, restaurant.aiModel);
       const dishes = await aiService.analyzePhoto(base64Image);
       
       res.json({ dishes });
@@ -381,7 +381,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "AI token not configured" });
       }
 
-      const aiService = createAIService(restaurant.aiToken);
+      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider, restaurant.aiModel);
       const dishes = await aiService.analyzeText(text);
       
       res.json({ dishes });
@@ -403,7 +403,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "AI token not configured" });
       }
 
-      const aiService = createAIService(restaurant.aiToken);
+      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider, restaurant.aiModel);
       const imageUrl = await aiService.generateDishImage(dishName, description);
       
       res.json({ imageUrl });

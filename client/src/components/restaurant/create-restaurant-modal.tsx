@@ -16,7 +16,9 @@ const createRestaurantSchema = z.object({
   phone: z.string().optional(),
   currency: z.string().default("EUR"),
   language: z.string().default("ru"),
+  aiProvider: z.string().default("openai"),
   aiToken: z.string().optional(),
+  aiModel: z.string().optional(),
 });
 
 type CreateRestaurantForm = z.infer<typeof createRestaurantSchema>;
@@ -38,7 +40,9 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
       phone: "",
       currency: "EUR",
       language: "ru",
+      aiProvider: "openai",
       aiToken: "",
+      aiModel: "",
     },
   });
 
@@ -192,6 +196,28 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
 
             <FormField
               control={form.control}
+              name="aiProvider"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>AI провайдер</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Выберите провайдера" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="openai">OpenAI</SelectItem>
+                      <SelectItem value="openrouter">OpenRouter</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="aiToken"
               render={({ field }) => (
                 <FormItem>
@@ -204,12 +230,37 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
                     />
                   </FormControl>
                   <p className="text-sm text-gray-500">
-                    Токен OpenAI для генерации меню из фото и текста
+                    {form.watch("aiProvider") === "openrouter" 
+                      ? "Токен OpenRouter для генерации меню" 
+                      : "Токен OpenAI для генерации меню из фото и текста"
+                    }
                   </p>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {form.watch("aiProvider") === "openrouter" && (
+              <FormField
+                control={form.control}
+                name="aiModel"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Модель AI (необязательно)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="gpt-4o, claude-3-sonnet, etc." 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <p className="text-sm text-gray-500">
+                      Укажите конкретную модель для OpenRouter
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <div className="flex justify-end space-x-2">
               <Button
