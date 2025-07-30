@@ -652,20 +652,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { restaurantId, dishName, description } = req.body;
       
+      if (!restaurantId || !dishName) {
+        return res.status(400).json({ message: "Missing required fields: restaurantId, dishName" });
+      }
+      
       const restaurant = await storage.getRestaurant(restaurantId);
       if (!restaurant || restaurant.userId !== req.session.userId) {
         return res.status(404).json({ message: "Restaurant not found" });
       }
 
-      if (!restaurant.aiToken) {
+      // Use restaurant's AI token if available, otherwise use global OPENAI_API_KEY
+      const apiKey = restaurant.aiToken || process.env.OPENAI_API_KEY;
+      if (!apiKey) {
         return res.status(400).json({ message: "AI token not configured" });
       }
 
-      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
-      const imageUrl = await aiService.generateDishImage(dishName, description);
+      console.log(`[AI Image] Generating image for dish: ${dishName}`);
+      const aiService = createAIService(apiKey, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
+      const imageUrl = await aiService.generateDishImage(dishName, description || "");
       
+      console.log(`[AI Image] Generated successfully: ${imageUrl}`);
       res.json({ imageUrl });
     } catch (error) {
+      console.error('[AI Image] Error:', error);
       res.status(500).json({ message: handleError(error) });
     }
   });

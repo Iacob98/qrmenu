@@ -186,7 +186,7 @@ Return a JSON object with a "dishes" array containing all extracted dishes.`
   async generateDishImage(dishName: string, description: string): Promise<string> {
     try {
       // Create detailed professional food photography prompt
-      const dishDetails = `${dishName} - ${description}`;
+      const dishDetails = description ? `${dishName} - ${description}` : dishName;
       
       const prompt = `A highly realistic, professionally styled food photo of ${dishDetails}. The dish is served on a clean ceramic plate, placed on a neutral white background. The lighting is soft and natural, coming from the top left at a ~45° angle, creating gentle shadows and highlighting textures.
 
@@ -194,16 +194,23 @@ The composition is minimal and elegant, focused on the food, with no distracting
 
 Professional food photography, restaurant quality, appetizing presentation, commercial style.`;
 
+      console.log(`[AI Service] Generating image with prompt: ${prompt.substring(0, 100)}...`);
+      
       const response = await this.openai.images.generate({
         model: "dall-e-3",
         prompt,
         n: 1,
-        size: "1024x1024",
-        quality: "hd", // Use HD quality for better results
+        size: "1024x1024"
       });
 
-      return response.data?.[0]?.url || "";
+      const imageUrl = response.data?.[0]?.url;
+      if (!imageUrl) {
+        throw new Error("No image URL returned from OpenAI");
+      }
+
+      return imageUrl;
     } catch (error) {
+      console.error('[AI Service] Image generation error:', error);
       throw new Error(`Failed to generate image: ${handleError(error)}`);
     }
   }
