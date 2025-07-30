@@ -19,7 +19,7 @@ export const restaurants = pgTable("restaurants", {
   phone: text("phone"),
   currency: text("currency").notNull().default("EUR"),
   language: text("language").notNull().default("ru"),
-  slug: text("slug").notNull().unique(),
+  slug: text("slug").unique(),
   aiToken: text("ai_token"),
   logo: text("logo"),
   design: jsonb("design"),
