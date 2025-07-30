@@ -24,6 +24,7 @@ export const restaurants = pgTable("restaurants", {
   aiToken: text("ai_token"),
   aiModel: text("ai_model"), // For OpenRouter custom models
   logo: text("logo"),
+  banner: text("banner"),
   design: jsonb("design"),
   createdAt: timestamp("created_at").defaultNow(),
 });

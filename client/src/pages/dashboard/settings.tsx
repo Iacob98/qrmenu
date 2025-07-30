@@ -11,7 +11,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
-import { Copy, Check, AlertTriangle } from "lucide-react";
+import { Copy, Check, AlertTriangle, Upload, Wand2, X, Image } from "lucide-react";
 import type { Restaurant } from "@shared/schema";
 
 export default function Settings() {
@@ -25,6 +25,8 @@ export default function Settings() {
     aiProvider: "openai",
     aiToken: "",
     aiModel: "",
+    logo: "",
+    banner: "",
   });
   const [profileForm, setProfileForm] = useState({
     name: "",
@@ -32,6 +34,7 @@ export default function Settings() {
   });
   const [copied, setCopied] = useState(false);
   const [aiTokenStatus, setAiTokenStatus] = useState<'checking' | 'valid' | 'invalid' | null>(null);
+  const [bannerGenerating, setBannerGenerating] = useState(false);
   
   const { toast } = useToast();
   const { user, logout } = useAuth();
@@ -60,6 +63,8 @@ export default function Settings() {
         aiProvider: restaurant.aiProvider || "openai",
         aiToken: restaurant.aiToken || "",
         aiModel: restaurant.aiModel || "",
+        logo: restaurant.logo || "",
+        banner: restaurant.banner || "",
       });
     }
   }, [restaurant]);
@@ -149,6 +154,38 @@ export default function Settings() {
       title: "Ссылка скопирована",
       description: "Публичная ссылка на меню скопирована в буфер обмена",
     });
+  };
+
+  const generateBannerMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("POST", `/api/ai/generate-image`, { 
+        restaurantId: selectedRestaurant, 
+        dishName: `${restaurantForm.name} restaurant banner`, 
+        description: `Professional restaurant interior banner for ${restaurantForm.name} in ${restaurantForm.city}. Modern, welcoming atmosphere, high quality photography.`
+      });
+    },
+    onSuccess: (data: any) => {
+      setRestaurantForm(prev => ({ ...prev, banner: data.imageUrl }));
+      toast({ title: "Баннер сгенерирован", description: "AI создал новый баннер для ресторана" });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ошибка генерации баннера",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleGenerateBanner = () => {
+    if (!restaurantForm.name.trim()) {
+      toast({
+        title: "Введите название ресторана",
+        variant: "destructive",
+      });
+      return;
+    }
+    generateBannerMutation.mutate();
   };
 
   const checkAiToken = async () => {
@@ -290,6 +327,100 @@ export default function Settings() {
                           {updateRestaurantMutation.isPending ? "Сохранение..." : "Сохранить изменения"}
                         </Button>
                       </form>
+                    </CardContent>
+                  </Card>
+
+                  {/* Visual Branding */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Визуальное оформление</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      {/* Logo Section */}
+                      <div>
+                        <Label>🏷️ Логотип ресторана</Label>
+                        <div className="mt-2 space-y-2">
+                          {restaurantForm.logo ? (
+                            <div className="relative inline-block">
+                              <img 
+                                src={restaurantForm.logo} 
+                                alt="Логотип" 
+                                className="w-32 h-32 object-cover rounded-lg border"
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                className="absolute top-1 right-1"
+                                onClick={() => setRestaurantForm(prev => ({ ...prev, logo: "" }))}
+                              >
+                                <X size={14} />
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center w-32 h-32 flex flex-col items-center justify-center">
+                              <Image className="h-8 w-8 text-gray-400" />
+                              <p className="text-xs text-gray-500 mt-1">Нет логотипа</p>
+                            </div>
+                          )}
+                          <Input
+                            type="url"
+                            placeholder="Введите URL логотипа"
+                            value={restaurantForm.logo}
+                            onChange={(e) => setRestaurantForm(prev => ({ ...prev, logo: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Banner Section */}
+                      <div>
+                        <Label>🖼️ Баннер ресторана</Label>
+                        <div className="mt-2 space-y-2">
+                          {restaurantForm.banner ? (
+                            <div className="relative">
+                              <img 
+                                src={restaurantForm.banner} 
+                                alt="Баннер" 
+                                className="w-full h-32 object-cover rounded-lg border"
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                className="absolute top-2 right-2"
+                                onClick={() => setRestaurantForm(prev => ({ ...prev, banner: "" }))}
+                              >
+                                <X size={16} />
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                              <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                              <p className="mt-2 text-sm text-gray-600">
+                                Пока нет баннера
+                              </p>
+                            </div>
+                          )}
+                          <div className="flex gap-2">
+                            <Input
+                              type="url"
+                              placeholder="Введите URL баннера"
+                              value={restaurantForm.banner}
+                              onChange={(e) => setRestaurantForm(prev => ({ ...prev, banner: e.target.value }))}
+                              className="flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={handleGenerateBanner}
+                              disabled={generateBannerMutation.isPending || !restaurantForm.name.trim()}
+                            >
+                              <Wand2 className="mr-2 h-4 w-4" />
+                              {generateBannerMutation.isPending ? "Генерирую..." : "AI Баннер"}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
 
