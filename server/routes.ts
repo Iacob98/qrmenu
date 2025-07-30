@@ -6,6 +6,7 @@ import { createAIService } from "./services/ai";
 import { qrService } from "./services/qr";
 import bcrypt from "bcrypt";
 import session from "express-session";
+import MemoryStore from "memorystore";
 
 // Extend session interface
 declare module 'express-session' {
@@ -16,8 +17,10 @@ declare module 'express-session' {
 
 // Helper function for error handling
 const handleError = (error: unknown): string => {
-  return error instanceof Error ? handleError(error) : "An unexpected error occurred";
+  return error instanceof Error ? error.message : "An unexpected error occurred";
 };
+
+const MemoryStoreSession = MemoryStore(session);
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Session configuration
@@ -25,7 +28,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+    store: new MemoryStoreSession({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    }),
+    cookie: { 
+      secure: false, 
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      httpOnly: true,
+      sameSite: 'lax'
+    }
   }));
 
   // Authentication middleware
@@ -59,6 +70,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Set session
       req.session.userId = user.id;
+      await req.session.save(); // Force session save
 
       res.json({ user: { id: user.id, email: user.email, name: user.name } });
     } catch (error) {
@@ -81,6 +93,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       req.session.userId = user.id;
+      await req.session.save(); // Force session save
       res.json({ user: { id: user.id, email: user.email, name: user.name } });
     } catch (error) {
       res.status(400).json({ message: handleError(error) });
@@ -94,6 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/auth/me", async (req, res) => {
+
     if (!req.session.userId) {
       return res.status(401).json({ message: "Not authenticated" });
     }

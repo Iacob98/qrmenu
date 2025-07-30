@@ -4,6 +4,21 @@ import { setupVite, serveStatic, log } from "./vite";
 import bcrypt from "bcrypt";
 
 const app = express();
+
+// CORS configuration for development
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin);
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
 app.use(express.json({ limit: '10mb' })); // Increase limit for AI image uploads
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
