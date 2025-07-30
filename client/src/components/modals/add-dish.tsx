@@ -15,6 +15,7 @@ import { X, Upload, Wand2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { FileUpload } from "@/components/ui/file-upload";
 import type { Category } from "@shared/schema";
 
 interface AddDishModalProps {
@@ -277,46 +278,26 @@ export function AddDishModal({
 
           {/* Photo Section */}
           <div>
-            <Label>Фото блюда</Label>
-            <div className="mt-2 space-y-2">
-              {formData.image ? (
-                <div className="relative">
-                  <img 
-                    src={formData.image} 
-                    alt="Фото блюда" 
-                    className="w-full h-48 object-cover rounded-lg"
-                  />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    className="absolute top-2 right-2"
-                    onClick={() => setFormData(prev => ({ ...prev, image: "" }))}
-                  >
-                    <X size={16} />
-                  </Button>
-                </div>
-              ) : (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                  <p className="mt-2 text-sm text-gray-600">
-                    Пока нет фото блюда
-                  </p>
-                </div>
-              )}
-              
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleGenerateImage}
-                  disabled={generateImageMutation.isPending || !formData.name.trim()}
-                  className="flex-1"
-                >
-                  <Wand2 className="mr-2 h-4 w-4" />
-                  {generateImageMutation.isPending ? "Генерирую..." : "Сгенерировать ИИ"}
-                </Button>
-              </div>
+            <FileUpload
+              label="🖼️ Фото блюда"
+              value={formData.image}
+              onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
+              endpoint="image"
+              width={350}
+              height={180}
+              maxSize={8}
+            />
+            <div className="mt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleGenerateImage}
+                disabled={generateImageMutation.isPending || !formData.name.trim()}
+                className="w-full"
+              >
+                <Wand2 className="mr-2 h-4 w-4" />
+                {generateImageMutation.isPending ? "Генерирую..." : "Сгенерировать AI фото"}
+              </Button>
             </div>
           </div>
           

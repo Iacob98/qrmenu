@@ -12,6 +12,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
 import { Copy, Check, AlertTriangle, Upload, Wand2, X, Image } from "lucide-react";
+import { FileUpload } from "@/components/ui/file-upload";
 import type { Restaurant } from "@shared/schema";
 
 export default function Settings() {
@@ -338,87 +339,39 @@ export default function Settings() {
                     <CardContent className="space-y-6">
                       {/* Logo Section */}
                       <div>
-                        <Label>🏷️ Логотип ресторана</Label>
-                        <div className="mt-2 space-y-2">
-                          {restaurantForm.logo ? (
-                            <div className="relative inline-block">
-                              <img 
-                                src={restaurantForm.logo} 
-                                alt="Логотип" 
-                                className="w-32 h-32 object-cover rounded-lg border"
-                              />
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="sm"
-                                className="absolute top-1 right-1"
-                                onClick={() => setRestaurantForm(prev => ({ ...prev, logo: "" }))}
-                              >
-                                <X size={14} />
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center w-32 h-32 flex flex-col items-center justify-center">
-                              <Image className="h-8 w-8 text-gray-400" />
-                              <p className="text-xs text-gray-500 mt-1">Нет логотипа</p>
-                            </div>
-                          )}
-                          <Input
-                            type="url"
-                            placeholder="Введите URL логотипа"
-                            value={restaurantForm.logo}
-                            onChange={(e) => setRestaurantForm(prev => ({ ...prev, logo: e.target.value }))}
-                          />
-                        </div>
+                        <FileUpload
+                          label="🏷️ Логотип ресторана"
+                          value={restaurantForm.logo}
+                          onChange={(url) => setRestaurantForm(prev => ({ ...prev, logo: url }))}
+                          endpoint="logo"
+                          width={150}
+                          height={150}
+                          maxSize={5}
+                        />
                       </div>
 
                       {/* Banner Section */}
                       <div>
-                        <Label>🖼️ Баннер ресторана</Label>
-                        <div className="mt-2 space-y-2">
-                          {restaurantForm.banner ? (
-                            <div className="relative">
-                              <img 
-                                src={restaurantForm.banner} 
-                                alt="Баннер" 
-                                className="w-full h-32 object-cover rounded-lg border"
-                              />
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="sm"
-                                className="absolute top-2 right-2"
-                                onClick={() => setRestaurantForm(prev => ({ ...prev, banner: "" }))}
-                              >
-                                <X size={16} />
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                              <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                              <p className="mt-2 text-sm text-gray-600">
-                                Пока нет баннера
-                              </p>
-                            </div>
-                          )}
-                          <div className="flex gap-2">
-                            <Input
-                              type="url"
-                              placeholder="Введите URL баннера"
-                              value={restaurantForm.banner}
-                              onChange={(e) => setRestaurantForm(prev => ({ ...prev, banner: e.target.value }))}
-                              className="flex-1"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={handleGenerateBanner}
-                              disabled={generateBannerMutation.isPending || !restaurantForm.name.trim()}
-                            >
-                              <Wand2 className="mr-2 h-4 w-4" />
-                              {generateBannerMutation.isPending ? "Генерирую..." : "AI Баннер"}
-                            </Button>
-                          </div>
+                        <FileUpload
+                          label="🖼️ Баннер ресторана"
+                          value={restaurantForm.banner}
+                          onChange={(url) => setRestaurantForm(prev => ({ ...prev, banner: url }))}
+                          endpoint="banner"
+                          width={400}
+                          height={150}
+                          maxSize={8}
+                        />
+                        <div className="mt-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleGenerateBanner}
+                            disabled={generateBannerMutation.isPending || !restaurantForm.name.trim()}
+                            className="w-full"
+                          >
+                            <Wand2 className="mr-2 h-4 w-4" />
+                            {generateBannerMutation.isPending ? "Генерирую..." : "Сгенерировать AI баннер"}
+                          </Button>
                         </div>
                       </div>
                     </CardContent>

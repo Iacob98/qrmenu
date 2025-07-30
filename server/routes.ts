@@ -1,9 +1,12 @@
 import type { Express } from "express";
+import express from "express";
+import path from "path";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUserSchema, insertRestaurantSchema, insertCategorySchema, insertDishSchema } from "@shared/schema";
 import { createAIService } from "./services/ai";
 import { qrService } from "./services/qr";
+import { upload, saveUploadedImage, deleteUploadedFile } from "./middleware/upload";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import MemoryStore from "memorystore";
@@ -23,6 +26,9 @@ const handleError = (error: unknown): string => {
 const MemoryStoreSession = MemoryStore(session);
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Serve uploaded files
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
   // Session configuration
   app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
@@ -364,6 +370,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ dishes });
     } catch (error) {
+      res.status(500).json({ message: handleError(error) });
+    }
+  });
+
+  // File upload routes
+  app.post("/api/upload/image", requireAuth, upload.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No image file provided" });
+      }
+
+      const imageUrl = await saveUploadedImage(req.file, {
+        width: 1024,
+        height: 1024,
+        quality: 85
+      });
+
+      res.json({ 
+        url: imageUrl,
+        originalName: req.file.originalname,
+        size: req.file.size
+      });
+    } catch (error) {
+      console.error("Upload error:", error);
+      res.status(500).json({ message: handleError(error) });
+    }
+  });
+
+  app.post("/api/upload/logo", requireAuth, upload.single('logo'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No logo file provided" });
+      }
+
+      const logoUrl = await saveUploadedImage(req.file, {
+        width: 300,
+        height: 300,
+        quality: 90
+      });
+
+      res.json({ 
+        url: logoUrl,
+        originalName: req.file.originalname,
+        size: req.file.size
+      });
+    } catch (error) {
+      console.error("Logo upload error:", error);
+      res.status(500).json({ message: handleError(error) });
+    }
+  });
+
+  app.post("/api/upload/banner", requireAuth, upload.single('banner'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No banner file provided" });
+      }
+
+      const bannerUrl = await saveUploadedImage(req.file, {
+        width: 1200,
+        height: 400,
+        quality: 85
+      });
+
+      res.json({ 
+        url: bannerUrl,
+        originalName: req.file.originalname,
+        size: req.file.size
+      });
+    } catch (error) {
+      console.error("Banner upload error:", error);
+      res.status(500).json({ message: handleError(error) });
+    }
+  });
+
+  app.delete("/api/upload", requireAuth, async (req, res) => {
+    try {
+      const { url } = req.body;
+      if (!url) {
+        return res.status(400).json({ message: "File URL is required" });
+      }
+
+      await deleteUploadedFile(url);
+      res.json({ message: "File deleted successfully" });
+    } catch (error) {
+      console.error("Delete error:", error);
       res.status(500).json({ message: handleError(error) });
     }
   });
