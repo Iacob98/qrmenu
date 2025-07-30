@@ -15,7 +15,7 @@ export function useRealTimeMenu(restaurantSlug: string) {
     const websocket = new WebSocket(wsUrl);
 
     websocket.onopen = () => {
-      console.log('Connected to real-time menu updates');
+      console.log('🔌 Connected to real-time menu updates for:', restaurantSlug);
       setWs(websocket);
     };
 
@@ -24,7 +24,7 @@ export function useRealTimeMenu(restaurantSlug: string) {
         const data = JSON.parse(event.data);
         
         if (data.type === 'menu_update' || data.type === 'dish_updated') {
-          console.log('Received real-time menu update:', data);
+          console.log('📡 Received real-time menu update:', data);
           
           // Invalidate and refetch the menu data
           queryClient.invalidateQueries({ 
@@ -35,6 +35,8 @@ export function useRealTimeMenu(restaurantSlug: string) {
           queryClient.invalidateQueries({ 
             queryKey: ["/api/restaurants"] 
           });
+          
+          console.log('✅ Menu data refreshed due to real-time update');
         }
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
@@ -42,12 +44,12 @@ export function useRealTimeMenu(restaurantSlug: string) {
     };
 
     websocket.onclose = () => {
-      console.log('Disconnected from real-time menu updates');
+      console.log('❌ Disconnected from real-time menu updates');
       setWs(null);
     };
 
     websocket.onerror = (error) => {
-      console.error('WebSocket error:', error);
+      console.error('🚨 WebSocket error:', error);
     };
 
     return () => {

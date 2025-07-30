@@ -411,11 +411,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Notify WebSocket clients about menu update
       const { wsManager } = await import("./index");
       if (wsManager && restaurant.slug) {
+        console.log(`🚀 Sending WebSocket notification for favorite change: ${dish.id} -> ${isFavorite}`);
         wsManager.notifyMenuUpdate(restaurant.slug, {
           type: 'dish_updated',
           dishId: dish.id,
           changes: { isFavorite }
         });
+      } else {
+        console.log('⚠️  WebSocket manager not available or restaurant has no slug');
       }
       
       res.json(updatedDish);
@@ -443,11 +446,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Notify WebSocket clients about menu update
       const { wsManager } = await import("./index");
       if (wsManager && restaurant.slug) {
+        console.log(`🚀 Sending WebSocket notification for visibility change: ${dish.id} -> hidden:${isHidden}`);
         wsManager.notifyMenuUpdate(restaurant.slug, {
           type: 'dish_updated',
           dishId: dish.id,
           changes: { isHidden }
         });
+      } else {
+        console.log('⚠️  WebSocket manager not available or restaurant has no slug');
       }
       
       res.json(updatedDish);

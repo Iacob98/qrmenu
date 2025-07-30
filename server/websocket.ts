@@ -69,7 +69,10 @@ export class MenuWebSocketManager {
   // Notify all clients watching a specific restaurant menu
   notifyMenuUpdate(restaurantSlug: string, updateData?: any) {
     const connections = this.connections.get(restaurantSlug);
-    if (!connections || connections.size === 0) return;
+    if (!connections || connections.size === 0) {
+      console.log(`⚠️  No WebSocket connections found for restaurant: ${restaurantSlug}`);
+      return;
+    }
 
     const message = JSON.stringify({
       type: 'menu_update',
@@ -84,7 +87,8 @@ export class MenuWebSocketManager {
       }
     });
 
-    console.log(`Notified ${connections.size} clients about menu update for: ${restaurantSlug}`);
+    console.log(`📡 Notified ${connections.size} clients about menu update for: ${restaurantSlug}`);
+    console.log(`📦 Update data:`, updateData);
   }
 
   // Get connection count for a restaurant
