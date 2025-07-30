@@ -61,7 +61,7 @@ export function AddCategoryModal({ open, onOpenChange, restaurantId }: AddCatego
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
         <DialogHeader>
           <DialogTitle>Добавить категорию</DialogTitle>
         </DialogHeader>
@@ -88,17 +88,19 @@ export function AddCategoryModal({ open, onOpenChange, restaurantId }: AddCatego
             />
           </div>
           
-          <div className="flex justify-end space-x-2">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              className="w-full sm:w-auto"
             >
               Отмена
             </Button>
             <Button 
               type="submit" 
               disabled={createCategoryMutation.isPending}
+              className="w-full sm:w-auto"
             >
               {createCategoryMutation.isPending ? "Создание..." : "Создать"}
             </Button>

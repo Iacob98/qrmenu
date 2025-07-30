@@ -168,13 +168,13 @@ export function EditDishModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
         <DialogHeader>
           <DialogTitle>Редактировать блюдо: {dish.name}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="name">Название блюда</Label>
               <Input
@@ -258,7 +258,7 @@ export function EditDishModal({
                 </Badge>
               ))}
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
               {availableTags
                 .filter(tag => !formData.tags.includes(tag))
                 .map((tag) => (
@@ -268,6 +268,7 @@ export function EditDishModal({
                     variant="outline"
                     size="sm"
                     onClick={() => addTag(tag)}
+                    className="text-xs"
                   >
                     + {tag}
                   </Button>
@@ -299,17 +300,19 @@ export function EditDishModal({
             </div>
           </div>
           
-          <div className="flex justify-end space-x-2">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              className="w-full sm:w-auto"
             >
               Отмена
             </Button>
             <Button 
               type="submit" 
               disabled={updateDishMutation.isPending}
+              className="w-full sm:w-auto"
             >
               {updateDishMutation.isPending ? "Обновление..." : "Обновить"}
             </Button>
