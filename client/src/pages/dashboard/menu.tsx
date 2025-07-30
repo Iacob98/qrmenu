@@ -10,6 +10,7 @@ import { AddDishModal } from "@/components/modals/add-dish";
 import { EditDishModal } from "@/components/modals/edit-dish";
 import { EditCategoryModal } from "@/components/modals/edit-category";
 import { CreateRestaurantModal } from "@/components/restaurant/create-restaurant-modal";
+import { EditFavoritesTitleModal } from "@/components/modals/edit-favorites-title";
 import { DishCard } from "@/components/menu/dish-card";
 import { Plus, ExternalLink, User, Edit, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -24,6 +25,7 @@ export default function MenuManagement() {
   const [editDishOpen, setEditDishOpen] = useState(false);
   const [editCategoryOpen, setEditCategoryOpen] = useState(false);
   const [createRestaurantOpen, setCreateRestaurantOpen] = useState(false);
+  const [editFavoritesTitleOpen, setEditFavoritesTitleOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -200,6 +202,51 @@ export default function MenuManagement() {
           
           {restaurant ? (
             <div className="space-y-6">
+              {/* Favorites Section */}
+              {restaurant.categories.some(cat => cat.dishes.some(dish => dish.isFavorite)) && (
+                <Card>
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="flex items-center">
+                        ⭐ {restaurant.favoritesTitle || "Избранное"}
+                        <Badge variant="secondary" className="ml-2">
+                          {restaurant.categories.reduce((count, cat) => 
+                            count + cat.dishes.filter(dish => dish.isFavorite).length, 0
+                          )} блюд
+                        </Badge>
+                      </CardTitle>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => setEditFavoritesTitleOpen(true)}
+                      >
+                        <Edit size={16} />
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent>
+                    <div className="space-y-4">
+                      {restaurant.categories.map(category => 
+                        category.dishes
+                          .filter(dish => dish.isFavorite)
+                          .map((dish) => (
+                            <DishCard
+                              key={dish.id}
+                              dish={dish}
+                              currency={restaurant.currency}
+                              restaurantId={selectedRestaurant}
+                              showActions={true}
+                              onEdit={handleEditDish}
+                              onDelete={handleDeleteDish}
+                            />
+                          ))
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {restaurant.categories.length === 0 ? (
                 <Card>
                   <CardContent className="py-12 text-center">
@@ -320,6 +367,13 @@ export default function MenuManagement() {
             onOpenChange={setEditCategoryOpen}
             category={selectedCategory}
             restaurantId={selectedRestaurant}
+          />
+
+          <EditFavoritesTitleModal
+            open={editFavoritesTitleOpen}
+            onOpenChange={setEditFavoritesTitleOpen}
+            restaurantId={selectedRestaurant}
+            currentTitle={restaurant?.favoritesTitle || "Избранное"}
           />
         </>
       )}

@@ -23,6 +23,7 @@ export const restaurants = pgTable("restaurants", {
   aiProvider: text("ai_provider").default("openai"), // "openai" or "openrouter"
   aiToken: text("ai_token"),
   aiModel: text("ai_model"), // For OpenRouter custom models
+  favoritesTitle: text("favorites_title").default("Избранное"),
   logo: text("logo"),
   banner: text("banner"),
   design: jsonb("design"),
@@ -101,7 +102,7 @@ export type RestaurantWithCategories = Restaurant & {
 };
 
 export type PublicMenu = {
-  restaurant: Pick<Restaurant, 'name' | 'city' | 'phone' | 'currency' | 'language' | 'logo' | 'design' | 'banner'>;
+  restaurant: Pick<Restaurant, 'name' | 'city' | 'phone' | 'currency' | 'language' | 'logo' | 'design' | 'banner' | 'favoritesTitle'>;
   categories: (Category & {
     dishes: Dish[];
   })[];

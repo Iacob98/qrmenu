@@ -153,6 +153,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/restaurants/:id/favorites-title", requireAuth, async (req, res) => {
+    try {
+      const { favoritesTitle } = req.body;
+      const restaurant = await storage.getRestaurant(req.params.id);
+      
+      if (!restaurant || restaurant.userId !== req.session.userId) {
+        return res.status(404).json({ message: "Restaurant not found" });
+      }
+
+      const updatedRestaurant = await storage.updateRestaurant(req.params.id, { favoritesTitle });
+      
+      // Notify WebSocket clients about menu update
+      const { wsManager } = await import("./index");
+      if (wsManager && restaurant.slug) {
+        wsManager.notifyMenuUpdate(restaurant.slug, {
+          type: 'favorites_title_updated',
+          favoritesTitle
+        });
+      }
+      
+      res.json(updatedRestaurant);
+    } catch (error) {
+      res.status(500).json({ message: handleError(error) });
+    }
+  });
+
   app.post("/api/restaurants", requireAuth, async (req, res) => {
     try {
       const restaurantData = insertRestaurantSchema.parse(req.body);
