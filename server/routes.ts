@@ -181,6 +181,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/restaurants", requireAuth, async (req, res) => {
     try {
+      // Check if user already has a restaurant
+      const existingRestaurants = await storage.getRestaurantsByUserId(req.session.userId!);
+      if (existingRestaurants.length >= 1) {
+        return res.status(400).json({ message: "Вы можете создать только один ресторан" });
+      }
+
       const restaurantData = insertRestaurantSchema.parse(req.body);
       const restaurant = await storage.createRestaurant({
         ...restaurantData,
