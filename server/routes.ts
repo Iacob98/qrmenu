@@ -32,10 +32,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       checkPeriod: 86400000 // prune expired entries every 24h
     }),
     cookie: { 
-      secure: false, 
+      secure: false, // Disable secure for debugging
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      httpOnly: false, // Allow JavaScript access for debugging
-      sameSite: 'lax'
+      httpOnly: false, // Allow JS access for debugging
+      sameSite: 'lax' // Allow same-site cookies
     }
   }));
 

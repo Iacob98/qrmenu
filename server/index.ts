@@ -5,10 +5,16 @@ import bcrypt from "bcrypt";
 
 const app = express();
 
-// CORS configuration for development
+// CORS configuration for development and production
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin);
-  res.header('Access-Control-Allow-Credentials', 'true');
+  const origin = req.headers.origin;
+  
+  // Allow requests from .replit.dev domains and localhost
+  if (!origin || origin.includes('.replit.dev') || origin.includes('localhost')) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+    res.header('Access-Control-Allow-Credentials', 'true');
+  }
+  
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,Authorization');
   
