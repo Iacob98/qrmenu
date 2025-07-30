@@ -131,38 +131,95 @@ export default function AIGeneration() {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = type === 'pdf' ? '.pdf' : 'image/*';
+    input.multiple = type === 'photo'; // Allow multiple images for photo analysis
     
     input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
+      const files = Array.from((e.target as HTMLInputElement).files || []);
+      if (files.length === 0) return;
 
-      const reader = new FileReader();
-      reader.onload = async () => {
-        try {
-          const base64 = (reader.result as string).split(',')[1];
-          const endpoint = type === 'pdf' ? '/api/ai/analyze-pdf' : '/api/ai/analyze-photo';
-          const payload = {
-            restaurantId: selectedRestaurant,
-            [type === 'pdf' ? 'base64Data' : 'base64Image']: base64,
-          };
+      // For PDF, process single file
+      if (type === 'pdf') {
+        const file = files[0];
+        const reader = new FileReader();
+        reader.onload = async () => {
+          try {
+            const base64 = (reader.result as string).split(',')[1];
+            const response = await apiRequest("POST", '/api/ai/analyze-pdf', {
+              restaurantId: selectedRestaurant,
+              base64Data: base64,
+            });
+            const data = await response.json();
+            
+            setGeneratedDishes(data.dishes || []);
+            toast({
+              title: "Анализ PDF завершён",
+              description: `Найдено ${data.dishes?.length || 0} блюд`,
+            });
+          } catch (error: any) {
+            toast({
+              title: "Ошибка анализа PDF",
+              description: error.message,
+              variant: "destructive",
+            });
+          }
+        };
+        reader.readAsDataURL(file);
+        return;
+      }
 
-          const response = await apiRequest("POST", endpoint, payload);
-          const data = await response.json();
-          
-          setGeneratedDishes(data.dishes || []);
-          toast({
-            title: "Анализ завершён",
-            description: `Найдено ${data.dishes?.length || 0} блюд`,
-          });
-        } catch (error: any) {
-          toast({
-            title: "Ошибка анализа",
-            description: error.message,
-            variant: "destructive",
-          });
-        }
-      };
-      reader.readAsDataURL(file);
+      // For photos, process multiple files
+      let allDishes: any[] = [];
+      let processedCount = 0;
+      
+      toast({
+        title: "Анализ начат",
+        description: `Обрабатываем ${files.length} фото...`,
+      });
+
+      for (const file of files) {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          try {
+            const base64 = (reader.result as string).split(',')[1];
+            const response = await apiRequest("POST", '/api/ai/analyze-photo', {
+              restaurantId: selectedRestaurant,
+              base64Image: base64,
+            });
+            const data = await response.json();
+            
+            allDishes = [...allDishes, ...(data.dishes || [])];
+            processedCount++;
+            
+            if (processedCount === files.length) {
+              // Remove duplicate dishes by name
+              const uniqueDishes = allDishes.filter((dish, index, self) => 
+                index === self.findIndex(d => d.name === dish.name)
+              );
+              
+              setGeneratedDishes(uniqueDishes);
+              toast({
+                title: "Анализ фото завершён",
+                description: `Найдено ${uniqueDishes.length} уникальных блюд из ${files.length} фото`,
+              });
+            }
+          } catch (error: any) {
+            processedCount++;
+            toast({
+              title: "Ошибка анализа фото",
+              description: `${file.name}: ${error.message}`,
+              variant: "destructive",
+            });
+            
+            if (processedCount === files.length && allDishes.length > 0) {
+              const uniqueDishes = allDishes.filter((dish, index, self) => 
+                index === self.findIndex(d => d.name === dish.name)
+              );
+              setGeneratedDishes(uniqueDishes);
+            }
+          }
+        };
+        reader.readAsDataURL(file);
+      }
     };
     
     input.click();
@@ -292,11 +349,11 @@ export default function AIGeneration() {
                           Сфотографируйте меню
                         </h3>
                         <p className="text-gray-600 mb-4">
-                          Сфотографируйте бумажное меню — мы извлечём названия и описание блюд
+                          Загрузите одно или несколько фото меню — мы извлечём все блюда и их описания
                         </p>
                         <Button onClick={() => handleFileUpload('photo')}>
                           <Upload className="mr-2" size={16} />
-                          Загрузить фото
+                          Загрузить фото (можно несколько)
                         </Button>
                       </div>
                     </TabsContent>

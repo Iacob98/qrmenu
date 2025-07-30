@@ -104,6 +104,7 @@ export function EditDishModal({
     onSuccess: (data: any) => {
       setFormData(prev => ({ ...prev, image: data.imageUrl }));
       toast({ title: "Фото сгенерировано" });
+      console.log('[Generated Image] URL:', data.imageUrl);
     },
     onError: (error: any) => {
       toast({

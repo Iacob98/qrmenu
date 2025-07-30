@@ -27,6 +27,8 @@ This is a full-stack restaurant online menu management system built with React, 
 - ✅ **Restaurant Creation Limit**: Added server-side validation limiting users to create maximum 1 restaurant per account
 - ✅ **AI Image Generation Fixed**: Resolved DALL-E API integration issues, now working with global OPENAI_API_KEY when restaurant doesn't have custom token
 - ✅ **Image Storage Fixed**: Fixed dish image saving to database - images now properly persist after AI generation and manual updates
+- ✅ **Multiple Photo Upload**: Added support for uploading multiple photos for AI menu analysis with duplicate detection
+- ✅ **Enhanced Photo Analysis**: Improved photo analysis workflow with progress tracking and error handling for batch processing
 
 # User Preferences
 
