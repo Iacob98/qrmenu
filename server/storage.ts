@@ -221,6 +221,7 @@ export class DatabaseStorage implements IStorage {
         language: restaurant.language,
         logo: restaurant.logo,
         design: restaurant.design,
+        banner: restaurant.banner,
       },
       categories: categoriesWithDishes,
     };

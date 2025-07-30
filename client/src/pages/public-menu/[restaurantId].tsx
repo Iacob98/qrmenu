@@ -110,21 +110,31 @@ export default function PublicMenu() {
     <div className="min-h-screen bg-white">
       <div className="max-w-md mx-auto">
         {/* Menu Header */}
-        <header className="bg-primary-600 text-white p-6 text-center">
-          {menu.restaurant.logo && (
-            <img 
-              src={menu.restaurant.logo} 
-              alt={menu.restaurant.name}
-              className="w-16 h-16 mx-auto mb-4 rounded-full object-cover"
+        <header className="bg-primary-600 text-white text-center relative overflow-hidden">
+          {/* Banner Background */}
+          {menu.restaurant.banner && (
+            <div 
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
+              style={{ backgroundImage: `url(${menu.restaurant.banner})` }}
             />
           )}
-          <h1 className="text-2xl font-bold">{menu.restaurant.name}</h1>
-          {menu.restaurant.city && (
-            <p className="text-primary-100">{menu.restaurant.city}</p>
-          )}
-          <div className="flex justify-center space-x-4 mt-4 text-sm">
-            <span>🇷🇺 {menu.restaurant.language === 'ru' ? 'Русский' : 'Русский'}</span>
-            <span>{getCurrencySymbol(menu.restaurant.currency)} {menu.restaurant.currency}</span>
+          
+          <div className="relative z-10 p-6">
+            {menu.restaurant.logo && (
+              <img 
+                src={menu.restaurant.logo} 
+                alt={menu.restaurant.name}
+                className="w-16 h-16 mx-auto mb-4 rounded-full object-cover border-2 border-white/50"
+              />
+            )}
+            <h1 className="text-2xl font-bold text-white drop-shadow-lg">{menu.restaurant.name}</h1>
+            {menu.restaurant.city && (
+              <p className="text-white/90 drop-shadow-md">{menu.restaurant.city}</p>
+            )}
+            <div className="flex justify-center space-x-4 mt-4 text-sm text-white/90 drop-shadow-md">
+              <span>🇷🇺 {menu.restaurant.language === 'ru' ? 'Русский' : 'Русский'}</span>
+              <span>{getCurrencySymbol(menu.restaurant.currency)} {menu.restaurant.currency}</span>
+            </div>
           </div>
         </header>
 

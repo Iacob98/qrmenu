@@ -99,7 +99,7 @@ export type RestaurantWithCategories = Restaurant & {
 };
 
 export type PublicMenu = {
-  restaurant: Pick<Restaurant, 'name' | 'city' | 'phone' | 'currency' | 'language' | 'logo' | 'design'>;
+  restaurant: Pick<Restaurant, 'name' | 'city' | 'phone' | 'currency' | 'language' | 'logo' | 'design' | 'banner'>;
   categories: (Category & {
     dishes: Dish[];
   })[];
