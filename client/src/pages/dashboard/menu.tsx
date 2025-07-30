@@ -7,19 +7,25 @@ import { Badge } from "@/components/ui/badge";
 import { Sidebar } from "@/components/layout/sidebar";
 import { AddCategoryModal } from "@/components/modals/add-category";
 import { AddDishModal } from "@/components/modals/add-dish";
+import { EditDishModal } from "@/components/modals/edit-dish";
 import { CreateRestaurantModal } from "@/components/restaurant/create-restaurant-modal";
 import { DishCard } from "@/components/menu/dish-card";
 import { Plus, ExternalLink, User, Edit, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import type { RestaurantWithCategories } from "@shared/schema";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import type { RestaurantWithCategories, Dish } from "@shared/schema";
 
 export default function MenuManagement() {
   const [selectedRestaurant, setSelectedRestaurant] = useState<string>("");
   const [addCategoryOpen, setAddCategoryOpen] = useState(false);
   const [addDishOpen, setAddDishOpen] = useState(false);
+  const [editDishOpen, setEditDishOpen] = useState(false);
   const [createRestaurantOpen, setCreateRestaurantOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Get user restaurants
   const { data: restaurants, isLoading: restaurantsLoading } = useQuery({
@@ -42,6 +48,34 @@ export default function MenuManagement() {
   const handleAddDish = (categoryId?: string) => {
     setSelectedCategoryId(categoryId || "");
     setAddDishOpen(true);
+  };
+
+  const handleEditDish = (dish: Dish) => {
+    setSelectedDish(dish);
+    setEditDishOpen(true);
+  };
+
+  const deleteDishMutation = useMutation({
+    mutationFn: async (dishId: string) => {
+      return await apiRequest("DELETE", `/api/dishes/${dishId}`);
+    },
+    onSuccess: () => {
+      toast({ title: "Блюдо удалено" });
+      queryClient.invalidateQueries({ queryKey: ["/api/restaurants", selectedRestaurant] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ошибка удаления блюда",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteDish = (dish: Dish) => {
+    if (confirm(`Вы уверены, что хотите удалить блюдо "${dish.name}"?`)) {
+      deleteDishMutation.mutate(dish.id);
+    }
   };
 
   const handlePreviewMenu = () => {
@@ -188,6 +222,8 @@ export default function MenuManagement() {
                               dish={dish}
                               currency={restaurant.currency}
                               showActions={true}
+                              onEdit={handleEditDish}
+                              onDelete={handleDeleteDish}
                             />
                           ))}
                           
@@ -228,6 +264,14 @@ export default function MenuManagement() {
             onOpenChange={setAddDishOpen}
             categories={restaurant?.categories || []}
             selectedCategoryId={selectedCategoryId}
+            restaurantId={selectedRestaurant}
+          />
+          
+          <EditDishModal
+            open={editDishOpen}
+            onOpenChange={setEditDishOpen}
+            categories={restaurant?.categories || []}
+            dish={selectedDish}
             restaurantId={selectedRestaurant}
           />
         </>

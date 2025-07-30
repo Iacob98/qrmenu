@@ -302,7 +302,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const updatedDish = await storage.updateDish(req.params.id, req.body);
+      // Validate the update data - allow partial updates
+      const updateData = {
+        name: req.body.name,
+        description: req.body.description || null,
+        price: parseFloat(req.body.price),
+        categoryId: req.body.categoryId,
+        ingredients: req.body.ingredients || null,
+        tags: req.body.tags || null,
+        image: req.body.image || null,
+      };
+
+      const updatedDish = await storage.updateDish(req.params.id, updateData);
       res.json(updatedDish);
     } catch (error) {
       res.status(400).json({ message: handleError(error) });
