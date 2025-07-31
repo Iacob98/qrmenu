@@ -62,7 +62,7 @@ export function DishCard({
       <div className="flex items-center space-x-3 p-3">
         {/* Dish Image - smaller and round */}
         <div 
-          className="w-14 h-14 bg-gray-200 flex-shrink-0 rounded-lg overflow-hidden"
+          className="w-12 h-12 bg-gray-200 flex-shrink-0 rounded-lg overflow-hidden"
         >
           {dish.image ? (
             <img 
