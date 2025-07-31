@@ -257,88 +257,22 @@ The composition is minimal and elegant, focused on the food, with no distracting
         });
       }
 
-      console.log(`[Replicate] Using ComfyUI workflow for image generation`);
+      console.log(`[Replicate] Using Imagen-4 Fast for image generation`);
       console.log(`[Replicate] Auth token available:`, !!process.env.REPLICATE_API_TOKEN);
       console.log(`[Replicate] Client initialized:`, !!this.replicate);
       
       let prediction: any;
       try {
-        console.log(`[Replicate] Starting API call with ComfyUI workflow...`);
+        console.log(`[Replicate] Starting API call with Imagen-4 Fast...`);
         
-        // ComfyUI workflow for food photography
-        const workflowJson = {
-          "3": {
-            "inputs": {
-              "seed": Math.floor(Math.random() * 1000000000000000),
-              "steps": 20,
-              "cfg": 7,
-              "sampler_name": "dpmpp_2m_sde",
-              "scheduler": "karras",
-              "denoise": 1,
-              "model": ["4", 0],
-              "positive": ["6", 0],
-              "negative": ["7", 0],
-              "latent_image": ["5", 0]
-            },
-            "class_type": "KSampler",
-            "_meta": { "title": "KSampler" }
-          },
-          "4": {
-            "inputs": {
-              "ckpt_name": "realismEngineSDXL_v30VAE.safetensors"
-            },
-            "class_type": "CheckpointLoaderSimple",
-            "_meta": { "title": "Load Checkpoint" }
-          },
-          "5": {
-            "inputs": {
-              "width": 1024,
-              "height": 1024,
-              "batch_size": 1
-            },
-            "class_type": "EmptyLatentImage",
-            "_meta": { "title": "Empty Latent Image" }
-          },
-          "6": {
-            "inputs": {
-              "text": englishPrompt + ", professional food photography, high quality, detailed, appetizing, clean background. The dish is served on a clean ceramic plate, placed on a neutral white background. The lighting is soft and natural, coming from the top left at a ~45° angle, creating gentle shadows and highlighting textures. The composition is minimal and elegant, focused on the food, with no distracting elements or background props. The image should be centered, with sharp details, realistic portion size, and natural color tones. High-quality photo style (not illustration, not AI-looking, no watercolor). No watermark. No text.",
-              "clip": ["4", 1]
-            },
-            "class_type": "CLIPTextEncode",
-            "_meta": { "title": "CLIP Text Encode (Prompt)" }
-          },
-          "7": {
-            "inputs": {
-              "text": "blurry, low quality, distorted, ugly, bad lighting, messy, dirty, unappetizing, cartoon, illustration",
-              "clip": ["4", 1]
-            },
-            "class_type": "CLIPTextEncode",
-            "_meta": { "title": "CLIP Text Encode (Prompt)" }
-          },
-          "8": {
-            "inputs": {
-              "samples": ["3", 0],
-              "vae": ["4", 2]
-            },
-            "class_type": "VAEDecode",
-            "_meta": { "title": "VAE Decode" }
-          },
-          "9": {
-            "inputs": {
-              "filename_prefix": "food_photo",
-              "images": ["8", 0]
-            },
-            "class_type": "SaveImage",
-            "_meta": { "title": "Save Image" }
-          }
-        };
+        const fullPrompt = englishPrompt + ", professional food photography, high quality, detailed, appetizing, clean background. The dish is served on a clean ceramic plate, placed on a neutral white background. The lighting is soft and natural, coming from the top left at a ~45° angle, creating gentle shadows and highlighting textures. The composition is minimal and elegant, focused on the food, with no distracting elements or background props. The image should be centered, with sharp details, realistic portion size, and natural color tones. High-quality photo style (not illustration, not AI-looking, no watercolor). No watermark. No text.";
 
         prediction = await this.replicate.run(
-          "fofr/any-comfyui-workflow:67ed4ba04ce0842446e16c428b1be131452815d01810861f71d171f63e8ba8f0",
+          "google/imagen-4-fast", 
           {
             input: {
-              workflow_json: JSON.stringify(workflowJson),
-              output_quality: 90
+              prompt: fullPrompt,
+              aspect_ratio: "1:1"
             }
           }
         );
