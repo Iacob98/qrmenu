@@ -12,18 +12,6 @@ export function CategoryTabs({ categories, activeCategory, onCategoryChange }: C
   return (
     <nav className="bg-white border-b sticky top-0 z-30 shadow-sm">
       <div className="flex overflow-x-auto scrollbar-hide py-2 px-2">
-        <Button
-          variant="ghost"
-          className={cn(
-            "px-6 py-4 text-base font-medium whitespace-nowrap rounded-lg mx-1 transition-all duration-200",
-            activeCategory === null
-              ? "text-white bg-primary-600 shadow-md hover:bg-primary-700"
-              : "text-gray-600 hover:text-primary-600 hover:bg-primary-50"
-          )}
-          onClick={() => onCategoryChange(null)}
-        >
-          Все блюда
-        </Button>
         {categories.map((category) => (
           <Button
             key={category.id}

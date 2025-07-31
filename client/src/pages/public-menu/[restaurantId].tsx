@@ -59,6 +59,14 @@ export default function PublicMenu() {
     };
   };
 
+  // Auto-select first category when menu loads
+  useEffect(() => {
+    const menuWithFavorites = getMenuWithFavorites();
+    if (menuWithFavorites && selectedCategory === null && menuWithFavorites.categories.length > 0) {
+      setSelectedCategory(menuWithFavorites.categories[0].id);
+    }
+  }, [menu, selectedCategory]);
+
   // Filter dishes based on category, search, and tags
   useEffect(() => {
     const menuWithFavorites = getMenuWithFavorites();
