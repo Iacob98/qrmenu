@@ -146,7 +146,14 @@ export default function PublicMenu() {
       document.body.style.fontFamily = design.fontFamily;
     }
     if (design.fontSize) {
-      root.style.setProperty('--font-size', design.fontSize);
+      const fontSizeMap = {
+        small: '14px',
+        medium: '16px',  
+        large: '18px'
+      };
+      const fontSize = fontSizeMap[design.fontSize] || '16px';
+      root.style.setProperty('--font-size', fontSize);
+      document.body.style.fontSize = fontSize;
     }
     if (design.cardRadius) {
       root.style.setProperty('--card-radius', `${design.cardRadius}px`);
@@ -171,6 +178,7 @@ export default function PublicMenu() {
       root.style.removeProperty('--card-radius');
       root.style.removeProperty('--card-spacing');
       document.body.style.fontFamily = '';
+      document.body.style.fontSize = '';
     };
   }, [menu?.restaurant?.design]);
 
@@ -215,7 +223,12 @@ export default function PublicMenu() {
   return (
     <div 
       className="min-h-screen"
-      style={{ backgroundColor: 'var(--background, #ffffff)' }}
+      style={{ 
+        backgroundColor: 'var(--background, #ffffff)',
+        fontFamily: 'var(--font-family, inherit)',
+        fontSize: 'var(--font-size, inherit)',
+        color: 'var(--foreground, inherit)'
+      }}
     >
       <div className="max-w-md mx-auto">
         {/* Menu Header */}
