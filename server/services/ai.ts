@@ -301,7 +301,7 @@ The composition is minimal and elegant, focused on the food, with no distracting
           },
           "6": {
             "inputs": {
-              "text": englishPrompt + ", professional food photography, high quality, detailed, appetizing, clean background",
+              "text": englishPrompt + ", professional food photography, high quality, detailed, appetizing, clean background. The dish is served on a clean ceramic plate, placed on a neutral white background. The lighting is soft and natural, coming from the top left at a ~45° angle, creating gentle shadows and highlighting textures. The composition is minimal and elegant, focused on the food, with no distracting elements or background props. The image should be centered, with sharp details, realistic portion size, and natural color tones. High-quality photo style (not illustration, not AI-looking, no watercolor). No watermark. No text.",
               "clip": ["4", 1]
             },
             "class_type": "CLIPTextEncode",
