@@ -340,6 +340,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       const dish = await storage.createDish(dishData);
+      
+      // Notify WebSocket clients about new dish
+      const { wsManager } = await import("./index");
+      if (wsManager && restaurant.slug) {
+        wsManager.notifyMenuUpdate(restaurant.slug, {
+          type: 'dish_created',
+          dish: dish
+        });
+      }
+      
       res.status(201).json(dish);
     } catch (error) {
       res.status(400).json({ message: handleError(error) });
@@ -405,6 +415,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       await storage.deleteDish(req.params.id);
+      
+      // Notify WebSocket clients about dish deletion
+      const { wsManager } = await import("./index");
+      if (wsManager && restaurant.slug) {
+        wsManager.notifyMenuUpdate(restaurant.slug, {
+          type: 'dish_deleted',
+          dishId: dish.id
+        });
+      }
+      
       res.json({ message: "Dish deleted" });
     } catch (error) {
       res.status(500).json({ message: handleError(error) });

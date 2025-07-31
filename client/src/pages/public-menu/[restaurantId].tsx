@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { CategoryTabs } from "@/components/menu/category-tabs";
 import { DishCard } from "@/components/menu/dish-card";
 import { DishDetailsModal } from "@/components/modals/dish-details";
+import { useRealTimeMenu } from "@/hooks/useRealTimeMenu";
 import { Search, X } from "lucide-react";
 import type { PublicMenu, Dish } from "@shared/schema";
 
@@ -34,6 +35,9 @@ export default function PublicMenu() {
     queryKey: ["/api/public/menu", params?.slug],
     enabled: !!params?.slug,
   });
+
+  // Real-time updates - temporarily disabled to test core functionality
+  // const { isConnected } = useRealTimeMenu(params?.slug || "");
 
   // Helper function to create menu with favorites
   const getMenuWithFavorites = () => {
