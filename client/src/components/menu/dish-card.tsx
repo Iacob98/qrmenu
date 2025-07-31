@@ -50,10 +50,10 @@ export function DishCard({
   };
 
   return (
-    <Card className="p-4 card-hover">
-      <div className="flex items-start space-x-4">
+    <Card className="p-3 sm:p-4 card-hover dish-card">
+      <div className="flex items-start space-x-3 sm:space-x-4">
         {/* Dish Image */}
-        <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-200 rounded-lg flex-shrink-0 dish-image">
           {dish.image ? (
             <img 
               src={dish.image} 
@@ -67,10 +67,10 @@ export function DishCard({
           )}
         </div>
         
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center space-x-2">
-              <h3 className={`font-semibold ${dish.isHidden ? 'text-gray-400' : 'text-gray-900'}`}>
+            <div className="flex items-center space-x-2 flex-1 min-w-0">
+              <h3 className={`font-semibold text-sm sm:text-base truncate ${dish.isHidden ? 'text-gray-400' : 'text-gray-900'}`}>
                 {dish.name}
               </h3>
               {dish.isFavorite && <Heart className="h-4 w-4 text-red-500 fill-current" />}

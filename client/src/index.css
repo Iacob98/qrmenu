@@ -101,4 +101,69 @@
   .mobile-stack {
     @apply flex-col space-y-4 space-x-0;
   }
+  
+  /* Fix context menu z-index issues on mobile */
+  [data-radix-context-menu-content] {
+    z-index: 9999 !important;
+  }
+  
+  /* Ensure proper scrolling on mobile */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  /* Prevent zoom on form inputs */
+  input[type="text"],
+  input[type="search"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Fix for context menu positioning on mobile */
+.context-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(2px);
+}
+
+/* Mobile-friendly card styles */
+@media (max-width: 640px) {
+  .dish-card {
+    padding: 12px;
+  }
+  
+  .dish-card .dish-image {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Mobile viewport fix */
+@media screen and (max-width: 480px) {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
