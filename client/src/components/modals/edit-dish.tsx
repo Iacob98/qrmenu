@@ -100,18 +100,46 @@ export function EditDishModal({
       ingredients?: string[];
       tags?: string[];
     }) => {
-      return await apiRequest("POST", `/api/ai/generate-image`, { 
+      const response = await apiRequest("POST", `/api/ai/generate-image`, { 
         restaurantId, 
         dishName, 
         description,
         ingredients,
         tags
       });
+      return await response.json();
     },
-    onSuccess: (data: any) => {
-      setFormData(prev => ({ ...prev, image: data.imageUrl }));
-      toast({ title: "Фото сгенерировано" });
-      console.log('[Generated Image] URL:', data.imageUrl);
+    onSuccess: async (response: any) => {
+      console.log('[Generated Image] Response:', response);
+      const imageUrl = response?.imageUrl;
+      if (imageUrl) {
+        // Immediately update the form data
+        setFormData(prev => ({ ...prev, image: imageUrl }));
+        
+        // Also save the image to the dish in the database immediately
+        try {
+          await updateDishMutation.mutateAsync({
+            name: formData.name.trim(),
+            description: formData.description.trim() || null,
+            price: parseFloat(formData.price),
+            categoryId: formData.categoryId,
+            ingredients: formData.ingredients.split(",").map(ing => ing.trim()).filter(ing => ing.length > 0),
+            tags: formData.tags.length > 0 ? formData.tags : null,
+            image: imageUrl,
+          });
+          toast({ title: "Фото сгенерировано и сохранено" });
+        } catch (error) {
+          setFormData(prev => ({ ...prev, image: imageUrl }));
+          toast({ title: "Фото сгенерировано" });
+        }
+        console.log('[Generated Image] URL:', imageUrl);
+      } else {
+        toast({
+          title: "Ошибка",
+          description: "Не удалось получить URL изображения",
+          variant: "destructive",
+        });
+      }
     },
     onError: (error: any) => {
       toast({

@@ -103,17 +103,29 @@ export function AddDishModal({
       ingredients?: string[];
       tags?: string[];
     }) => {
-      return await apiRequest("POST", `/api/ai/generate-image`, { 
+      const response = await apiRequest("POST", `/api/ai/generate-image`, { 
         restaurantId, 
         dishName, 
         description,
         ingredients,
         tags
       });
+      return await response.json();
     },
-    onSuccess: (data: any) => {
-      setFormData(prev => ({ ...prev, image: data.imageUrl }));
-      toast({ title: "Фото сгенерировано" });
+    onSuccess: (response: any) => {
+      console.log('[Generated Image] Response:', response);
+      const imageUrl = response?.imageUrl;
+      if (imageUrl) {
+        setFormData(prev => ({ ...prev, image: imageUrl }));
+        toast({ title: "Фото сгенерировано" });
+        console.log('[Generated Image] URL:', imageUrl);
+      } else {
+        toast({
+          title: "Ошибка",
+          description: "Не удалось получить URL изображения",
+          variant: "destructive",
+        });
+      }
     },
     onError: (error: any) => {
       toast({
