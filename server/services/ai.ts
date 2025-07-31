@@ -220,6 +220,8 @@ The composition is minimal and elegant, focused on the food, with no distracting
 --upbeta`;
 
       console.log(`[AI Service] Generating image with prompt: ${prompt.substring(0, 100)}...`);
+      console.log(`[AI Service] Using API key: ${this.openai.apiKey ? 'Present' : 'Missing'}`);
+      console.log(`[AI Service] Base URL: ${this.openai.baseURL || 'Default OpenAI'}`);
       
       // Use DALL-E 3 with your custom prompt flags
       const response = await this.openai.images.generate({
@@ -230,6 +232,7 @@ The composition is minimal and elegant, focused on the food, with no distracting
         quality: "hd"
       });
 
+      console.log(`[AI Service] Response received:`, response);
       const imageUrl = response.data?.[0]?.url;
       if (!imageUrl) {
         throw new Error("No image URL returned from DALL-E");
