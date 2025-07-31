@@ -30,6 +30,7 @@ This is a full-stack restaurant online menu management system built with React, 
 - ✅ **Multiple Photo Upload**: Added support for uploading multiple photos for AI menu analysis with duplicate detection
 - ✅ **Enhanced Photo Analysis**: Improved photo analysis workflow with progress tracking and error handling for batch processing
 - ✅ **AI Image Persistence Fixed**: Fixed DALL-E generated images by downloading and saving them locally instead of using temporary URLs
+- ✅ **Enhanced AI Image Prompts**: Improved DALL-E prompts to include full dish information (ingredients, tags, description) for more accurate food photography
 
 # User Preferences
 

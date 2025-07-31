@@ -664,7 +664,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/ai/generate-image", requireAuth, async (req, res) => {
     try {
-      const { restaurantId, dishName, description } = req.body;
+      const { restaurantId, dishName, description, ingredients, tags } = req.body;
       
       if (!restaurantId || !dishName) {
         return res.status(400).json({ message: "Missing required fields: restaurantId, dishName" });
@@ -683,7 +683,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`[AI Image] Generating image for dish: ${dishName}`);
       const aiService = createAIService(apiKey, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
-      const temporaryImageUrl = await aiService.generateDishImage(dishName, description || "");
+      const temporaryImageUrl = await aiService.generateDishImage(
+        dishName, 
+        description || "", 
+        ingredients || [], 
+        tags || []
+      );
       
       console.log(`[AI Image] Generated successfully, downloading: ${temporaryImageUrl}`);
       

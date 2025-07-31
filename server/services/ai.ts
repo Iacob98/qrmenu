@@ -183,16 +183,33 @@ Return a JSON object with a "dishes" array containing all extracted dishes.`
     }
   }
 
-  async generateDishImage(dishName: string, description: string): Promise<string> {
+  async generateDishImage(dishName: string, description: string, ingredients?: string[], tags?: string[]): Promise<string> {
     try {
-      // Create detailed professional food photography prompt
-      const dishDetails = description ? `${dishName} - ${description}` : dishName;
+      // Build comprehensive dish information
+      let dishInfo = dishName;
       
-      const prompt = `A highly realistic, professionally styled food photo of ${dishDetails}. The dish is served on a clean ceramic plate, placed on a neutral white background. The lighting is soft and natural, coming from the top left at a ~45° angle, creating gentle shadows and highlighting textures.
+      if (description) {
+        dishInfo += ` - ${description}`;
+      }
+      
+      if (ingredients && ingredients.length > 0) {
+        dishInfo += `. Ingredients: ${ingredients.join(', ')}`;
+      }
+      
+      if (tags && tags.length > 0) {
+        const relevantTags = tags.filter(tag => 
+          !['popular', 'healthy'].includes(tag) // Remove generic tags
+        );
+        if (relevantTags.length > 0) {
+          dishInfo += `. Style: ${relevantTags.join(', ')}`;
+        }
+      }
+      
+      const prompt = `A highly realistic, professionally styled food photo of ${dishInfo}. The dish is served on a clean ceramic plate, placed on a neutral white background. The lighting is soft and natural, coming from the top left at a ~45° angle, creating gentle shadows and highlighting textures.
 
 The composition is minimal and elegant, focused on the food, with no distracting elements or background props. The image should be centered, with sharp details, realistic portion size, and natural color tones. High-quality photo style (not illustration, not AI-looking, no watercolor). No watermark. No text.
 
-Professional food photography, restaurant quality, appetizing presentation, commercial style.`;
+Professional food photography, restaurant quality, appetizing presentation, commercial style. Ultra-detailed, photorealistic, studio lighting, 8K resolution.`;
 
       console.log(`[AI Service] Generating image with prompt: ${prompt.substring(0, 100)}...`);
       

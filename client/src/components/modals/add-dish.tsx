@@ -97,11 +97,18 @@ export function AddDishModal({
   };
 
   const generateImageMutation = useMutation({
-    mutationFn: async ({ dishName, description }: { dishName: string; description: string }) => {
+    mutationFn: async ({ dishName, description, ingredients, tags }: { 
+      dishName: string; 
+      description: string;
+      ingredients?: string[];
+      tags?: string[];
+    }) => {
       return await apiRequest("POST", `/api/ai/generate-image`, { 
         restaurantId, 
         dishName, 
-        description 
+        description,
+        ingredients,
+        tags
       });
     },
     onSuccess: (data: any) => {
@@ -125,9 +132,16 @@ export function AddDishModal({
       });
       return;
     }
+    const ingredients = formData.ingredients
+      .split(",")
+      .map(ing => ing.trim())
+      .filter(ing => ing.length > 0);
+      
     generateImageMutation.mutate({
       dishName: formData.name,
       description: formData.description,
+      ingredients: ingredients.length > 0 ? ingredients : undefined,
+      tags: formData.tags.length > 0 ? formData.tags : undefined,
     });
   };
 
