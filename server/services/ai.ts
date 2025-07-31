@@ -252,23 +252,90 @@ The composition is minimal and elegant, focused on the food, with no distracting
         });
       }
 
-      console.log(`[Replicate] Using Imagen-4 for image generation`);
+      console.log(`[Replicate] Using ComfyUI workflow for image generation`);
       console.log(`[Replicate] Auth token available:`, !!process.env.REPLICATE_API_TOKEN);
       console.log(`[Replicate] Client initialized:`, !!this.replicate);
       
       let prediction: any;
       try {
-        console.log(`[Replicate] Starting API call...`);
-        prediction = await this.replicate.run(
-        "google/imagen-4",
-        {
-          input: {
-            prompt,
-            aspect_ratio: "1:1",
-            safety_filter_level: "block_only_high",
-            output_format: "jpg"
+        console.log(`[Replicate] Starting API call with ComfyUI workflow...`);
+        
+        // ComfyUI workflow for food photography
+        const workflowJson = {
+          "3": {
+            "inputs": {
+              "seed": Math.floor(Math.random() * 1000000000000000),
+              "steps": 20,
+              "cfg": 7,
+              "sampler_name": "dpmpp_2m_sde",
+              "scheduler": "karras",
+              "denoise": 1,
+              "model": ["4", 0],
+              "positive": ["6", 0],
+              "negative": ["7", 0],
+              "latent_image": ["5", 0]
+            },
+            "class_type": "KSampler",
+            "_meta": { "title": "KSampler" }
+          },
+          "4": {
+            "inputs": {
+              "ckpt_name": "realismEngineSDXL_v30VAE.safetensors"
+            },
+            "class_type": "CheckpointLoaderSimple",
+            "_meta": { "title": "Load Checkpoint" }
+          },
+          "5": {
+            "inputs": {
+              "width": 1024,
+              "height": 1024,
+              "batch_size": 1
+            },
+            "class_type": "EmptyLatentImage",
+            "_meta": { "title": "Empty Latent Image" }
+          },
+          "6": {
+            "inputs": {
+              "text": prompt + ", professional food photography, high quality, detailed, appetizing, clean background",
+              "clip": ["4", 1]
+            },
+            "class_type": "CLIPTextEncode",
+            "_meta": { "title": "CLIP Text Encode (Prompt)" }
+          },
+          "7": {
+            "inputs": {
+              "text": "blurry, low quality, distorted, ugly, bad lighting, messy, dirty, unappetizing, cartoon, illustration",
+              "clip": ["4", 1]
+            },
+            "class_type": "CLIPTextEncode",
+            "_meta": { "title": "CLIP Text Encode (Prompt)" }
+          },
+          "8": {
+            "inputs": {
+              "samples": ["3", 0],
+              "vae": ["4", 2]
+            },
+            "class_type": "VAEDecode",
+            "_meta": { "title": "VAE Decode" }
+          },
+          "9": {
+            "inputs": {
+              "filename_prefix": "food_photo",
+              "images": ["8", 0]
+            },
+            "class_type": "SaveImage",
+            "_meta": { "title": "Save Image" }
           }
-        }
+        };
+
+        prediction = await this.replicate.run(
+          "fofr/any-comfyui-workflow:67ed4ba04ce0842446e16c428b1be131452815d01810861f71d171f63e8ba8f0",
+          {
+            input: {
+              workflow_json: JSON.stringify(workflowJson),
+              output_quality: 90
+            }
+          }
         );
         console.log(`[Replicate] API call completed successfully`);
       } catch (apiError) {
