@@ -10,15 +10,15 @@ interface CategoryTabsProps {
 
 export function CategoryTabs({ categories, activeCategory, onCategoryChange }: CategoryTabsProps) {
   return (
-    <nav className="bg-white border-b sticky top-0 z-30">
-      <div className="flex overflow-x-auto scrollbar-hide">
+    <nav className="bg-white border-b sticky top-0 z-30 shadow-sm">
+      <div className="flex overflow-x-auto scrollbar-hide py-2 px-2">
         <Button
           variant="ghost"
           className={cn(
-            "px-4 py-3 whitespace-nowrap rounded-none border-b-2",
+            "px-6 py-4 text-base font-medium whitespace-nowrap rounded-lg mx-1 transition-all duration-200",
             activeCategory === null
-              ? "text-primary-600 border-primary-600"
-              : "text-gray-500 hover:text-gray-700 border-transparent"
+              ? "text-white bg-primary-600 shadow-md hover:bg-primary-700"
+              : "text-gray-600 hover:text-primary-600 hover:bg-primary-50"
           )}
           onClick={() => onCategoryChange(null)}
         >
@@ -29,10 +29,10 @@ export function CategoryTabs({ categories, activeCategory, onCategoryChange }: C
             key={category.id}
             variant="ghost"
             className={cn(
-              "px-4 py-3 whitespace-nowrap rounded-none border-b-2",
+              "px-6 py-4 text-base font-medium whitespace-nowrap rounded-lg mx-1 transition-all duration-200",
               activeCategory === category.id
-                ? "text-primary-600 border-primary-600"
-                : "text-gray-500 hover:text-gray-700 border-transparent"
+                ? "text-white bg-primary-600 shadow-md hover:bg-primary-700"
+                : "text-gray-600 hover:text-primary-600 hover:bg-primary-50"
             )}
             onClick={() => onCategoryChange(category.id)}
           >
