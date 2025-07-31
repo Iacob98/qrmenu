@@ -190,13 +190,15 @@ export default function PublicMenu() {
     };
   }, [menu?.restaurant?.design]);
 
+  const menuWithFavorites = getMenuWithFavorites();
+
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-md mx-auto">
         {/* Menu Header */}
         <header className="bg-primary-600 text-white text-center relative overflow-hidden">
           {/* Banner Background */}
-          {menu.restaurant.banner && (
+          {menu?.restaurant?.banner && (
             <div 
               className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
               style={{ backgroundImage: `url(${menu.restaurant.banner})` }}
@@ -204,20 +206,20 @@ export default function PublicMenu() {
           )}
           
           <div className="relative z-10 p-6">
-            {menu.restaurant.logo && (
+            {menu?.restaurant?.logo && (
               <img 
                 src={menu.restaurant.logo} 
                 alt={menu.restaurant.name}
                 className="w-16 h-16 mx-auto mb-4 rounded-full object-cover border-2 border-white/50"
               />
             )}
-            <h1 className="text-2xl font-bold text-white drop-shadow-lg">{menu.restaurant.name}</h1>
-            {menu.restaurant.city && (
+            <h1 className="text-2xl font-bold text-white drop-shadow-lg">{menu?.restaurant?.name}</h1>
+            {menu?.restaurant?.city && (
               <p className="text-white/90 drop-shadow-md">{menu.restaurant.city}</p>
             )}
             <div className="flex justify-center space-x-4 mt-4 text-sm text-white/90 drop-shadow-md">
-              <span>🇷🇺 {menu.restaurant.language === 'ru' ? 'Русский' : 'Русский'}</span>
-              <span>{getCurrencySymbol(menu.restaurant.currency)} {menu.restaurant.currency}</span>
+              <span>🇷🇺 {menu?.restaurant?.language === 'ru' ? 'Русский' : 'Русский'}</span>
+              <span>{getCurrencySymbol(menu?.restaurant?.currency || 'EUR')} {menu?.restaurant?.currency}</span>
             </div>
           </div>
         </header>
@@ -226,7 +228,7 @@ export default function PublicMenu() {
 
         {/* Category Tabs */}
         <CategoryTabs
-          categories={getMenuWithFavorites()?.categories || []}
+          categories={menuWithFavorites?.categories || []}
           activeCategory={selectedCategory}
           onCategoryChange={setSelectedCategory}
         />
@@ -307,7 +309,7 @@ export default function PublicMenu() {
               <DishCard
                 key={dish.id}
                 dish={dish}
-                currency={menu.restaurant.currency}
+                currency={menu?.restaurant?.currency || 'EUR'}
                 onFilterByTag={handleTagFilter}
                 onShowDetails={setSelectedDish}
                 showActions={false}
@@ -319,7 +321,7 @@ export default function PublicMenu() {
 
         {/* Footer */}
         <footer className="bg-gray-50 p-4 text-center text-sm text-gray-600 border-t mt-8">
-          {menu.restaurant.phone && (
+          {menu?.restaurant?.phone && (
             <p className="mb-2">📞 {menu.restaurant.phone}</p>
           )}
           <p>Создано с помощью QRMenu</p>
@@ -331,7 +333,7 @@ export default function PublicMenu() {
         dish={selectedDish}
         isOpen={!!selectedDish}
         onClose={() => setSelectedDish(null)}
-        currency={menu.restaurant.currency}
+        currency={menu?.restaurant?.currency || 'EUR'}
       />
     </div>
   );
