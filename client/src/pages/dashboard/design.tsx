@@ -18,6 +18,7 @@ const colorThemes = {
   default: {
     name: "По умолчанию",
     primary: "#22c55e",
+    accent: "#f59e0b",
     background: "#ffffff",
     cardBg: "#ffffff",
     text: "#111827",
@@ -25,6 +26,7 @@ const colorThemes = {
   elegant: {
     name: "Элегантный",
     primary: "#6366f1",
+    accent: "#ec4899", 
     background: "#f8fafc",
     cardBg: "#ffffff",
     text: "#1e293b",
@@ -32,6 +34,7 @@ const colorThemes = {
   warm: {
     name: "Тёплый",
     primary: "#f59e0b",
+    accent: "#dc2626",
     background: "#fef3c7",
     cardBg: "#fffbeb",
     text: "#92400e",
@@ -39,6 +42,7 @@ const colorThemes = {
   dark: {
     name: "Тёмный",
     primary: "#10b981",
+    accent: "#f59e0b",
     background: "#1f2937",
     cardBg: "#374151",
     text: "#f9fafb",
@@ -58,6 +62,7 @@ export default function Design() {
   const [designSettings, setDesignSettings] = useState({
     theme: "default",
     primaryColor: "#22c55e",
+    accentColor: "#f59e0b",
     backgroundColor: "#ffffff",
     cardBackground: "#ffffff",
     textColor: "#111827",
@@ -87,7 +92,7 @@ export default function Design() {
   // Load existing design settings when restaurant data changes
   useEffect(() => {
     if (restaurant?.design && typeof restaurant.design === 'object') {
-      setDesignSettings(prev => ({ ...prev, ...restaurant.design }));
+      setDesignSettings(prev => ({ ...prev, ...(restaurant.design as Record<string, any>) }));
     }
   }, [restaurant]);
 
@@ -127,6 +132,7 @@ export default function Design() {
       ...prev,
       theme,
       primaryColor: themeColors.primary,
+      accentColor: themeColors.accent,
       backgroundColor: themeColors.background,
       cardBackground: themeColors.cardBg,
       textColor: themeColors.text,
@@ -137,6 +143,7 @@ export default function Design() {
     setDesignSettings({
       theme: "default",
       primaryColor: "#22c55e",
+      accentColor: "#f59e0b",
       backgroundColor: "#ffffff",
       cardBackground: "#ffffff",
       textColor: "#111827",
@@ -270,6 +277,32 @@ export default function Design() {
                         className="w-10 h-10 border rounded"
                       />
                       <span className="text-sm text-gray-600">{designSettings.primaryColor}</span>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="accentColor">Акцентный цвет</Label>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <input
+                        type="color"
+                        value={designSettings.accentColor || "#f59e0b"}
+                        onChange={(e) => setDesignSettings(prev => ({ ...prev, accentColor: e.target.value }))}
+                        className="w-10 h-10 border rounded"
+                      />
+                      <span className="text-sm text-gray-600">{designSettings.accentColor || "#f59e0b"}</span>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="backgroundColor">Цвет фона</Label>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <input
+                        type="color"
+                        value={designSettings.backgroundColor}
+                        onChange={(e) => setDesignSettings(prev => ({ ...prev, backgroundColor: e.target.value }))}
+                        className="w-10 h-10 border rounded"
+                      />
+                      <span className="text-sm text-gray-600">{designSettings.backgroundColor}</span>
                     </div>
                   </div>
                 </CardContent>

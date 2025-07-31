@@ -130,6 +130,11 @@ export default function PublicMenu() {
       root.style.setProperty('--primary-600', design.primaryColor);
       root.style.setProperty('--primary-700', design.primaryColor);
     }
+    if (design.accentColor) {
+      root.style.setProperty('--accent', design.accentColor);
+      root.style.setProperty('--accent-600', design.accentColor);
+      root.style.setProperty('--accent-700', design.accentColor);
+    }
     if (design.backgroundColor) {
       root.style.setProperty('--background', design.backgroundColor);
     }
@@ -156,6 +161,9 @@ export default function PublicMenu() {
       root.style.removeProperty('--primary');
       root.style.removeProperty('--primary-600');
       root.style.removeProperty('--primary-700');
+      root.style.removeProperty('--accent');
+      root.style.removeProperty('--accent-600');
+      root.style.removeProperty('--accent-700');
       root.style.removeProperty('--background');
       root.style.removeProperty('--foreground');
       root.style.removeProperty('--font-family');
