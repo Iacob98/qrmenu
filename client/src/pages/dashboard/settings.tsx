@@ -446,6 +446,7 @@ export default function Settings() {
                           <SelectContent>
                             <SelectItem value="openai">OpenAI</SelectItem>
                             <SelectItem value="openrouter">OpenRouter</SelectItem>
+                            <SelectItem value="replicate">Replicate (Imagen-4)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -484,6 +485,8 @@ export default function Settings() {
                         <p className="text-sm text-gray-500 mt-1">
                           {restaurantForm.aiProvider === "openrouter" 
                             ? "Токен OpenRouter для генерации меню" 
+                            : restaurantForm.aiProvider === "replicate"
+                            ? "Токен Replicate для генерации изображений через Imagen-4"
                             : "Токен OpenAI для генерации меню из фото и текста"
                           }
                         </p>

@@ -209,6 +209,7 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
                     <SelectContent>
                       <SelectItem value="openai">OpenAI</SelectItem>
                       <SelectItem value="openrouter">OpenRouter</SelectItem>
+                      <SelectItem value="replicate">Replicate (Imagen-4)</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -232,6 +233,8 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
                   <p className="text-sm text-gray-500">
                     {form.watch("aiProvider") === "openrouter" 
                       ? "Токен OpenRouter для генерации меню" 
+                      : form.watch("aiProvider") === "replicate"
+                      ? "Токен Replicate для генерации изображений через Imagen-4"
                       : "Токен OpenAI для генерации меню из фото и текста"
                     }
                   </p>

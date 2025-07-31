@@ -675,14 +675,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Restaurant not found" });
       }
 
-      // Use restaurant's AI token if available, otherwise use global OPENAI_API_KEY
-      const apiKey = restaurant.aiToken || process.env.OPENAI_API_KEY;
+      // Use restaurant's AI token if available, otherwise use global keys
+      const provider = restaurant.aiProvider || 'openai';
+      let apiKey: string | undefined;
+      
+      if (provider === 'replicate') {
+        apiKey = restaurant.aiToken || process.env.REPLICATE_API_TOKEN;
+      } else {
+        apiKey = restaurant.aiToken || process.env.OPENAI_API_KEY;
+      }
+      
       if (!apiKey) {
-        return res.status(400).json({ message: "AI token not configured" });
+        return res.status(400).json({ message: `${provider} API token not configured` });
       }
 
-      console.log(`[AI Image] Generating image for dish: ${dishName}`);
-      const aiService = createAIService(apiKey, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
+      console.log(`[AI Image] Generating image for dish: ${dishName} using ${provider}`);
+      const aiService = createAIService(apiKey, provider, restaurant.aiModel || undefined);
       const temporaryImageUrl = await aiService.generateDishImage(
         dishName, 
         description || "", 

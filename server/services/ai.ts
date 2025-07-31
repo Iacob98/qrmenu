@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import Replicate from "replicate";
 
 // Helper function for error handling
 const handleError = (error: unknown): string => {
@@ -21,23 +22,37 @@ interface AIGeneratedDish {
 }
 
 export class AIService {
-  private openai: OpenAI;
+  private openai?: OpenAI;
+  private replicate?: Replicate;
   public model: string;
+  public provider: string;
 
   constructor(apiKey: string, provider: string = "openai", model?: string) {
-    const baseURL = provider === "openrouter" 
-      ? "https://openrouter.ai/api/v1"
-      : undefined;
-      
-    this.openai = new OpenAI({ 
-      apiKey,
-      baseURL 
-    });
+    this.provider = provider;
+    
+    if (provider === "replicate") {
+      this.replicate = new Replicate({
+        auth: apiKey,
+      });
+    } else {
+      const baseURL = provider === "openrouter" 
+        ? "https://openrouter.ai/api/v1"
+        : undefined;
+        
+      this.openai = new OpenAI({ 
+        apiKey,
+        baseURL 
+      });
+    }
     this.model = provider === "openrouter" ? (model || "gpt-4o") : "gpt-4o";
   }
 
   async analyzePDF(base64Data: string): Promise<AIGeneratedDish[]> {
     try {
+      if (!this.openai) {
+        throw new Error("OpenAI client not initialized for PDF analysis");
+      }
+      
       const response = await this.openai.chat.completions.create({
         model: this.model,
         messages: [
@@ -86,6 +101,10 @@ Return a JSON object with a "dishes" array containing all extracted dishes.`
 
   async analyzePhoto(base64Image: string): Promise<AIGeneratedDish[]> {
     try {
+      if (!this.openai) {
+        throw new Error("OpenAI client not initialized for photo analysis");
+      }
+      
       const response = await this.openai.chat.completions.create({
         model: this.model,
         messages: [
@@ -134,6 +153,10 @@ Return a JSON object with a "dishes" array containing all extracted dishes.`
 
   async analyzeText(text: string): Promise<AIGeneratedDish[]> {
     try {
+      if (!this.openai) {
+        throw new Error("OpenAI client not initialized for text analysis");
+      }
+      
       const response = await this.openai.chat.completions.create({
         model: this.model,
         messages: [
@@ -217,20 +240,47 @@ The composition is minimal and elegant, focused on the food, with no distracting
 
       console.log(`[AI Service] Generating image with prompt: ${prompt.substring(0, 100)}...`);
       
-      const response = await this.openai.images.generate({
-        model: "dall-e-3",
-        prompt,
-        n: 1,
-        size: "1024x1024", // Square format like --ar 1:1
-        quality: "hd" // Maximum quality equivalent to --quality 2
-      });
+      // Use Replicate Imagen-4 if available, otherwise fallback to DALL-E 3
+      if (this.provider === "replicate" && this.replicate) {
+        const prediction = await this.replicate.run(
+          "google/imagen-4",
+          {
+            input: {
+              prompt,
+              aspect_ratio: "1:1",
+              safety_filter_level: "block_medium_and_above"
+            }
+          }
+        );
 
-      const imageUrl = response.data?.[0]?.url;
-      if (!imageUrl) {
-        throw new Error("No image URL returned from OpenAI");
+        // Replicate returns the image URL as a string
+        const imageUrl = typeof prediction === 'string' ? prediction : (prediction as any)?.[0];
+        if (!imageUrl) {
+          throw new Error("No image URL returned from Replicate");
+        }
+
+        return imageUrl;
+      } else {
+        // DALL-E 3 fallback
+        if (!this.openai) {
+          throw new Error("OpenAI client not initialized");
+        }
+        
+        const response = await this.openai.images.generate({
+          model: "dall-e-3",
+          prompt,
+          n: 1,
+          size: "1024x1024", // Square format like --ar 1:1
+          quality: "hd" // Maximum quality equivalent to --quality 2
+        });
+
+        const imageUrl = response.data?.[0]?.url;
+        if (!imageUrl) {
+          throw new Error("No image URL returned from OpenAI");
+        }
+
+        return imageUrl;
       }
-
-      return imageUrl;
     } catch (error) {
       console.error('[AI Service] Image generation error:', error);
       throw new Error(`Failed to generate image: ${handleError(error)}`);
@@ -239,6 +289,10 @@ The composition is minimal and elegant, focused on the food, with no distracting
 
   async enhanceDish(dish: Partial<AIGeneratedDish>): Promise<AIGeneratedDish> {
     try {
+      if (!this.openai) {
+        throw new Error("OpenAI client not initialized for dish enhancement");
+      }
+      
       const response = await this.openai.chat.completions.create({
         model: this.model,
         messages: [
