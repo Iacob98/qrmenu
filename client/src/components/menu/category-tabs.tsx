@@ -10,8 +10,8 @@ interface CategoryTabsProps {
 
 export function CategoryTabs({ categories, activeCategory, onCategoryChange }: CategoryTabsProps) {
   return (
-    <nav className="bg-white border-b">
-      <div className="flex overflow-x-auto">
+    <nav className="bg-white border-b sticky top-0 z-30">
+      <div className="flex overflow-x-auto scrollbar-hide">
         <Button
           variant="ghost"
           className={cn(

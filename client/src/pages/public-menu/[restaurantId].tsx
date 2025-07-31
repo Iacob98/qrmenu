@@ -189,7 +189,7 @@ export default function PublicMenu() {
         />
 
         {/* Search and Filters */}
-        <div className="p-4 bg-gray-50 relative z-10">
+        <div className="p-4 bg-gray-50">
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <Input
@@ -245,7 +245,7 @@ export default function PublicMenu() {
         </div>
 
         {/* Dishes List */}
-        <div className="p-4 space-y-4 relative z-10">
+        <div className="p-4 space-y-4">
           {filteredDishes.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               {activeTags.length > 0 || searchQuery ? (
