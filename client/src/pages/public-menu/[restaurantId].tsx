@@ -123,6 +123,8 @@ export default function PublicMenu() {
     const design = menu.restaurant.design;
     const root = document.documentElement;
     
+    console.log('Applying design settings:', design);
+    
     if (design.primaryColor) {
       root.style.setProperty('--primary', design.primaryColor);
       root.style.setProperty('--primary-600', design.primaryColor);
@@ -135,7 +137,17 @@ export default function PublicMenu() {
       root.style.setProperty('--foreground', design.textColor);
     }
     if (design.fontFamily) {
-      root.style.setProperty('font-family', design.fontFamily);
+      root.style.setProperty('--font-family', design.fontFamily);
+      document.body.style.fontFamily = design.fontFamily;
+    }
+    if (design.fontSize) {
+      root.style.setProperty('--font-size', design.fontSize);
+    }
+    if (design.cardRadius) {
+      root.style.setProperty('--card-radius', `${design.cardRadius}px`);
+    }
+    if (design.cardSpacing) {
+      root.style.setProperty('--card-spacing', design.cardSpacing);
     }
     
     // Cleanup on unmount
@@ -146,7 +158,11 @@ export default function PublicMenu() {
       root.style.removeProperty('--primary-700');
       root.style.removeProperty('--background');
       root.style.removeProperty('--foreground');
-      root.style.removeProperty('font-family');
+      root.style.removeProperty('--font-family');
+      root.style.removeProperty('--font-size');
+      root.style.removeProperty('--card-radius');
+      root.style.removeProperty('--card-spacing');
+      document.body.style.fontFamily = '';
     };
   }, [menu?.restaurant?.design]);
 

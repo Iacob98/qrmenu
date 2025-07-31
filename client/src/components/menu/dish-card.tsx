@@ -50,18 +50,33 @@ export function DishCard({
   };
 
   return (
-    <Card className="p-4 card-hover">
+    <Card 
+      className="card-hover"
+      style={{
+        padding: 'var(--card-spacing, 1rem)',
+        borderRadius: 'var(--card-radius, 8px)',
+        fontFamily: 'var(--font-family, inherit)',
+        fontSize: 'var(--font-size, inherit)'
+      }}
+    >
       <div className="flex items-start space-x-4">
         {/* Dish Image */}
-        <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0">
+        <div 
+          className="w-20 h-20 bg-gray-200 flex-shrink-0"
+          style={{ borderRadius: 'var(--card-radius, 8px)' }}
+        >
           {dish.image ? (
             <img 
               src={dish.image} 
               alt={dish.name}
-              className="w-full h-full object-cover rounded-lg"
+              className="w-full h-full object-cover"
+              style={{ borderRadius: 'var(--card-radius, 8px)' }}
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center">
+            <div 
+              className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center"
+              style={{ borderRadius: 'var(--card-radius, 8px)' }}
+            >
               <Utensils className="text-primary-500 text-xl" />
             </div>
           )}
