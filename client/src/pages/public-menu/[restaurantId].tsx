@@ -149,9 +149,9 @@ export default function PublicMenu() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-md mx-auto min-h-screen relative">
+      <div className="max-w-md mx-auto">
         {/* Menu Header */}
-        <header className="bg-primary-600 text-white text-center relative overflow-hidden sticky top-0 z-40">
+        <header className="bg-primary-600 text-white text-center relative overflow-hidden">
           {/* Banner Background */}
           {menu.restaurant.banner && (
             <div 
@@ -160,15 +160,15 @@ export default function PublicMenu() {
             />
           )}
           
-          <div className="relative z-10 p-4 sm:p-6">
+          <div className="relative z-10 p-6">
             {menu.restaurant.logo && (
               <img 
                 src={menu.restaurant.logo} 
                 alt={menu.restaurant.name}
-                className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full object-cover border-2 border-white/50"
+                className="w-16 h-16 mx-auto mb-4 rounded-full object-cover border-2 border-white/50"
               />
             )}
-            <h1 className="text-xl sm:text-2xl font-bold text-white drop-shadow-lg">{menu.restaurant.name}</h1>
+            <h1 className="text-2xl font-bold text-white drop-shadow-lg">{menu.restaurant.name}</h1>
             {menu.restaurant.city && (
               <p className="text-white/90 drop-shadow-md">{menu.restaurant.city}</p>
             )}
@@ -182,16 +182,14 @@ export default function PublicMenu() {
 
 
         {/* Category Tabs */}
-        <div className="sticky top-16 sm:top-20 z-30 bg-white border-b">
-          <CategoryTabs
-            categories={getMenuWithFavorites()?.categories || []}
-            activeCategory={selectedCategory}
-            onCategoryChange={setSelectedCategory}
-          />
-        </div>
+        <CategoryTabs
+          categories={getMenuWithFavorites()?.categories || []}
+          activeCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+        />
 
         {/* Search and Filters */}
-        <div className="p-4 bg-gray-50">
+        <div className="p-4 bg-gray-50 relative z-10">
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <Input
@@ -247,7 +245,7 @@ export default function PublicMenu() {
         </div>
 
         {/* Dishes List */}
-        <div className="p-4 space-y-4">
+        <div className="p-4 space-y-4 relative z-10">
           {filteredDishes.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               {activeTags.length > 0 || searchQuery ? (
