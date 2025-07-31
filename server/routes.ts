@@ -675,14 +675,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Restaurant not found" });
       }
 
-      // Use restaurant's AI token if available, otherwise use global OPENAI_API_KEY
-      const apiKey = restaurant.aiToken || process.env.OPENAI_API_KEY;
+      // Use restaurant's AI token if available, otherwise use global OPENROUTER_API_KEY for image generation
+      const apiKey = restaurant.aiToken || process.env.OPENROUTER_API_KEY;
       if (!apiKey) {
         return res.status(400).json({ message: "AI token not configured" });
       }
 
       console.log(`[AI Image] Generating image for dish: ${dishName}`);
-      const aiService = createAIService(apiKey, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
+      // Force OpenRouter for image generation to use FLUX.1 Pro
+      const aiService = createAIService(apiKey, 'openrouter', 'black-forest-labs/flux-1-pro');
       const temporaryImageUrl = await aiService.generateDishImage(
         dishName, 
         description || "", 

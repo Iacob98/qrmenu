@@ -32,6 +32,7 @@ This is a full-stack restaurant online menu management system built with React, 
 - ✅ **AI Image Persistence Fixed**: Fixed DALL-E generated images by downloading and saving them locally instead of using temporary URLs
 - ✅ **Enhanced AI Image Prompts**: Improved DALL-E prompts to include full dish information (ingredients, tags, description) for more accurate food photography
 - ✅ **Maximum Quality AI Images**: Updated DALL-E 3 settings to use HD quality and enhanced prompts for professional food photography
+- ✅ **FLUX.1 Pro Integration**: Switched to FLUX.1 Pro via OpenRouter for superior image generation quality and text rendering
 
 # User Preferences
 

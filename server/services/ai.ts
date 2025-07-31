@@ -31,7 +31,11 @@ export class AIService {
       
     this.openai = new OpenAI({ 
       apiKey,
-      baseURL 
+      baseURL,
+      defaultHeaders: provider === "openrouter" ? {
+        "HTTP-Referer": "https://your-restaurant-menu.replit.app",
+        "X-Title": "Restaurant Menu AI"
+      } : undefined
     });
     this.model = provider === "openrouter" ? (model || "gpt-4o") : "gpt-4o";
   }
@@ -217,17 +221,18 @@ The composition is minimal and elegant, focused on the food, with no distracting
 
       console.log(`[AI Service] Generating image with prompt: ${prompt.substring(0, 100)}...`);
       
+      // Use FLUX.1 Pro via OpenRouter instead of DALL-E for better quality
       const response = await this.openai.images.generate({
-        model: "dall-e-3",
+        model: "black-forest-labs/flux-1-pro",
         prompt,
         n: 1,
-        size: "1024x1024", // Square format like --ar 1:1
-        quality: "hd" // Maximum quality equivalent to --quality 2
+        size: "1024x1024",
+        quality: "hd"
       });
 
       const imageUrl = response.data?.[0]?.url;
       if (!imageUrl) {
-        throw new Error("No image URL returned from OpenAI");
+        throw new Error("No image URL returned from FLUX.1");
       }
 
       return imageUrl;
