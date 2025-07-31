@@ -749,12 +749,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Public menu route (no auth required)
   app.get("/api/public/menu/:slug", async (req, res) => {
     try {
-      const menu = await storage.getPublicMenu(req.params.slug);
+      // Decode URL-encoded slug
+      const decodedSlug = decodeURIComponent(req.params.slug);
+      console.log(`[Public Menu] Requested slug: ${req.params.slug}, decoded: ${decodedSlug}`);
+      
+      const menu = await storage.getPublicMenu(decodedSlug);
       if (!menu) {
+        console.log(`[Public Menu] Menu not found for slug: ${decodedSlug}`);
         return res.status(404).json({ message: "Menu not found" });
       }
+      
+      console.log(`[Public Menu] Menu found: ${menu.restaurant.name}`);
       res.json(menu);
     } catch (error) {
+      console.error(`[Public Menu] Error:`, error);
       res.status(500).json({ message: handleError(error) });
     }
   });
