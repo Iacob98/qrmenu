@@ -221,9 +221,9 @@ The composition is minimal and elegant, focused on the food, with no distracting
 
       console.log(`[AI Service] Generating image with prompt: ${prompt.substring(0, 100)}...`);
       
-      // Use FLUX.1 Pro via OpenRouter instead of DALL-E for better quality
+      // Use DALL-E 3 with your custom prompt flags
       const response = await this.openai.images.generate({
-        model: "black-forest-labs/flux-1-pro",
+        model: "dall-e-3",
         prompt,
         n: 1,
         size: "1024x1024",
@@ -232,7 +232,7 @@ The composition is minimal and elegant, focused on the food, with no distracting
 
       const imageUrl = response.data?.[0]?.url;
       if (!imageUrl) {
-        throw new Error("No image URL returned from FLUX.1");
+        throw new Error("No image URL returned from DALL-E");
       }
 
       return imageUrl;
