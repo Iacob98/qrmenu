@@ -234,9 +234,12 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
                     {form.watch("aiProvider") === "openrouter" 
                       ? "Токен OpenRouter для генерации меню" 
                       : form.watch("aiProvider") === "replicate"
-                      ? "Токен Replicate для генерации изображений через Imagen-4"
+                      ? "Токен Replicate для всех функций ИИ"
                       : "Токен OpenAI для генерации меню из фото и текста"
                     }
+                  </p>
+                  <p className="text-xs text-blue-600 mt-1">
+                    💡 Генерация изображений всегда использует Replicate Imagen-4
                   </p>
                   <FormMessage />
                 </FormItem>

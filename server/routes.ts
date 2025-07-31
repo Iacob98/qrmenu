@@ -675,21 +675,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Restaurant not found" });
       }
 
-      // Use restaurant's AI token if available, otherwise use global keys
+      // For image generation, always use any valid token (Replicate will be used regardless)
       const provider = restaurant.aiProvider || 'openai';
-      let apiKey: string | undefined;
-      
-      if (provider === 'replicate') {
-        apiKey = restaurant.aiToken || process.env.REPLICATE_API_TOKEN;
-      } else {
-        apiKey = restaurant.aiToken || process.env.OPENAI_API_KEY;
-      }
+      const apiKey = restaurant.aiToken || process.env.OPENAI_API_KEY || process.env.REPLICATE_API_TOKEN;
       
       if (!apiKey) {
-        return res.status(400).json({ message: `${provider} API token not configured` });
+        return res.status(400).json({ message: "AI token not configured" });
       }
 
-      console.log(`[AI Image] Generating image for dish: ${dishName} using ${provider}`);
+      console.log(`[AI Image] Generating image for dish: ${dishName} using Replicate Imagen-4`);
       const aiService = createAIService(apiKey, provider, restaurant.aiModel || undefined);
       const temporaryImageUrl = await aiService.generateDishImage(
         dishName, 

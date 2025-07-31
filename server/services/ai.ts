@@ -240,47 +240,40 @@ The composition is minimal and elegant, focused on the food, with no distracting
 
       console.log(`[AI Service] Generating image with prompt: ${prompt.substring(0, 100)}...`);
       
-      // Use Replicate Imagen-4 if available, otherwise fallback to DALL-E 3
-      if (this.provider === "replicate" && this.replicate) {
-        const prediction = await this.replicate.run(
-          "google/imagen-4",
-          {
-            input: {
-              prompt,
-              aspect_ratio: "1:1",
-              safety_filter_level: "block_medium_and_above"
-            }
-          }
-        );
-
-        // Replicate returns the image URL as a string
-        const imageUrl = typeof prediction === 'string' ? prediction : (prediction as any)?.[0];
-        if (!imageUrl) {
-          throw new Error("No image URL returned from Replicate");
-        }
-
-        return imageUrl;
-      } else {
-        // DALL-E 3 fallback
-        if (!this.openai) {
-          throw new Error("OpenAI client not initialized");
-        }
-        
-        const response = await this.openai.images.generate({
-          model: "dall-e-3",
-          prompt,
-          n: 1,
-          size: "1024x1024", // Square format like --ar 1:1
-          quality: "hd" // Maximum quality equivalent to --quality 2
-        });
-
-        const imageUrl = response.data?.[0]?.url;
-        if (!imageUrl) {
-          throw new Error("No image URL returned from OpenAI");
-        }
-
-        return imageUrl;
+      // Always use Replicate for image generation
+      if (!process.env.REPLICATE_API_TOKEN) {
+        throw new Error("REPLICATE_API_TOKEN not configured for image generation");
       }
+
+      // Initialize Replicate client if needed
+      if (!this.replicate) {
+        const Replicate = require('replicate');
+        this.replicate = new Replicate({
+          auth: process.env.REPLICATE_API_TOKEN,
+        });
+      }
+
+      console.log(`[Replicate] Using Imagen-4 for image generation`);
+      
+      const prediction = await this.replicate.run(
+        "google/imagen-4",
+        {
+          input: {
+            prompt,
+            aspect_ratio: "1:1",
+            safety_filter_level: "block_medium_and_above"
+          }
+        }
+      );
+
+      // Replicate returns the image URL as a string
+      const imageUrl = typeof prediction === 'string' ? prediction : (prediction as any)?.[0];
+      if (!imageUrl) {
+        throw new Error("No image URL returned from Replicate");
+      }
+
+      console.log(`[Replicate] Generated image successfully: ${imageUrl}`);
+      return imageUrl;
     } catch (error) {
       console.error('[AI Service] Image generation error:', error);
       throw new Error(`Failed to generate image: ${handleError(error)}`);
