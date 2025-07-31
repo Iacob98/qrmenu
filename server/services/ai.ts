@@ -31,11 +31,7 @@ export class AIService {
       
     this.openai = new OpenAI({ 
       apiKey,
-      baseURL,
-      defaultHeaders: provider === "openrouter" ? {
-        "HTTP-Referer": "https://your-restaurant-menu.replit.app",
-        "X-Title": "Restaurant Menu AI"
-      } : undefined
+      baseURL 
     });
     this.model = provider === "openrouter" ? (model || "gpt-4o") : "gpt-4o";
   }
@@ -220,26 +216,21 @@ The composition is minimal and elegant, focused on the food, with no distracting
 --upbeta`;
 
       console.log(`[AI Service] Generating image with prompt: ${prompt.substring(0, 100)}...`);
-      console.log(`[AI Service] Using API key: ${this.openai.apiKey ? 'Present' : 'Missing'}`);
-      console.log(`[AI Service] Base URL: ${this.openai.baseURL || 'Default OpenAI'}`);
       
-      // Use DALL-E 3 with your custom prompt flags  
-      try {
-        const response = await this.openai.images.generate({
-          model: "dall-e-3",
-          prompt,
-          n: 1,
-          size: "1024x1024",
-          quality: "hd"
-        });
-        console.log(`[AI Service] DALL-E response received successfully`);
-        return response.data?.[0]?.url || '';
-      } catch (dalleError) {
-        console.error(`[AI Service] DALL-E error:`, dalleError);
-        throw dalleError;
+      const response = await this.openai.images.generate({
+        model: "dall-e-3",
+        prompt,
+        n: 1,
+        size: "1024x1024", // Square format like --ar 1:1
+        quality: "hd" // Maximum quality equivalent to --quality 2
+      });
+
+      const imageUrl = response.data?.[0]?.url;
+      if (!imageUrl) {
+        throw new Error("No image URL returned from OpenAI");
       }
 
-
+      return imageUrl;
     } catch (error) {
       console.error('[AI Service] Image generation error:', error);
       throw new Error(`Failed to generate image: ${handleError(error)}`);

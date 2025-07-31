@@ -675,15 +675,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Restaurant not found" });
       }
 
-      // Always use OPENAI_API_KEY for image generation (not OpenRouter)
-      const apiKey = process.env.OPENAI_API_KEY;
+      // Use restaurant's AI token if available, otherwise use global OPENAI_API_KEY
+      const apiKey = restaurant.aiToken || process.env.OPENAI_API_KEY;
       if (!apiKey) {
-        return res.status(400).json({ message: "OpenAI API key not configured for image generation" });
+        return res.status(400).json({ message: "AI token not configured" });
       }
 
       console.log(`[AI Image] Generating image for dish: ${dishName}`);
-      // Force OpenAI provider for image generation
-      const aiService = createAIService(apiKey, 'openai', 'dall-e-3');
+      const aiService = createAIService(apiKey, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
       const temporaryImageUrl = await aiService.generateDishImage(
         dishName, 
         description || "", 
