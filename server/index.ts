@@ -1,5 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
+import { registerRoutes, setWebSocketManager } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { MenuWebSocketManager } from "./websocket";
 import bcrypt from "bcrypt";
@@ -66,6 +66,7 @@ app.use((req, res, next) => {
   
   // Initialize WebSocket manager
   wsManager = new MenuWebSocketManager(server);
+  setWebSocketManager(wsManager);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

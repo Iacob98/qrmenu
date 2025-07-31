@@ -10,6 +10,7 @@ import { upload, saveUploadedImage, deleteUploadedFile, saveImageFromURL } from 
 import bcrypt from "bcrypt";
 import session from "express-session";
 import MemoryStore from "memorystore";
+import type { MenuWebSocketManager } from "./websocket";
 
 // Extend session interface
 declare module 'express-session' {
@@ -24,6 +25,12 @@ const handleError = (error: unknown): string => {
 };
 
 const MemoryStoreSession = MemoryStore(session);
+
+let menuWebSocketManager: MenuWebSocketManager;
+
+export function setWebSocketManager(wsManager: MenuWebSocketManager) {
+  menuWebSocketManager = wsManager;
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Serve uploaded files
@@ -218,6 +225,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updatedRestaurant = await storage.updateRestaurant(req.params.id, req.body);
+      
+      // Notify WebSocket clients about the design update
+      if (req.body.design && restaurant.slug) {
+        menuWebSocketManager.notifyMenuUpdate(restaurant.slug, {
+          type: 'design_update',
+          design: req.body.design,
+          restaurantSlug: restaurant.slug
+        });
+      }
+      
       res.json(updatedRestaurant);
     } catch (error) {
       res.status(400).json({ message: handleError(error) });
