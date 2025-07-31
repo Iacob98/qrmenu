@@ -53,49 +53,76 @@ export function DishCard({
     <Card 
       className="card-hover"
       style={{
-        padding: 'var(--card-spacing, 1rem)',
         borderRadius: 'var(--card-radius, 8px)',
         fontFamily: 'var(--font-family, inherit)',
-        fontSize: 'var(--font-size, inherit)'
+        fontSize: 'var(--font-size, inherit)',
+        backgroundColor: 'var(--card-background, #ffffff)'
       }}
     >
-      <div className="flex items-start space-x-4">
-        {/* Dish Image */}
+      <div className="flex items-center space-x-3 p-3">
+        {/* Dish Image - smaller and round */}
         <div 
-          className="w-20 h-20 bg-gray-200 flex-shrink-0"
-          style={{ borderRadius: 'var(--card-radius, 8px)' }}
+          className="w-14 h-14 bg-gray-200 flex-shrink-0 rounded-lg overflow-hidden"
         >
           {dish.image ? (
             <img 
               src={dish.image} 
               alt={dish.name}
               className="w-full h-full object-cover"
-              style={{ borderRadius: 'var(--card-radius, 8px)' }}
             />
           ) : (
-            <div 
-              className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center"
-              style={{ borderRadius: 'var(--card-radius, 8px)' }}
-            >
-              <Utensils className="text-primary-500 text-xl" />
+            <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
+              <Utensils className="text-primary-500" size={18} />
             </div>
           )}
         </div>
         
-        <div className="flex-1">
-          <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center space-x-2">
-              <h3 className={`font-semibold ${dish.isHidden ? 'text-gray-400' : 'text-gray-900'}`}>
-                {dish.name}
-              </h3>
-              {dish.isFavorite && <Heart className="h-4 w-4 text-red-500 fill-current" />}
-              {dish.isHidden && <EyeOff className="h-4 w-4 text-gray-400" />}
+        {/* Content - left aligned */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center space-x-2 mb-1">
+                <h3 className={`font-semibold text-base truncate ${dish.isHidden ? 'text-gray-400' : 'text-gray-900'}`}>
+                  {dish.name}
+                </h3>
+                {dish.isFavorite && <Heart className="h-3 w-3 text-red-500 fill-current flex-shrink-0" />}
+                {dish.isHidden && <EyeOff className="h-3 w-3 text-gray-400 flex-shrink-0" />}
+              </div>
+              
+              {dish.description && (
+                <p className="text-gray-600 text-sm line-clamp-1 mb-2">{dish.description}</p>
+              )}
+              
+              {/* Tags - only show first 2 */}
+              {dish.tags && dish.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {dish.tags.slice(0, 2).map((tag) => (
+                    <Badge
+                      key={tag}
+                      variant="secondary"
+                      className={`text-xs cursor-pointer transition-colors ${tagColors[tag] || "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
+                      onClick={() => onFilterByTag?.(tag)}
+                    >
+                      {getTagEmoji(tag)} {tag}
+                    </Badge>
+                  ))}
+                  {dish.tags.length > 2 && (
+                    <Badge variant="secondary" className="text-xs">
+                      +{dish.tags.length - 2}
+                    </Badge>
+                  )}
+                </div>
+              )}
             </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-primary-600 font-bold ml-2">
+            
+            {/* Price - right side */}
+            <div className="flex flex-col items-end space-y-2 ml-3">
+              <span className="text-primary-600 font-bold text-base flex-shrink-0">
                 {currency === "EUR" ? "€" : currency === "USD" ? "$" : currency === "PLN" ? "zł" : ""}
                 {dish.price}
               </span>
+              
+              {/* Actions */}
               {showActions && restaurantId && (
                 <div className="flex space-x-1">
                   <DishActions dish={dish} restaurantId={restaurantId} />
@@ -104,50 +131,31 @@ export function DishCard({
                     size="sm"
                     onClick={() => onEdit?.(dish)}
                   >
-                    <Edit size={16} />
+                    <Edit size={14} />
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => onDelete?.(dish)}
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={14} />
                   </Button>
                 </div>
               )}
+              
+              {showDetails && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-primary-600 hover:text-primary-700 text-xs"
+                  onClick={() => onShowDetails?.(dish)}
+                >
+                  <Info size={14} className="mr-1" />
+                  Подробнее
+                </Button>
+              )}
             </div>
           </div>
-          
-          {dish.description && (
-            <p className="text-gray-600 text-sm mb-3">{dish.description}</p>
-          )}
-          
-          {dish.tags && dish.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-2">
-              {dish.tags.map((tag) => (
-                <Badge
-                  key={tag}
-                  variant="secondary"
-                  className={`text-xs cursor-pointer transition-colors ${tagColors[tag] || "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
-                  onClick={() => onFilterByTag?.(tag)}
-                >
-                  {getTagEmoji(tag)} {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
-          
-          {showDetails && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-primary-600 hover:text-primary-700 p-0"
-              onClick={() => onShowDetails?.(dish)}
-            >
-              <Info size={16} className="mr-1" />
-              Подробнее
-            </Button>
-          )}
         </div>
       </div>
     </Card>

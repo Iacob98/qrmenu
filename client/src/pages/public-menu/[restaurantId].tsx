@@ -213,7 +213,10 @@ export default function PublicMenu() {
   const menuWithFavorites = getMenuWithFavorites();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div 
+      className="min-h-screen"
+      style={{ backgroundColor: 'var(--background, #ffffff)' }}
+    >
       <div className="max-w-md mx-auto">
         {/* Menu Header */}
         <header className="bg-primary-600 text-white text-center relative overflow-hidden">
