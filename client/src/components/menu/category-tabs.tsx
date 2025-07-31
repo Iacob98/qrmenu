@@ -17,10 +17,10 @@ export function CategoryTabs({ categories, activeCategory, onCategoryChange }: C
             key={category.id}
             variant="ghost"
             className={cn(
-              "px-6 py-4 text-base font-medium whitespace-nowrap rounded-lg mx-1 transition-all duration-200",
+              "px-6 py-4 text-base font-medium whitespace-nowrap rounded-lg mx-1 transition-all duration-200 border",
               activeCategory === category.id
-                ? "text-white bg-primary-600 shadow-md hover:bg-primary-700"
-                : "text-gray-600 hover:text-primary-600 hover:bg-primary-50"
+                ? "text-white bg-primary-600 shadow-md hover:bg-primary-700 border-primary-600"
+                : "text-gray-700 bg-gray-100 hover:text-primary-600 hover:bg-primary-50 border-gray-200 hover:border-primary-300"
             )}
             onClick={() => onCategoryChange(category.id)}
           >
