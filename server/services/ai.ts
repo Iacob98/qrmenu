@@ -235,7 +235,7 @@ The composition is minimal and elegant, focused on the food, with no distracting
 --quality 2
 --upbeta`;
 
-      console.log(`[AI Service] Generating image with prompt: ${prompt.substring(0, 100)}...`);
+      console.log(`[AI Service] Generating image with ComfyUI for: ${dishName}`);
       
       // Always use Replicate for image generation
       if (!process.env.REPLICATE_API_TOKEN) {

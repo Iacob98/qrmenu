@@ -491,7 +491,7 @@ export default function Settings() {
                           }
                         </p>
                         <p className="text-xs text-blue-600 mt-1">
-                          💡 Генерация изображений всегда использует Replicate Imagen-4
+                          💡 Генерация изображений использует ComfyUI workflow через Replicate
                         </p>
                       </div>
 
