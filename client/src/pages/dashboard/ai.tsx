@@ -24,6 +24,17 @@ interface AIGeneratedDish {
     calories: number;
   };
   tags: string[];
+  category?: string;
+}
+
+interface AIGeneratedCategory {
+  name: string;
+  icon?: string;
+}
+
+interface AIMenuResult {
+  categories: AIGeneratedCategory[];
+  dishes: AIGeneratedDish[];
 }
 
 export default function AIGeneration() {
@@ -31,6 +42,7 @@ export default function AIGeneration() {
   const [activeTab, setActiveTab] = useState("pdf");
   const [textInput, setTextInput] = useState("");
   const [generatedDishes, setGeneratedDishes] = useState<AIGeneratedDish[]>([]);
+  const [generatedCategories, setGeneratedCategories] = useState<AIGeneratedCategory[]>([]);
   const [selectedDishes, setSelectedDishes] = useState<Set<number>>(new Set());
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -61,11 +73,12 @@ export default function AIGeneration() {
       });
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data: AIMenuResult) => {
       setGeneratedDishes(data.dishes || []);
+      setGeneratedCategories(data.categories || []);
       toast({
         title: "Анализ завершён",
-        description: `Найдено ${data.dishes?.length || 0} блюд`,
+        description: `Найдено ${data.dishes?.length || 0} блюд и ${data.categories?.length || 0} категорий`,
       });
     },
     onError: (error) => {
@@ -79,28 +92,55 @@ export default function AIGeneration() {
 
   const addSelectedDishesMutation = useMutation({
     mutationFn: async (dishes: AIGeneratedDish[]) => {
-      // This would require implementing category selection
-      // For now, add to first available category
       const restaurantData = await fetch(`/api/restaurants/${selectedRestaurant}`, {
         credentials: "include",
       }).then(r => r.json());
       
-      if (!restaurantData.categories?.length) {
-        throw new Error("Сначала создайте категорию для блюд");
-      }
-
-      const categoryId = restaurantData.categories[0].id;
+      // Step 1: Create categories if they don't exist
+      const categoryMap = new Map<string, string>(); // category name -> category id
       
-      const promises = dishes.map(dish =>
-        apiRequest("POST", `/api/categories/${categoryId}/dishes`, {
+      // Add existing categories to map
+      if (restaurantData.categories) {
+        for (const category of restaurantData.categories) {
+          categoryMap.set(category.name, category.id);
+        }
+      }
+      
+      // Create new categories for generated categories that don't exist yet
+      for (const genCategory of generatedCategories) {
+        if (!categoryMap.has(genCategory.name)) {
+          const response = await apiRequest("POST", `/api/restaurants/${selectedRestaurant}/categories`, {
+            name: genCategory.name,
+            icon: genCategory.icon || null,
+          });
+          const newCategory = await response.json();
+          categoryMap.set(genCategory.name, newCategory.id);
+        }
+      }
+      
+      // Step 2: Add dishes to their respective categories
+      const promises = dishes.map(dish => {
+        let categoryId;
+        
+        if (dish.category && categoryMap.has(dish.category)) {
+          // Use the category specified by AI
+          categoryId = categoryMap.get(dish.category);
+        } else if (restaurantData.categories?.length > 0) {
+          // Fallback to first existing category
+          categoryId = restaurantData.categories[0].id;
+        } else {
+          throw new Error("Нет доступных категорий для добавления блюд");
+        }
+        
+        return apiRequest("POST", `/api/categories/${categoryId}/dishes`, {
           name: dish.name,
           description: dish.description,
           price: dish.price.toString(),
           ingredients: dish.ingredients,
           tags: dish.tags,
           nutrition: dish.nutrition,
-        })
-      );
+        });
+      });
 
       return Promise.all(promises);
     },
@@ -111,6 +151,7 @@ export default function AIGeneration() {
         description: `${results.length} блюд добавлено в меню`,
       });
       setGeneratedDishes([]);
+      setGeneratedCategories([]);
       setSelectedDishes(new Set());
     },
     onError: (error) => {
@@ -148,12 +189,13 @@ export default function AIGeneration() {
               restaurantId: selectedRestaurant,
               base64Data: base64,
             });
-            const data = await response.json();
+            const data: AIMenuResult = await response.json();
             
             setGeneratedDishes(data.dishes || []);
+            setGeneratedCategories(data.categories || []);
             toast({
               title: "Анализ PDF завершён",
-              description: `Найдено ${data.dishes?.length || 0} блюд`,
+              description: `Найдено ${data.dishes?.length || 0} блюд и ${data.categories?.length || 0} категорий`,
             });
           } catch (error: any) {
             toast({
@@ -185,7 +227,7 @@ export default function AIGeneration() {
               restaurantId: selectedRestaurant,
               base64Image: base64,
             });
-            const data = await response.json();
+            const data: AIMenuResult = await response.json();
             
             allDishes = [...allDishes, ...(data.dishes || [])];
             processedCount++;
@@ -197,6 +239,8 @@ export default function AIGeneration() {
               );
               
               setGeneratedDishes(uniqueDishes);
+              // For photos, we'll collect categories from all analyzed photos
+              setGeneratedCategories([]); // Categories from multiple photos might be inconsistent
               toast({
                 title: "Анализ фото завершён",
                 description: `Найдено ${uniqueDishes.length} уникальных блюд из ${files.length} фото`,
@@ -390,7 +434,14 @@ export default function AIGeneration() {
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle>Найденные блюда</CardTitle>
+                    <div>
+                      <CardTitle>Найденные блюда</CardTitle>
+                      {generatedCategories.length > 0 && (
+                        <p className="text-sm text-gray-600 mt-1">
+                          Категории: {generatedCategories.map(cat => cat.icon ? `${cat.icon} ${cat.name}` : cat.name).join(', ')}
+                        </p>
+                      )}
+                    </div>
                     {generatedDishes.length > 0 && (
                       <div className="flex gap-2">
                         <Button
@@ -444,6 +495,11 @@ export default function AIGeneration() {
                                     className="rounded border-gray-300"
                                   />
                                   <h4 className="font-semibold">{dish.name}</h4>
+                                  {dish.category && (
+                                    <Badge variant="outline" className="text-xs">
+                                      {dish.category}
+                                    </Badge>
+                                  )}
                                   <span className="text-primary-600 font-bold">
                                     €{dish.price.toFixed(2)}
                                   </span>

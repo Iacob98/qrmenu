@@ -19,6 +19,15 @@ interface AIGeneratedDish {
     calories: number;
   };
   tags: string[];
+  category?: string;
+}
+
+interface AIGeneratedMenuResult {
+  categories: Array<{
+    name: string;
+    icon?: string;
+  }>;
+  dishes: AIGeneratedDish[];
 }
 
 export class AIService {
@@ -45,7 +54,7 @@ export class AIService {
     this.model = provider === "openrouter" ? (model || "gpt-4o") : "gpt-4o";
   }
 
-  async analyzePDF(base64Data: string): Promise<AIGeneratedDish[]> {
+  async analyzePDF(base64Data: string): Promise<AIGeneratedMenuResult> {
     try {
       if (!this.openai) {
         throw new Error("OpenAI client not initialized for PDF analysis");
@@ -58,8 +67,12 @@ export class AIService {
             role: "system",
             content: `You are an intelligent assistant embedded in an online restaurant menu builder.
 
-Your task is to analyze PDF menu documents and extract all meaningful and structured information about each dish.
+Your task is to analyze PDF menu documents and extract all meaningful and structured information, automatically organizing dishes into logical categories.
 
+STEP 1: Identify Categories
+First, identify all menu categories/sections from the document (e.g., "Appetizers", "Main Dishes", "Desserts", "Beverages", "Salads", etc.)
+
+STEP 2: Extract Dishes
 For every dish you detect, extract the following fields:
 1. **name** – preserve the original name in the source language, no translation
 2. **description** – generate a short, engaging description of the dish (1–2 sentences) in the same language as the original menu
@@ -67,8 +80,29 @@ For every dish you detect, extract the following fields:
 4. **ingredients** – extract or infer a list of 3–10 primary ingredients
 5. **nutrition** – provide realistic estimates per portion (calories, protein, fat, carbs)
 6. **tags** – auto-detect relevant dietary labels: "vegetarian", "vegan", "spicy", "gluten-free", "dairy-free", "meat", "seafood", "nuts", "healthy", "popular"
+7. **category** – assign each dish to one of the identified categories
 
-Return a JSON object with a "dishes" array containing all extracted dishes.`
+Return a JSON object with:
+- "categories" array: list of category objects with "name" and optional "icon" (use emoji or simple text like "🍽️", "🥗", "🍰")
+- "dishes" array: all extracted dishes, each with their assigned category name
+
+Example response structure:
+{
+  "categories": [
+    {"name": "Закуски", "icon": "🥗"},
+    {"name": "Основные блюда", "icon": "🍽️"},
+    {"name": "Десерты", "icon": "🍰"}
+  ],
+  "dishes": [
+    {
+      "name": "Салат Цезарь",
+      "category": "Закуски",
+      "description": "...",
+      "price": 8.5,
+      ...
+    }
+  ]
+}`
           },
           {
             role: "user",
@@ -90,14 +124,17 @@ Return a JSON object with a "dishes" array containing all extracted dishes.`
         max_tokens: 2000,
       });
 
-      const result = JSON.parse(response.choices[0].message.content || '{"dishes": []}');
-      return result.dishes || [];
+      const result = JSON.parse(response.choices[0].message.content || '{"categories": [], "dishes": []}');
+      return {
+        categories: result.categories || [],
+        dishes: result.dishes || []
+      };
     } catch (error) {
       throw new Error(`Failed to analyze PDF: ${handleError(error)}`);
     }
   }
 
-  async analyzePhoto(base64Image: string): Promise<AIGeneratedDish[]> {
+  async analyzePhoto(base64Image: string): Promise<AIGeneratedMenuResult> {
     try {
       if (!this.openai) {
         throw new Error("OpenAI client not initialized for photo analysis");
@@ -110,8 +147,12 @@ Return a JSON object with a "dishes" array containing all extracted dishes.`
             role: "system",
             content: `You are an intelligent assistant embedded in an online restaurant menu builder.
 
-Your task is to analyze menu photos and extract all meaningful and structured information about each dish.
+Your task is to analyze menu photos and extract all meaningful and structured information, automatically organizing dishes into logical categories.
 
+STEP 1: Identify Categories
+First, identify all menu categories/sections from the photo (e.g., "Appetizers", "Main Dishes", "Desserts", "Beverages", "Salads", etc.)
+
+STEP 2: Extract Dishes
 For every dish you detect, extract the following fields:
 1. **name** – preserve the original name in the source language, no translation
 2. **description** – generate a short, engaging description of the dish (1–2 sentences) in the same language as the original menu
@@ -119,8 +160,11 @@ For every dish you detect, extract the following fields:
 4. **ingredients** – extract or infer a list of 3–10 primary ingredients
 5. **nutrition** – provide realistic estimates per portion (calories, protein, fat, carbs)
 6. **tags** – auto-detect relevant dietary labels: "vegetarian", "vegan", "spicy", "gluten-free", "dairy-free", "meat", "seafood", "nuts", "healthy", "popular"
+7. **category** – assign each dish to one of the identified categories
 
-Return a JSON object with a "dishes" array containing all extracted dishes.`
+Return a JSON object with:
+- "categories" array: list of category objects with "name" and optional "icon" (use emoji or simple text like "🍽️", "🥗", "🍰")
+- "dishes" array: all extracted dishes, each with their assigned category name`
           },
           {
             role: "user",
@@ -142,14 +186,17 @@ Return a JSON object with a "dishes" array containing all extracted dishes.`
         max_tokens: 2000,
       });
 
-      const result = JSON.parse(response.choices[0].message.content || '{"dishes": []}');
-      return result.dishes || [];
+      const result = JSON.parse(response.choices[0].message.content || '{"categories": [], "dishes": []}');
+      return {
+        categories: result.categories || [],
+        dishes: result.dishes || []
+      };
     } catch (error) {
       throw new Error(`Failed to analyze photo: ${handleError(error)}`);
     }
   }
 
-  async analyzeText(text: string): Promise<AIGeneratedDish[]> {
+  async analyzeText(text: string): Promise<AIGeneratedMenuResult> {
     try {
       if (!this.openai) {
         throw new Error("OpenAI client not initialized for text analysis");
@@ -162,31 +209,24 @@ Return a JSON object with a "dishes" array containing all extracted dishes.`
             role: "system",
             content: `You are an intelligent assistant embedded in an online restaurant menu builder.
 
-Your task is to analyze raw restaurant menu content (which may be in any language), and extract all meaningful and structured information about each dish.
+Your task is to analyze raw restaurant menu content (which may be in any language), and extract all meaningful and structured information, automatically organizing dishes into logical categories.
 
+STEP 1: Identify Categories
+First, identify all menu categories/sections from the text (e.g., "Appetizers", "Main Dishes", "Desserts", "Beverages", "Salads", etc.)
+
+STEP 2: Extract Dishes
 For every dish you detect, extract the following fields:
-
 1. **name** – preserve the original name in the source language, no translation
 2. **description** – generate a short, engaging description of the dish (1–2 sentences) in the same language as the original menu
 3. **price** – if listed, include the price as a number (without currency symbol)
-4. **ingredients** – extract or infer a list of 3–10 primary ingredients. Use ingredients from the local cuisine
-5. **nutrition** – provide realistic estimates per portion:
-   - calories (kcal)
-   - protein (g)
-   - fat (g)
-   - carbs (g)
-6. **tags** – auto-detect relevant dietary labels from this list:
-   - "vegetarian", "vegan", "spicy", "gluten-free", "dairy-free", "meat", "seafood", "nuts", "healthy", "popular"
+4. **ingredients** – extract or infer a list of 3–10 primary ingredients
+5. **nutrition** – provide realistic estimates per portion (calories, protein, fat, carbs)
+6. **tags** – auto-detect relevant dietary labels: "vegetarian", "vegan", "spicy", "gluten-free", "dairy-free", "meat", "seafood", "nuts", "healthy", "popular"
+7. **category** – assign each dish to one of the identified categories
 
-Requirements:
-- Work with input in any language and output results using the same language as the input
-- Do not translate or anglicize names unless the original menu includes both
-- Include all information you can extract from the text. Be exhaustive and precise
-- Do not make up ingredients. Only use what is clearly stated or reasonably inferred
-- Avoid duplicates and group same-named dishes together if identical
-- If the source contains noise, ignore irrelevant lines
-
-Return a JSON object with a "dishes" array containing all extracted dishes.`
+Return a JSON object with:
+- "categories" array: list of category objects with "name" and optional "icon" (use emoji or simple text like "🍽️", "🥗", "🍰")
+- "dishes" array: all extracted dishes, each with their assigned category name`
           },
           {
             role: "user",
@@ -197,8 +237,11 @@ Return a JSON object with a "dishes" array containing all extracted dishes.`
         max_tokens: 2000,
       });
 
-      const result = JSON.parse(response.choices[0].message.content || '{"dishes": []}');
-      return result.dishes || [];
+      const result = JSON.parse(response.choices[0].message.content || '{"categories": [], "dishes": []}');
+      return {
+        categories: result.categories || [],
+        dishes: result.dishes || []
+      };
     } catch (error) {
       throw new Error(`Failed to analyze text: ${handleError(error)}`);
     }

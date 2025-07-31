@@ -525,9 +525,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
-      const dishes = await aiService.analyzePDF(base64Data);
+      const result = await aiService.analyzePDF(base64Data);
       
-      res.json({ dishes });
+      res.json(result);
     } catch (error) {
       res.status(500).json({ message: handleError(error) });
     }
@@ -547,9 +547,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
-      const dishes = await aiService.analyzePhoto(base64Image);
+      const result = await aiService.analyzePhoto(base64Image);
       
-      res.json({ dishes });
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ message: handleError(error) });
+    }
+  });
+
+  app.post("/api/ai/analyze-text", requireAuth, async (req, res) => {
+    try {
+      const { restaurantId, text } = req.body;
+      
+      const restaurant = await storage.getRestaurant(restaurantId);
+      if (!restaurant || restaurant.userId !== req.session.userId) {
+        return res.status(404).json({ message: "Restaurant not found" });
+      }
+
+      if (!restaurant.aiToken) {
+        return res.status(400).json({ message: "AI token not configured" });
+      }
+
+      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
+      const result = await aiService.analyzeText(text);
+      
+      res.json(result);
     } catch (error) {
       res.status(500).json({ message: handleError(error) });
     }
