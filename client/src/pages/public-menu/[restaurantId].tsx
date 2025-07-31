@@ -21,6 +21,18 @@ function getCurrencySymbol(currency: string): string {
   return symbols[currency] || currency;
 }
 
+function getTagEmoji(tag: string): string {
+  const emojis: Record<string, string> = {
+    "vegetarian": "🥦",
+    "vegan": "🌱",
+    "spicy": "🌶️",
+    "gluten-free": "🌾",
+    "dairy-free": "🥛",
+    "meat": "🥩",
+  };
+  return emojis[tag] || "🏷️";
+}
+
 export default function PublicMenu() {
   // All hooks must be called in the same order every time
   const [, params] = useRoute("/menu/:slug");
@@ -35,6 +47,14 @@ export default function PublicMenu() {
     queryKey: ["/api/public/menu", params?.slug],
     enabled: !!params?.slug,
   });
+
+  // Get all unique tags from dishes
+  const allTags = menu ? 
+    Array.from(new Set(
+      menu.categories
+        .flatMap(cat => cat.dishes)
+        .flatMap(dish => dish.tags || [])
+    )) : [];
 
   // Real-time updates for dynamic menu synchronization
   const { isConnected } = useRealTimeMenu(params?.slug || "");
@@ -146,12 +166,12 @@ export default function PublicMenu() {
       document.body.style.fontFamily = design.fontFamily;
     }
     if (design.fontSize) {
-      const fontSizeMap = {
+      const fontSizeMap: Record<string, string> = {
         small: '14px',
         medium: '16px',  
         large: '18px'
       };
-      const fontSize = fontSizeMap[design.fontSize] || '16px';
+      const fontSize = fontSizeMap[design.fontSize as string] || '16px';
       root.style.setProperty('--font-size', fontSize);
       document.body.style.fontSize = fontSize;
     }
@@ -159,12 +179,12 @@ export default function PublicMenu() {
       root.style.setProperty('--card-radius', `${design.cardRadius}px`);
     }
     if (design.cardSpacing) {
-      const spacingMap = {
+      const spacingMap: Record<string, string> = {
         compact: '8px',
         normal: '12px',
         spacious: '16px'
       };
-      const spacing = spacingMap[design.cardSpacing] || '12px';
+      const spacing = spacingMap[design.cardSpacing as string] || '12px';
       root.style.setProperty('--card-spacing', spacing);
     }
     
@@ -228,92 +248,82 @@ export default function PublicMenu() {
 
   return (
     <div 
-      className="min-h-screen"
+      className="min-h-screen bg-gray-50"
       style={{ 
-        backgroundColor: 'var(--background, #ffffff)',
-        fontFamily: 'var(--font-family, inherit)',
-        fontSize: 'var(--font-size, inherit)',
-        color: 'var(--foreground, inherit)'
+        backgroundColor: 'var(--background, #f9fafb)',
+        fontFamily: 'var(--font-family, system-ui)',
+        fontSize: 'var(--font-size, 16px)',
+        color: 'var(--foreground, #111827)'
       }}
     >
-      <div className="max-w-md mx-auto">
-        {/* Menu Header */}
-        <header 
-          className="text-white text-center relative overflow-hidden"
-          style={{ backgroundColor: 'var(--primary, #f59e0b)' }}
+      {/* Simplified Mobile-First Layout */}
+      <div className="max-w-lg mx-auto bg-white min-h-screen">
+        
+        {/* Compact Header */}
+        <div 
+          className="sticky top-0 z-50 bg-white border-b shadow-sm"
         >
-          {/* Banner Background */}
-          {menu?.restaurant?.banner && (
-            <div 
-              className="absolute inset-0 bg-cover bg-no-repeat"
-              style={{ 
-                backgroundImage: `url(${menu.restaurant.banner})`,
-                backgroundPosition: `${menu?.restaurant?.design?.bannerPositionX || 50}% ${menu?.restaurant?.design?.bannerPositionY || 50}%`
-              }}
-            />
-          )}
-          
-          {/* Banner Overlay */}
-          {menu?.restaurant?.banner && (
-            <div 
-              className="absolute inset-0"
-              style={{ 
-                backgroundColor: menu?.restaurant?.design?.bannerOverlayColor || '#000000',
-                opacity: (menu?.restaurant?.design?.bannerOverlayOpacity || 40) / 100
-              }}
-            />
-          )}
-          
-          <div className="relative z-10 p-6">
-            {menu?.restaurant?.logo && menu?.restaurant?.design?.logoPosition !== 'hidden' && (
-              <div className={`mb-4 ${
-                menu?.restaurant?.design?.logoPosition === 'center' ? 'flex justify-center' :
-                menu?.restaurant?.design?.logoPosition === 'left' ? 'flex justify-start' : 
-                'flex justify-center'
-              }`}>
-                <img 
-                  src={menu.restaurant.logo} 
-                  alt={menu.restaurant.name}
-                  className="w-16 h-16 rounded-full object-cover border-2 border-white/50"
-                />
-              </div>
+          <div className="flex items-center p-3 space-x-3">
+            {menu?.restaurant?.logo && (
+              <img 
+                src={menu.restaurant.logo} 
+                alt="Логотип"
+                className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+              />
             )}
-            <h1 
-              className="text-2xl font-bold drop-shadow-lg"
-              style={{ 
-                color: 'white',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                fontFamily: 'var(--font-family, inherit)',
-                fontSize: 'var(--font-size, 2rem)'
-              }}
-            >
-              {menu?.restaurant?.name}
-            </h1>
-            {menu?.restaurant?.city && (
-              <p 
-                className="drop-shadow-md mt-2"
-                style={{ 
-                  color: 'white',
-                  textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
-                  fontFamily: 'var(--font-family, inherit)'
-                }}
-              >
-                {menu.restaurant.city}
+            <div className="min-w-0 flex-1">
+              <h1 className="font-bold text-lg truncate" style={{ color: 'var(--primary, #1f2937)' }}>
+                {menu?.restaurant?.name}
+              </h1>
+              <p className="text-sm text-gray-500 truncate">
+                {menu?.restaurant?.city || 'Меню ресторана'}
               </p>
-            )}
-            <div 
-              className="flex justify-center space-x-4 mt-4 text-sm drop-shadow-md"
-              style={{ 
-                color: 'white',
-                textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
-                fontFamily: 'var(--font-family, inherit)'
-              }}
-            >
-              <span>🇷🇺 {menu?.restaurant?.language === 'ru' ? 'Русский' : 'Русский'}</span>
-              <span>{getCurrencySymbol(menu?.restaurant?.currency || 'EUR')} {menu?.restaurant?.currency}</span>
             </div>
           </div>
-        </header>
+        </div>
+
+        {/* Banner (if exists) - Simplified */}
+        {menu?.restaurant?.banner && (
+          <div 
+            className="h-24 bg-cover bg-center relative"
+            style={{
+              backgroundImage: `url(${menu.restaurant.banner})`,
+              backgroundPosition: `${menu?.restaurant?.design?.bannerPositionX || 50}% ${menu?.restaurant?.design?.bannerPositionY || 50}%`
+            }}
+          >
+            <div 
+              className="absolute inset-0"
+              style={{
+                backgroundColor: menu?.restaurant?.design?.bannerOverlayColor || 'transparent',
+                opacity: (menu?.restaurant?.design?.bannerOverlayOpacity || 0) / 100
+              }}
+            />
+          </div>
+        )}
+
+        {/* Simple Search */}
+        <div className="p-3 bg-gray-50">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Найти блюдо..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 h-10 text-base border-gray-300"
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-2 top-2 h-6 w-6 p-0"
+                onClick={() => setSearchQuery("")}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
+        </div>
 
         {/* Category Tabs */}
         <CategoryTabs
@@ -322,89 +332,52 @@ export default function PublicMenu() {
           onCategoryChange={setSelectedCategory}
         />
 
-        {/* Search and Filters */}
-        <div 
-          className="p-4 bg-gray-50"
-          style={{
-            fontFamily: 'var(--font-family, inherit)',
-            fontSize: 'var(--font-size, inherit)'
-          }}
-        >
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <Input
-              type="text"
-              placeholder="Поиск блюд..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-
-          {/* Active Filters */}
-          {(activeTags.length > 0 || searchQuery) && (
-            <div className="mb-4">
-              <div className="flex flex-wrap gap-2 mb-2">
-                {searchQuery && (
-                  <Badge variant="secondary" className="flex items-center gap-1">
-                    Поиск: "{searchQuery}"
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-auto p-0 hover:bg-transparent"
-                      onClick={() => setSearchQuery("")}
-                    >
-                      <X size={12} />
-                    </Button>
-                  </Badge>
-                )}
-                {activeTags.map((tag) => (
-                  <Badge key={tag} variant="secondary" className="flex items-center gap-1">
-                    {tag}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-auto p-0 hover:bg-transparent"
-                      onClick={() => handleTagFilter(tag)}
-                    >
-                      <X size={12} />
-                    </Button>
-                  </Badge>
-                ))}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={clearFilters}
-              >
-                Очистить фильтры
-              </Button>
+        {/* Active Filters - Compact */}
+        {(activeTags.length > 0 || searchQuery) && (
+          <div className="p-3 bg-blue-50 border-b">
+            <div className="flex flex-wrap gap-1 text-xs">
+              {searchQuery && (
+                <Badge variant="secondary" className="text-xs px-2 py-1">
+                  🔍 {searchQuery}
+                  <X 
+                    className="ml-1 h-3 w-3 cursor-pointer" 
+                    onClick={() => setSearchQuery("")}
+                  />
+                </Badge>
+              )}
+              {activeTags.map((tag) => (
+                <Badge key={tag} variant="secondary" className="text-xs px-2 py-1">
+                  {getTagEmoji(tag)} {tag}
+                  <X 
+                    className="ml-1 h-3 w-3 cursor-pointer" 
+                    onClick={() => handleTagFilter(tag)}
+                  />
+                </Badge>
+              ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Menu Content */}
-        <div 
-          className="p-4"
-          style={{
-            gap: 'var(--card-spacing, 12px)',
-            display: 'flex',
-            flexDirection: 'column',
-            fontFamily: 'var(--font-family, inherit)',
-            fontSize: 'var(--font-size, inherit)'
-          }}
-        >
+        {/* Simple Dishes List */}
+        <div className="p-3 space-y-3">
           {filteredDishes.length === 0 ? (
-            <div className="text-center py-8">
-              {searchQuery || activeTags.length > 0 ? (
-                <div>
-                  <p className="text-gray-500 mb-4">По вашему запросу ничего не найдено</p>
-                  <Button onClick={clearFilters} variant="outline">
-                    Показать все блюда
-                  </Button>
-                </div>
-              ) : (
-                <p className="text-gray-500">В этой категории пока нет блюд</p>
+            <div className="text-center py-12">
+              <Utensils className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+              <p className="text-gray-500 text-sm">
+                {searchQuery || activeTags.length > 0 
+                  ? "Ничего не найдено"
+                  : "Нет блюд в категории"
+                }
+              </p>
+              {(searchQuery || activeTags.length > 0) && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-3"
+                  onClick={clearFilters}
+                >
+                  Сбросить
+                </Button>
               )}
             </div>
           ) : (
@@ -422,22 +395,23 @@ export default function PublicMenu() {
           )}
         </div>
 
-        {/* Footer */}
-        <footer className="bg-gray-50 p-4 text-center text-sm text-gray-600 border-t mt-8">
-          {menu?.restaurant?.phone && (
-            <p className="mb-2">📞 {menu.restaurant.phone}</p>
-          )}
-          <p>Создано с помощью QRMenu</p>
-        </footer>
-      </div>
+        
+        {/* Dish Details Modal */}
+        {selectedDish && (
+          <DishDetailsModal
+            dish={selectedDish}
+            currency={menu?.restaurant?.currency || 'EUR'}
+            onClose={() => setSelectedDish(null)}
+          />
+        )}
 
-      {/* Dish Details Modal */}
-      <DishDetailsModal
-        dish={selectedDish}
-        isOpen={!!selectedDish}
-        onClose={() => setSelectedDish(null)}
-        currency={menu?.restaurant?.currency || 'EUR'}
-      />
+        {/* Connection Status - Minimal */}
+        {!isConnected && (
+          <div className="fixed bottom-4 right-4 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-medium shadow-lg">
+            ⏳
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -10,32 +10,21 @@ interface CategoryTabsProps {
 
 export function CategoryTabs({ categories, activeCategory, onCategoryChange }: CategoryTabsProps) {
   return (
-    <nav className="bg-white border-b sticky top-0 z-30 shadow-sm">
-      <div className="flex overflow-x-auto scrollbar-hide py-3 px-2 gap-1">
+    <div className="bg-white border-b">
+      <div className="flex overflow-x-auto no-scrollbar px-3 py-2 space-x-2">
         {categories.map((category) => (
           <Button
             key={category.id}
-            variant="ghost"
-            className={cn(
-              "px-4 py-3 text-sm font-medium whitespace-nowrap rounded-lg mx-1 transition-all duration-200 border min-w-fit transform",
-              activeCategory === category.id
-                ? "text-white shadow-md border-transparent scale-105"
-                : "text-gray-800 bg-gray-50 border-gray-200 shadow-sm hover:scale-[1.02] hover:bg-gray-100"
-            )}
-            style={
-              activeCategory === category.id
-                ? {
-                    backgroundColor: 'var(--primary, #22c55e)',
-                    borderColor: 'var(--primary, #22c55e)',
-                  }
-                : {}
-            }
+            variant={activeCategory === category.id ? "default" : "ghost"}
+            size="sm"
+            className="flex-shrink-0 whitespace-nowrap text-sm px-3 py-2 h-8"
             onClick={() => onCategoryChange(category.id)}
           >
-            {category.icon} {category.name}
+            {category.icon && <span className="mr-1 text-xs">{category.icon}</span>}
+            {category.name}
           </Button>
         ))}
       </div>
-    </nav>
+    </div>
   );
 }
