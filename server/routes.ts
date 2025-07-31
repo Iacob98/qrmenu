@@ -6,7 +6,7 @@ import { storage } from "./storage";
 import { insertUserSchema, insertRestaurantSchema, insertCategorySchema, insertDishSchema, type Dish } from "@shared/schema";
 import { createAIService } from "./services/ai";
 import { qrService } from "./services/qr";
-import { upload, saveUploadedImage, deleteUploadedFile } from "./middleware/upload";
+import { upload, saveUploadedImage, deleteUploadedFile, saveImageFromURL } from "./middleware/upload";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import MemoryStore from "memorystore";
@@ -683,10 +683,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`[AI Image] Generating image for dish: ${dishName}`);
       const aiService = createAIService(apiKey, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
-      const imageUrl = await aiService.generateDishImage(dishName, description || "");
+      const temporaryImageUrl = await aiService.generateDishImage(dishName, description || "");
       
-      console.log(`[AI Image] Generated successfully: ${imageUrl}`);
-      res.json({ imageUrl });
+      console.log(`[AI Image] Generated successfully, downloading: ${temporaryImageUrl}`);
+      
+      // Download and save the image locally to avoid expiration
+      const localImageUrl = await saveImageFromURL(temporaryImageUrl, {
+        width: 1024,
+        height: 1024,
+        quality: 85
+      });
+      
+      console.log(`[AI Image] Saved locally: ${localImageUrl}`);
+      res.json({ imageUrl: localImageUrl });
     } catch (error) {
       console.error('[AI Image] Error:', error);
       res.status(500).json({ message: handleError(error) });
