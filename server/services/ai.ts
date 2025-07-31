@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import Replicate from "replicate";
+import type Replicate from "replicate";
 
 // Helper function for error handling
 const handleError = (error: unknown): string => {
@@ -31,9 +31,7 @@ export class AIService {
     this.provider = provider;
     
     if (provider === "replicate") {
-      this.replicate = new Replicate({
-        auth: apiKey,
-      });
+      // Replicate will be initialized dynamically when needed
     } else {
       const baseURL = provider === "openrouter" 
         ? "https://openrouter.ai/api/v1"
@@ -207,7 +205,6 @@ Return a JSON object with a "dishes" array containing all extracted dishes.`
   }
 
   async generateDishImage(dishName: string, description: string, ingredients?: string[], tags?: string[]): Promise<string> {
-    try {
       // Build comprehensive dish information
       let dishInfo = dishName;
       
@@ -247,37 +244,84 @@ The composition is minimal and elegant, focused on the food, with no distracting
 
       // Initialize Replicate client if needed
       if (!this.replicate) {
-        const Replicate = require('replicate');
+        // Dynamic import for Replicate since it's only used for image generation
+        const { default: Replicate } = await import('replicate');
         this.replicate = new Replicate({
           auth: process.env.REPLICATE_API_TOKEN,
+          useFileOutput: false, // Return URLs instead of FileOutput objects
         });
       }
 
       console.log(`[Replicate] Using Imagen-4 for image generation`);
+      console.log(`[Replicate] Auth token available:`, !!process.env.REPLICATE_API_TOKEN);
+      console.log(`[Replicate] Client initialized:`, !!this.replicate);
       
-      const prediction = await this.replicate.run(
+      let prediction: any;
+      try {
+        console.log(`[Replicate] Starting API call...`);
+        prediction = await this.replicate.run(
         "google/imagen-4",
         {
           input: {
             prompt,
             aspect_ratio: "1:1",
-            safety_filter_level: "block_medium_and_above"
+            safety_filter_level: "block_only_high",
+            output_format: "jpg"
           }
         }
-      );
+        );
+        console.log(`[Replicate] API call completed successfully`);
+      } catch (apiError) {
+        console.error(`[Replicate] API call failed:`, apiError);
+        throw apiError;
+      }
 
-      // Replicate returns the image URL as a string
-      const imageUrl = typeof prediction === 'string' ? prediction : (prediction as any)?.[0];
-      if (!imageUrl) {
-        throw new Error("No image URL returned from Replicate");
+      console.log(`[Replicate] Raw prediction response:`, prediction);
+      console.log(`[Replicate] Response type:`, typeof prediction);
+
+      // Handle Replicate FileOutput (ReadableStream) response
+      let imageUrl: string | undefined;
+      
+      if (typeof prediction === 'string') {
+        imageUrl = prediction;
+      } else if (Array.isArray(prediction) && prediction.length > 0) {
+        // Replicate typically returns an array with FileOutput objects
+        const firstOutput = prediction[0];
+        if (firstOutput && typeof firstOutput.url === 'function') {
+          // It's a FileOutput object with .url() method
+          imageUrl = firstOutput.url();
+          console.log(`[Replicate] Got FileOutput URL:`, imageUrl);
+        } else if (typeof firstOutput === 'string') {
+          imageUrl = firstOutput;
+        }
+      } else if (prediction && typeof prediction === 'object') {
+        // Handle single FileOutput object or ReadableStream
+        console.log(`[Replicate] Object has url method:`, typeof (prediction as any).url === 'function');
+        console.log(`[Replicate] Object constructor:`, prediction.constructor?.name);
+        console.log(`[Replicate] Object keys:`, Object.keys(prediction));
+        
+        if (typeof (prediction as any).url === 'function') {
+          imageUrl = (prediction as any).url();
+          console.log(`[Replicate] Got FileOutput URL:`, imageUrl);
+        } else {
+          // Try other object formats or use Replicate with useFileOutput: false
+          imageUrl = (prediction as any).url || (prediction as any).image || (prediction as any).output;
+          
+          // If it's still a ReadableStream, we need to use useFileOutput: false option
+          if (!imageUrl && prediction.constructor?.name === 'ReadableStream') {
+            console.log(`[Replicate] ReadableStream detected - need to use useFileOutput: false option`);
+            throw new Error("Replicate returned ReadableStream instead of URL. Need to reconfigure client with useFileOutput: false");
+          }
+        }
+      }
+      
+      if (!imageUrl || typeof imageUrl !== 'string') {
+        console.error(`[Replicate] Invalid response format:`, prediction);
+        throw new Error(`No valid image URL returned from Replicate. Response type: ${typeof prediction}`);
       }
 
       console.log(`[Replicate] Generated image successfully: ${imageUrl}`);
       return imageUrl;
-    } catch (error) {
-      console.error('[AI Service] Image generation error:', error);
-      throw new Error(`Failed to generate image: ${handleError(error)}`);
-    }
   }
 
   async enhanceDish(dish: Partial<AIGeneratedDish>): Promise<AIGeneratedDish> {
