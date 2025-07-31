@@ -209,7 +209,7 @@ Return a JSON object with a "dishes" array containing all extracted dishes.`
 
 The composition is minimal and elegant, focused on the food, with no distracting elements or background props. The image should be centered, with sharp details, realistic portion size, and natural color tones. High-quality photo style (not illustration, not AI-looking, no watercolor). No watermark. No text.
 
-Professional food photography, restaurant quality, appetizing presentation, commercial style. Ultra-detailed, photorealistic, studio lighting, 8K resolution.`;
+Professional food photography, restaurant quality, appetizing presentation, commercial style. Ultra-detailed, photorealistic, studio lighting, 8K resolution. Square aspect ratio, maximum quality, photographic style only.`;
 
       console.log(`[AI Service] Generating image with prompt: ${prompt.substring(0, 100)}...`);
       
@@ -217,7 +217,8 @@ Professional food photography, restaurant quality, appetizing presentation, comm
         model: "dall-e-3",
         prompt,
         n: 1,
-        size: "1024x1024"
+        size: "1024x1024", // Square format like --ar 1:1
+        quality: "hd" // Maximum quality equivalent to --quality 2
       });
 
       const imageUrl = response.data?.[0]?.url;
