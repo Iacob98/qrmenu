@@ -18,16 +18,18 @@ export class MenuWebSocketManager {
     });
 
     this.wss.on('connection', (ws, request) => {
-      const { pathname } = parse(request.url || '');
+      const url = parse(request.url || '', true);
+      console.log('WebSocket connection attempt with query:', url.query);
       
-      // Extract restaurant slug from path like /ws/menu/restaurant-slug
-      const match = pathname?.match(/^\/ws\/menu\/(.+)$/);
-      if (!match) {
-        ws.close(1008, 'Invalid path');
+      // Extract restaurant slug from query parameter
+      const restaurantSlug = url.query?.restaurant as string;
+      if (!restaurantSlug) {
+        console.log('Missing restaurant parameter, closing connection');
+        ws.close(1008, 'Missing restaurant parameter');
         return;
       }
 
-      const restaurantSlug = decodeURIComponent(match[1]);
+
       this.addConnection(restaurantSlug, ws);
 
       ws.on('close', () => {

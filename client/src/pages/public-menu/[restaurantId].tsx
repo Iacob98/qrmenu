@@ -36,8 +36,8 @@ export default function PublicMenu() {
     enabled: !!params?.slug,
   });
 
-  // Real-time updates - temporarily disabled to test core functionality
-  // const { isConnected } = useRealTimeMenu(params?.slug || "");
+  // Real-time updates for dynamic menu synchronization
+  const { isConnected } = useRealTimeMenu(params?.slug || "");
 
   // Helper function to create menu with favorites
   const getMenuWithFavorites = () => {

@@ -10,7 +10,7 @@ export function useRealTimeMenu(restaurantSlug: string) {
 
     // Create WebSocket connection
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws/menu/${restaurantSlug}`;
+    const wsUrl = `${protocol}//${window.location.host}/ws?restaurant=${encodeURIComponent(restaurantSlug)}`;
     
     const websocket = new WebSocket(wsUrl);
 
@@ -23,20 +23,28 @@ export function useRealTimeMenu(restaurantSlug: string) {
       try {
         const data = JSON.parse(event.data);
         
-        if (data.type === 'menu_update' || data.type === 'dish_updated') {
+        if (data.type === 'menu_update' || 
+            data.type === 'dish_updated' || 
+            data.type === 'dish_created' || 
+            data.type === 'dish_deleted' ||
+            data.type === 'connected') {
+          
           console.log('📡 Received real-time menu update:', data);
           
-          // Invalidate and refetch the menu data
-          queryClient.invalidateQueries({ 
-            queryKey: ["/api/public/menu", restaurantSlug] 
-          });
-          
-          // Also invalidate admin dashboard if available
-          queryClient.invalidateQueries({ 
-            queryKey: ["/api/restaurants"] 
-          });
-          
-          console.log('✅ Menu data refreshed due to real-time update');
+          // Only invalidate for actual updates, not connection confirmation
+          if (data.type !== 'connected') {
+            // Invalidate and refetch the menu data
+            queryClient.invalidateQueries({ 
+              queryKey: ["/api/public/menu", restaurantSlug] 
+            });
+            
+            // Also invalidate admin dashboard if available
+            queryClient.invalidateQueries({ 
+              queryKey: ["/api/restaurants"] 
+            });
+            
+            console.log('✅ Menu data refreshed due to real-time update');
+          }
         }
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
