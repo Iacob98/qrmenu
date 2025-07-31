@@ -73,6 +73,10 @@ export default function Design() {
     showImages: true,
     showLogo: true,
     logoPosition: "left",
+    bannerPositionX: 50, // Позиция по горизонтали (0-100%)
+    bannerPositionY: 50, // Позиция по вертикали (0-100%)
+    bannerOverlayColor: "#000000", // Цвет заливки
+    bannerOverlayOpacity: 40, // Прозрачность заливки (0-100%)
   });
 
   const { toast } = useToast();
@@ -154,6 +158,10 @@ export default function Design() {
       showImages: true,
       showLogo: true,
       logoPosition: "left",
+      bannerPositionX: 50,
+      bannerPositionY: 50,
+      bannerOverlayColor: "#000000",
+      bannerOverlayOpacity: 40,
     });
   };
 
@@ -410,6 +418,67 @@ export default function Design() {
                         <SelectItem value="hidden">Скрыть</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-4">
+                    <Label className="text-sm font-medium">Позиционирование баннера</Label>
+                    
+                    <div>
+                      <Label className="text-xs">Позиция по горизонтали</Label>
+                      <Slider
+                        value={[designSettings.bannerPositionX]}
+                        onValueChange={([value]) => setDesignSettings(prev => ({ ...prev, bannerPositionX: value }))}
+                        max={100}
+                        step={1}
+                        className="mt-2"
+                      />
+                      <span className="text-sm text-gray-600">{designSettings.bannerPositionX}%</span>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs">Позиция по вертикали</Label>
+                      <Slider
+                        value={[designSettings.bannerPositionY]}
+                        onValueChange={([value]) => setDesignSettings(prev => ({ ...prev, bannerPositionY: value }))}
+                        max={100}
+                        step={1}
+                        className="mt-2"
+                      />
+                      <span className="text-sm text-gray-600">{designSettings.bannerPositionY}%</span>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-4">
+                    <Label className="text-sm font-medium">Заливка баннера</Label>
+                    
+                    <div>
+                      <Label className="text-xs">Цвет заливки</Label>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <input
+                          type="color"
+                          value={designSettings.bannerOverlayColor}
+                          onChange={(e) => setDesignSettings(prev => ({ ...prev, bannerOverlayColor: e.target.value }))}
+                          className="w-10 h-10 border rounded"
+                        />
+                        <span className="text-sm text-gray-600">{designSettings.bannerOverlayColor}</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs">Прозрачность заливки</Label>
+                      <Slider
+                        value={[designSettings.bannerOverlayOpacity]}
+                        onValueChange={([value]) => setDesignSettings(prev => ({ ...prev, bannerOverlayOpacity: value }))}
+                        max={100}
+                        step={1}
+                        className="mt-2"
+                      />
+                      <span className="text-sm text-gray-600">{designSettings.bannerOverlayOpacity}%</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

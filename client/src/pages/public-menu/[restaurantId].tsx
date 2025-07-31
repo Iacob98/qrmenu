@@ -159,7 +159,13 @@ export default function PublicMenu() {
       root.style.setProperty('--card-radius', `${design.cardRadius}px`);
     }
     if (design.cardSpacing) {
-      root.style.setProperty('--card-spacing', design.cardSpacing);
+      const spacingMap = {
+        compact: '8px',
+        normal: '12px',
+        spacious: '16px'
+      };
+      const spacing = spacingMap[design.cardSpacing] || '12px';
+      root.style.setProperty('--card-spacing', spacing);
     }
     
     // Cleanup on unmount
@@ -232,28 +238,77 @@ export default function PublicMenu() {
     >
       <div className="max-w-md mx-auto">
         {/* Menu Header */}
-        <header className="bg-primary-600 text-white text-center relative overflow-hidden">
+        <header 
+          className="text-white text-center relative overflow-hidden"
+          style={{ backgroundColor: 'var(--primary, #f59e0b)' }}
+        >
           {/* Banner Background */}
           {menu?.restaurant?.banner && (
             <div 
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
-              style={{ backgroundImage: `url(${menu.restaurant.banner})` }}
+              className="absolute inset-0 bg-cover bg-no-repeat"
+              style={{ 
+                backgroundImage: `url(${menu.restaurant.banner})`,
+                backgroundPosition: `${menu?.restaurant?.design?.bannerPositionX || 50}% ${menu?.restaurant?.design?.bannerPositionY || 50}%`
+              }}
+            />
+          )}
+          
+          {/* Banner Overlay */}
+          {menu?.restaurant?.banner && (
+            <div 
+              className="absolute inset-0"
+              style={{ 
+                backgroundColor: menu?.restaurant?.design?.bannerOverlayColor || '#000000',
+                opacity: (menu?.restaurant?.design?.bannerOverlayOpacity || 40) / 100
+              }}
             />
           )}
           
           <div className="relative z-10 p-6">
-            {menu?.restaurant?.logo && (
-              <img 
-                src={menu.restaurant.logo} 
-                alt={menu.restaurant.name}
-                className="w-16 h-16 mx-auto mb-4 rounded-full object-cover border-2 border-white/50"
-              />
+            {menu?.restaurant?.logo && menu?.restaurant?.design?.logoPosition !== 'hidden' && (
+              <div className={`mb-4 ${
+                menu?.restaurant?.design?.logoPosition === 'center' ? 'flex justify-center' :
+                menu?.restaurant?.design?.logoPosition === 'left' ? 'flex justify-start' : 
+                'flex justify-center'
+              }`}>
+                <img 
+                  src={menu.restaurant.logo} 
+                  alt={menu.restaurant.name}
+                  className="w-16 h-16 rounded-full object-cover border-2 border-white/50"
+                />
+              </div>
             )}
-            <h1 className="text-2xl font-bold text-white drop-shadow-lg">{menu?.restaurant?.name}</h1>
+            <h1 
+              className="text-2xl font-bold drop-shadow-lg"
+              style={{ 
+                color: 'white',
+                textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                fontFamily: 'var(--font-family, inherit)',
+                fontSize: 'var(--font-size, 2rem)'
+              }}
+            >
+              {menu?.restaurant?.name}
+            </h1>
             {menu?.restaurant?.city && (
-              <p className="text-white/90 drop-shadow-md">{menu.restaurant.city}</p>
+              <p 
+                className="drop-shadow-md mt-2"
+                style={{ 
+                  color: 'white',
+                  textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+                  fontFamily: 'var(--font-family, inherit)'
+                }}
+              >
+                {menu.restaurant.city}
+              </p>
             )}
-            <div className="flex justify-center space-x-4 mt-4 text-sm text-white/90 drop-shadow-md">
+            <div 
+              className="flex justify-center space-x-4 mt-4 text-sm drop-shadow-md"
+              style={{ 
+                color: 'white',
+                textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+                fontFamily: 'var(--font-family, inherit)'
+              }}
+            >
               <span>🇷🇺 {menu?.restaurant?.language === 'ru' ? 'Русский' : 'Русский'}</span>
               <span>{getCurrencySymbol(menu?.restaurant?.currency || 'EUR')} {menu?.restaurant?.currency}</span>
             </div>
@@ -268,7 +323,13 @@ export default function PublicMenu() {
         />
 
         {/* Search and Filters */}
-        <div className="p-4 bg-gray-50">
+        <div 
+          className="p-4 bg-gray-50"
+          style={{
+            fontFamily: 'var(--font-family, inherit)',
+            fontSize: 'var(--font-size, inherit)'
+          }}
+        >
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <Input
@@ -323,7 +384,16 @@ export default function PublicMenu() {
         </div>
 
         {/* Menu Content */}
-        <div className="p-4 space-y-4">
+        <div 
+          className="p-4"
+          style={{
+            gap: 'var(--card-spacing, 12px)',
+            display: 'flex',
+            flexDirection: 'column',
+            fontFamily: 'var(--font-family, inherit)',
+            fontSize: 'var(--font-size, inherit)'
+          }}
+        >
           {filteredDishes.length === 0 ? (
             <div className="text-center py-8">
               {searchQuery || activeTags.length > 0 ? (

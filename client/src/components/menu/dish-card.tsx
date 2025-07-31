@@ -59,7 +59,10 @@ export function DishCard({
         backgroundColor: 'var(--card-background, #ffffff)'
       }}
     >
-      <div className="flex items-center space-x-3 p-3">
+      <div 
+        className="flex items-center space-x-3"
+        style={{ padding: 'var(--card-spacing, 12px)' }}
+      >
         {/* Dish Image - smaller and round */}
         <div 
           className="w-20 h-20 bg-gray-200 flex-shrink-0 rounded-lg overflow-hidden"
