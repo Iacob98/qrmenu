@@ -109,29 +109,13 @@ export function EditDishModal({
       });
       return await response.json();
     },
-    onSuccess: async (response: any) => {
+    onSuccess: (response: any) => {
       console.log('[Generated Image] Response:', response);
       const imageUrl = response?.imageUrl;
       if (imageUrl) {
-        // Immediately update the form data
+        // Update the form data with the generated image
         setFormData(prev => ({ ...prev, image: imageUrl }));
-        
-        // Also save the image to the dish in the database immediately
-        try {
-          await updateDishMutation.mutateAsync({
-            name: formData.name.trim(),
-            description: formData.description.trim() || null,
-            price: parseFloat(formData.price),
-            categoryId: formData.categoryId,
-            ingredients: formData.ingredients.split(",").map(ing => ing.trim()).filter(ing => ing.length > 0),
-            tags: formData.tags.length > 0 ? formData.tags : null,
-            image: imageUrl,
-          });
-          toast({ title: "Фото сгенерировано и сохранено" });
-        } catch (error) {
-          setFormData(prev => ({ ...prev, image: imageUrl }));
-          toast({ title: "Фото сгенерировано" });
-        }
+        toast({ title: "Фото сгенерировано" });
         console.log('[Generated Image] URL:', imageUrl);
       } else {
         toast({
@@ -321,6 +305,7 @@ export function EditDishModal({
 
           <div>
             <FileUpload
+              key={formData.image || 'no-image'} // Force re-render when image changes
               label="🖼️ Фото блюда"
               value={formData.image}
               onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
@@ -342,6 +327,11 @@ export function EditDishModal({
                 {generateImageMutation.isPending ? "Генерирую..." : "Сгенерировать AI фото"}
               </Button>
             </div>
+            {formData.image && (
+              <div className="mt-2 text-sm text-muted-foreground">
+                Текущее изображение: {formData.image}
+              </div>
+            )}
           </div>
           
           <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-2">

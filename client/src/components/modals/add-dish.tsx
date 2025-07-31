@@ -306,6 +306,7 @@ export function AddDishModal({
           {/* Photo Section */}
           <div>
             <FileUpload
+              key={formData.image || 'no-image'} // Force re-render when image changes
               label="🖼️ Фото блюда"
               value={formData.image}
               onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
@@ -327,6 +328,11 @@ export function AddDishModal({
                 {generateImageMutation.isPending ? "Генерирую..." : "Сгенерировать AI фото"}
               </Button>
             </div>
+            {formData.image && (
+              <div className="mt-2 text-sm text-muted-foreground">
+                Текущее изображение: {formData.image}
+              </div>
+            )}
           </div>
           
           <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-2">
