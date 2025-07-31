@@ -155,6 +155,41 @@ export default function PublicMenu() {
     return symbols[currency] || currency;
   };
 
+  // Apply restaurant design settings
+  useEffect(() => {
+    if (menu?.restaurant?.design && typeof menu.restaurant.design === 'object') {
+      const design = menu.restaurant.design as any;
+      const root = document.documentElement;
+      
+      // Apply design settings as CSS variables
+      if (design.primaryColor) {
+        root.style.setProperty('--primary', design.primaryColor);
+        root.style.setProperty('--primary-600', design.primaryColor);
+        root.style.setProperty('--primary-700', design.primaryColor);
+      }
+      if (design.backgroundColor) {
+        root.style.setProperty('--background', design.backgroundColor);
+      }
+      if (design.textColor) {
+        root.style.setProperty('--foreground', design.textColor);
+      }
+      if (design.fontFamily) {
+        root.style.setProperty('font-family', design.fontFamily);
+      }
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      const root = document.documentElement;
+      root.style.removeProperty('--primary');
+      root.style.removeProperty('--primary-600');
+      root.style.removeProperty('--primary-700');
+      root.style.removeProperty('--background');
+      root.style.removeProperty('--foreground');
+      root.style.removeProperty('font-family');
+    };
+  }, [menu?.restaurant?.design]);
+
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-md mx-auto">

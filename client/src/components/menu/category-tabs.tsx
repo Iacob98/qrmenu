@@ -19,9 +19,17 @@ export function CategoryTabs({ categories, activeCategory, onCategoryChange }: C
             className={cn(
               "px-4 py-3 text-sm font-medium whitespace-nowrap rounded-lg mx-1 transition-all duration-200 border min-w-fit",
               activeCategory === category.id
-                ? "text-white bg-primary-600 shadow-md hover:bg-primary-700 border-primary-600"
-                : "text-gray-800 bg-white hover:text-primary-600 hover:bg-primary-50 border-gray-300 hover:border-primary-400 shadow-sm"
+                ? "text-white shadow-md border-transparent"
+                : "text-gray-800 bg-white border-gray-300 shadow-sm"
             )}
+            style={
+              activeCategory === category.id
+                ? {
+                    backgroundColor: 'var(--primary, #22c55e)',
+                    borderColor: 'var(--primary, #22c55e)',
+                  }
+                : {}
+            }
             onClick={() => onCategoryChange(category.id)}
           >
             {category.icon} {category.name}
