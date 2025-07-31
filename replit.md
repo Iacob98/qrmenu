@@ -36,6 +36,7 @@ This is a full-stack restaurant online menu management system built with React, 
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
+AI Image Generation: Always use specified Midjourney-style flags in DALL-E prompts as requested by user.
 
 # System Architecture
 
