@@ -237,6 +237,11 @@ The composition is minimal and elegant, focused on the food, with no distracting
 
       console.log(`[AI Service] Generating image with ComfyUI for: ${dishName}`);
       
+      // Translate prompt to English for better ComfyUI results
+      const englishPrompt = await this.translateToEnglish(prompt);
+      console.log(`[AI Service] Original prompt: ${prompt}`);
+      console.log(`[AI Service] English prompt: ${englishPrompt}`);
+      
       // Always use Replicate for image generation
       if (!process.env.REPLICATE_API_TOKEN) {
         throw new Error("REPLICATE_API_TOKEN not configured for image generation");
@@ -296,7 +301,7 @@ The composition is minimal and elegant, focused on the food, with no distracting
           },
           "6": {
             "inputs": {
-              "text": prompt + ", professional food photography, high quality, detailed, appetizing, clean background",
+              "text": englishPrompt + ", professional food photography, high quality, detailed, appetizing, clean background",
               "clip": ["4", 1]
             },
             "class_type": "CLIPTextEncode",
@@ -389,6 +394,80 @@ The composition is minimal and elegant, focused on the food, with no distracting
 
       console.log(`[Replicate] Generated image successfully: ${imageUrl}`);
       return imageUrl;
+  }
+
+  private async translateToEnglish(text: string): Promise<string> {
+    // Check if text contains Russian/Cyrillic characters
+    const cyrillicChars = text.match(/[а-яё]/gi)?.length || 0;
+    if (cyrillicChars === 0) {
+      console.log(`[Translation] Text appears to be in English already`);
+      return text; // No Russian characters, probably already English
+    }
+
+    try {
+      if (!this.openai) {
+        // Use fallback simple translation
+        return this.fallbackTranslate(text);
+      }
+
+      const response = await this.openai.chat.completions.create({
+        model: this.model,
+        messages: [
+          {
+            role: "system",
+            content: "Translate the following food description to English. Keep it concise and appetizing. Focus on the dish name and key ingredients."
+          },
+          {
+            role: "user", 
+            content: text
+          }
+        ],
+        max_tokens: 200,
+      });
+
+      const translation = response.choices[0].message.content?.trim() || text;
+      console.log(`[Translation] ${text} -> ${translation}`);
+      return translation;
+    } catch (error) {
+      console.log(`[Translation] Failed, using fallback for: ${text}`);
+      return this.fallbackTranslate(text);
+    }
+  }
+
+  private fallbackTranslate(text: string): string {
+    // Basic Russian to English food translation dictionary
+    const translations: Record<string, string> = {
+      'борщ': 'borscht soup',
+      'пельмени': 'russian dumplings',
+      'блины': 'russian pancakes',
+      'суп': 'soup',
+      'мясо': 'meat',
+      'свекла': 'beetroot',
+      'капуста': 'cabbage',
+      'картофель': 'potato',
+      'хлеб': 'bread',
+      'салат': 'salad',
+      'пицца': 'pizza',
+      'стейк': 'steak',
+      'овощи': 'vegetables',
+      'сыр': 'cheese',
+      'томаты': 'tomatoes',
+      'тесто': 'dough',
+      'специи': 'spices',
+      'масло': 'oil',
+      'говядина': 'beef',
+      'листья': 'leaves',
+      'морковь': 'carrot',
+      'сметана': 'sour cream',
+      'лук': 'onion'
+    };
+
+    let translated = text.toLowerCase();
+    Object.entries(translations).forEach(([ru, en]) => {
+      translated = translated.replace(new RegExp(ru, 'g'), en);
+    });
+
+    return translated;
   }
 
   async enhanceDish(dish: Partial<AIGeneratedDish>): Promise<AIGeneratedDish> {
