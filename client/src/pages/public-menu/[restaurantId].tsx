@@ -7,11 +7,21 @@ import { Badge } from "@/components/ui/badge";
 import { CategoryTabs } from "@/components/menu/category-tabs";
 import { DishCard } from "@/components/menu/dish-card";
 import { DishDetailsModal } from "@/components/modals/dish-details";
-import { useRealTimeMenu } from "@/hooks/useRealTimeMenu";
 import { Search, X } from "lucide-react";
 import type { PublicMenu, Dish } from "@shared/schema";
 
+function getCurrencySymbol(currency: string): string {
+  const symbols: Record<string, string> = {
+    'USD': '$',
+    'EUR': '€',
+    'PLN': 'zł',
+    'MDL': 'lei',
+  };
+  return symbols[currency] || currency;
+}
+
 export default function PublicMenu() {
+  // All hooks must be called in the same order every time
   const [, params] = useRoute("/menu/:slug");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -19,16 +29,13 @@ export default function PublicMenu() {
   const [filteredDishes, setFilteredDishes] = useState<Dish[]>([]);
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
 
-  // Get public menu data
+  // Query hook - must always be called
   const { data: menu, isLoading, error } = useQuery<PublicMenu>({
     queryKey: ["/api/public/menu", params?.slug],
     enabled: !!params?.slug,
   });
 
-  // Connect to real-time updates
-  const { isConnected } = useRealTimeMenu(params?.slug || "");
-
-  // Create categories with favorites as the first virtual category
+  // Helper function to create menu with favorites
   const getMenuWithFavorites = () => {
     if (!menu) return null;
 
@@ -59,7 +66,7 @@ export default function PublicMenu() {
     };
   };
 
-  // Auto-select first category when menu loads
+  // Effect hooks - must always be called
   useEffect(() => {
     const menuWithFavorites = getMenuWithFavorites();
     if (menuWithFavorites && selectedCategory === null && menuWithFavorites.categories.length > 0) {
@@ -67,7 +74,6 @@ export default function PublicMenu() {
     }
   }, [menu, selectedCategory]);
 
-  // Filter dishes based on category, search, and tags
   useEffect(() => {
     const menuWithFavorites = getMenuWithFavorites();
     if (!menuWithFavorites) {
@@ -107,6 +113,39 @@ export default function PublicMenu() {
     setFilteredDishes(dishes);
   }, [menu, selectedCategory, searchQuery, activeTags]);
 
+  useEffect(() => {
+    if (!menu?.restaurant?.design) return;
+
+    const design = menu.restaurant.design;
+    const root = document.documentElement;
+    
+    if (design.primaryColor) {
+      root.style.setProperty('--primary', design.primaryColor);
+      root.style.setProperty('--primary-600', design.primaryColor);
+      root.style.setProperty('--primary-700', design.primaryColor);
+    }
+    if (design.backgroundColor) {
+      root.style.setProperty('--background', design.backgroundColor);
+    }
+    if (design.textColor) {
+      root.style.setProperty('--foreground', design.textColor);
+    }
+    if (design.fontFamily) {
+      root.style.setProperty('font-family', design.fontFamily);
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      const root = document.documentElement;
+      root.style.removeProperty('--primary');
+      root.style.removeProperty('--primary-600');
+      root.style.removeProperty('--primary-700');
+      root.style.removeProperty('--background');
+      root.style.removeProperty('--foreground');
+      root.style.removeProperty('font-family');
+    };
+  }, [menu?.restaurant?.design]);
+
   const handleTagFilter = (tag: string) => {
     setActiveTags(prev => 
       prev.includes(tag) 
@@ -115,15 +154,12 @@ export default function PublicMenu() {
     );
   };
 
-  const removeTagFilter = (tag: string) => {
-    setActiveTags(prev => prev.filter(t => t !== tag));
-  };
-
-  const clearAllFilters = () => {
+  const clearFilters = () => {
     setActiveTags([]);
     setSearchQuery("");
   };
 
+  // Early returns after all hooks have been called
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -140,55 +176,11 @@ export default function PublicMenu() {
           <p className="text-gray-600">
             Проверьте правильность ссылки или обратитесь в ресторан
           </p>
+          {error && <p className="text-red-500 mt-2">Ошибка: {error.message}</p>}
         </div>
       </div>
     );
   }
-
-  const getCurrencySymbol = (currency: string) => {
-    const symbols: Record<string, string> = {
-      EUR: "€",
-      USD: "$", 
-      PLN: "zł",
-      MDL: "L",
-    };
-    return symbols[currency] || currency;
-  };
-
-  // Apply restaurant design settings
-  useEffect(() => {
-    if (menu?.restaurant?.design && typeof menu.restaurant.design === 'object') {
-      const design = menu.restaurant.design as any;
-      const root = document.documentElement;
-      
-      // Apply design settings as CSS variables
-      if (design.primaryColor) {
-        root.style.setProperty('--primary', design.primaryColor);
-        root.style.setProperty('--primary-600', design.primaryColor);
-        root.style.setProperty('--primary-700', design.primaryColor);
-      }
-      if (design.backgroundColor) {
-        root.style.setProperty('--background', design.backgroundColor);
-      }
-      if (design.textColor) {
-        root.style.setProperty('--foreground', design.textColor);
-      }
-      if (design.fontFamily) {
-        root.style.setProperty('font-family', design.fontFamily);
-      }
-    }
-    
-    // Cleanup on unmount
-    return () => {
-      const root = document.documentElement;
-      root.style.removeProperty('--primary');
-      root.style.removeProperty('--primary-600');
-      root.style.removeProperty('--primary-700');
-      root.style.removeProperty('--background');
-      root.style.removeProperty('--foreground');
-      root.style.removeProperty('font-family');
-    };
-  }, [menu?.restaurant?.design]);
 
   const menuWithFavorites = getMenuWithFavorites();
 
@@ -223,8 +215,6 @@ export default function PublicMenu() {
             </div>
           </div>
         </header>
-
-
 
         {/* Category Tabs */}
         <CategoryTabs
@@ -270,7 +260,7 @@ export default function PublicMenu() {
                       variant="ghost"
                       size="sm"
                       className="h-auto p-0 hover:bg-transparent"
-                      onClick={() => removeTagFilter(tag)}
+                      onClick={() => handleTagFilter(tag)}
                     >
                       <X size={12} />
                     </Button>
@@ -278,30 +268,29 @@ export default function PublicMenu() {
                 ))}
               </div>
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                onClick={clearAllFilters}
-                className="text-gray-500 text-xs"
+                onClick={clearFilters}
               >
-                Сбросить фильтры
+                Очистить фильтры
               </Button>
             </div>
           )}
         </div>
 
-        {/* Dishes List */}
+        {/* Menu Content */}
         <div className="p-4 space-y-4">
           {filteredDishes.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              {activeTags.length > 0 || searchQuery ? (
+            <div className="text-center py-8">
+              {searchQuery || activeTags.length > 0 ? (
                 <div>
-                  <p className="mb-2">Блюда не найдены</p>
-                  <Button variant="outline" size="sm" onClick={clearAllFilters}>
+                  <p className="text-gray-500 mb-4">По вашему запросу ничего не найдено</p>
+                  <Button onClick={clearFilters} variant="outline">
                     Показать все блюда
                   </Button>
                 </div>
               ) : (
-                <p>В этой категории пока нет блюд</p>
+                <p className="text-gray-500">В этой категории пока нет блюд</p>
               )}
             </div>
           ) : (
@@ -327,7 +316,7 @@ export default function PublicMenu() {
           <p>Создано с помощью QRMenu</p>
         </footer>
       </div>
-      
+
       {/* Dish Details Modal */}
       <DishDetailsModal
         dish={selectedDish}
