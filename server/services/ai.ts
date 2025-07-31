@@ -223,22 +223,23 @@ The composition is minimal and elegant, focused on the food, with no distracting
       console.log(`[AI Service] Using API key: ${this.openai.apiKey ? 'Present' : 'Missing'}`);
       console.log(`[AI Service] Base URL: ${this.openai.baseURL || 'Default OpenAI'}`);
       
-      // Use DALL-E 3 with your custom prompt flags
-      const response = await this.openai.images.generate({
-        model: "dall-e-3",
-        prompt,
-        n: 1,
-        size: "1024x1024",
-        quality: "hd"
-      });
-
-      console.log(`[AI Service] Response received:`, response);
-      const imageUrl = response.data?.[0]?.url;
-      if (!imageUrl) {
-        throw new Error("No image URL returned from DALL-E");
+      // Use DALL-E 3 with your custom prompt flags  
+      try {
+        const response = await this.openai.images.generate({
+          model: "dall-e-3",
+          prompt,
+          n: 1,
+          size: "1024x1024",
+          quality: "hd"
+        });
+        console.log(`[AI Service] DALL-E response received successfully`);
+        return response.data?.[0]?.url || '';
+      } catch (dalleError) {
+        console.error(`[AI Service] DALL-E error:`, dalleError);
+        throw dalleError;
       }
 
-      return imageUrl;
+
     } catch (error) {
       console.error('[AI Service] Image generation error:', error);
       throw new Error(`Failed to generate image: ${handleError(error)}`);
