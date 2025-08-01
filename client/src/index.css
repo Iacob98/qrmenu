@@ -100,6 +100,47 @@
       min-height: -webkit-fill-available;
     }
   }
+
+  /* Sticky navigation fixes for mobile */
+  .sticky-nav, .header-sticky {
+    position: -webkit-sticky;
+    position: sticky;
+    will-change: transform;
+  }
+
+  /* Mobile-specific sticky positioning */
+  @media (max-width: 768px) {
+    .sticky-nav, .header-sticky {
+      /* Ensure proper sticky behavior on mobile */
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    
+    /* Fix for iOS Safari sticky issues */
+    @supports (-webkit-touch-callout: none) {
+      .sticky-nav, .header-sticky {
+        position: -webkit-sticky;
+        position: sticky;
+        /* Force hardware acceleration */
+        transform: translate3d(0, 0, 0);
+        -webkit-transform: translate3d(0, 0, 0);
+      }
+    }
+    
+    /* Adjust sticky positioning for mobile header height */
+    .sticky-nav {
+      top: 73px !important;
+    }
+  }
+
+  /* Desktop sticky positioning */
+  @media (min-width: 769px) {
+    .sticky-nav {
+      top: 105px !important;
+    }
+  }
 }
 
 /* Hide scrollbar for horizontal scroll */

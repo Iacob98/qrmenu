@@ -359,7 +359,7 @@ function PublicMenuContent() {
         
         {/* Compact Header */}
         <div 
-          className="sticky top-0 z-50 bg-white border-b shadow-sm"
+          className="sticky top-0 z-50 bg-white border-b shadow-sm header-sticky"
         >
           <div 
             className="flex items-center p-4 space-x-3"
@@ -458,8 +458,8 @@ function PublicMenuContent() {
           </div>
         </div>
 
-        {/* Sticky Category Tabs */}
-        <div className="sticky top-[105px] z-40 bg-white/95 backdrop-blur-sm border-b shadow-sm">
+        {/* Sticky Category Tabs - Mobile optimized */}
+        <div className="sticky-nav top-[73px] md:top-[105px] z-40 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
           <CategoryTabs
             categories={menuWithFavorites?.categories || []}
             activeCategory={selectedCategory}
