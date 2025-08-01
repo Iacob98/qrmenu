@@ -205,23 +205,25 @@ export default function Settings() {
   }
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen">
       <Sidebar />
       
-      <div className="flex-1">
+      <div className="flex-1 lg:ml-0 w-full">
         {/* Header */}
         <header className="bg-white shadow-sm border-b">
-          <div className="px-6 py-4">
-            <h1 className="text-2xl font-bold text-gray-900">Настройки</h1>
-            <p className="text-gray-600">Управление настройками ресторана и профиля</p>
+          <div className="px-4 lg:px-6 py-4">
+            <div className="pl-16 lg:pl-0"> {/* Space for mobile menu button */}
+              <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Настройки</h1>
+              <p className="text-gray-600">Управление настройками ресторана и профиля</p>
+            </div>
           </div>
         </header>
 
-        <div className="p-6">
+        <div className="p-4 lg:p-6">
           <Tabs defaultValue="restaurant" className="space-y-6">
-            <TabsList>
-              <TabsTrigger value="restaurant">Ресторан</TabsTrigger>
-              <TabsTrigger value="profile">Профиль</TabsTrigger>
+            <TabsList className="w-full sm:w-auto">
+              <TabsTrigger value="restaurant" className="flex-1 sm:flex-none">Ресторан</TabsTrigger>
+              <TabsTrigger value="profile" className="flex-1 sm:flex-none">Профиль</TabsTrigger>
             </TabsList>
 
             <TabsContent value="restaurant" className="space-y-6">
@@ -240,7 +242,7 @@ export default function Settings() {
                     </CardHeader>
                     <CardContent>
                       <form onSubmit={handleRestaurantSubmit} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                           <div>
                             <Label htmlFor="name">🏠 Название ресторана</Label>
                             <Input

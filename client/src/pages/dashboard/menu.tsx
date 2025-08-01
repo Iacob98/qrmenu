@@ -119,7 +119,7 @@ export default function MenuManagement() {
 
   if (restaurantsLoading || restaurantLoading) {
     return (
-      <div className="flex">
+      <div className="flex min-h-screen">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -130,11 +130,11 @@ export default function MenuManagement() {
 
   if (!restaurants || !Array.isArray(restaurants) || restaurants.length === 0) {
     return (
-      <div className="flex">
+      <div className="flex min-h-screen">
         <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Добро пожаловать!</h2>
+            <h2 className="text-xl lg:text-2xl font-bold mb-4">Добро пожаловать!</h2>
             <p className="text-gray-600 mb-6">У вас пока нет ресторанов. Создайте первый.</p>
             <Button onClick={() => setCreateRestaurantOpen(true)}>
               Создать ресторан
@@ -146,55 +146,64 @@ export default function MenuManagement() {
   }
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen">
       <Sidebar />
       
-      <div className="flex-1">
+      <div className="flex-1 lg:ml-0 w-full">
         {/* Top Bar */}
         <header className="bg-white shadow-sm border-b">
-          <div className="px-6 py-4 flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {restaurant?.name || "Загрузка..."}
-              </h1>
-              <p className="text-gray-600">Управление меню</p>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="outline"
-                onClick={handlePreviewMenu}
-                disabled={!restaurant}
-              >
-                <ExternalLink className="mr-2" size={16} />
-                Предпросмотр меню
-              </Button>
-              
-              <div className="relative">
-                <Button variant="outline" size="icon">
-                  <User size={20} />
-                </Button>
+          <div className="px-4 lg:px-6 py-4">
+            <div className="pl-16 lg:pl-0"> {/* Space for mobile menu button */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h1 className="text-xl lg:text-2xl font-bold text-gray-900">
+                    {restaurant?.name || "Загрузка..."}
+                  </h1>
+                  <p className="text-gray-600">Управление меню</p>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                  <Button
+                    variant="outline"
+                    onClick={handlePreviewMenu}
+                    disabled={!restaurant}
+                    className="w-full sm:w-auto"
+                  >
+                    <ExternalLink className="mr-2" size={16} />
+                    <span className="hidden sm:inline">Предпросмотр меню</span>
+                    <span className="sm:hidden">Предпросмотр</span>
+                  </Button>
+                  
+                  <div className="relative">
+                    <Button variant="outline" size="icon" className="w-full sm:w-auto">
+                      <User size={20} />
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </header>
 
         {/* Main Content */}
-        <div className="p-6">
+        <div className="p-4 lg:p-6">
           <div className="mb-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-900">Категории и блюда</h2>
-              <div className="flex space-x-3">
-                <Button onClick={() => setAddCategoryOpen(true)}>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+              <h2 className="text-lg lg:text-xl font-semibold text-gray-900">Категории и блюда</h2>
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <Button onClick={() => setAddCategoryOpen(true)} className="w-full sm:w-auto">
                   <Plus className="mr-2" size={16} />
-                  Добавить категорию
+                  <span className="hidden sm:inline">Добавить категорию</span>
+                  <span className="sm:hidden">Категория</span>
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => handleAddDish()}
+                  className="w-full sm:w-auto"
                 >
                   <Plus className="mr-2" size={16} />
-                  Добавить блюдо
+                  <span className="hidden sm:inline">Добавить блюдо</span>
+                  <span className="sm:hidden">Блюдо</span>
                 </Button>
               </div>
             </div>

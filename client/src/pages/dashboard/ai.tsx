@@ -295,7 +295,7 @@ export default function AIGeneration() {
 
   if (restaurantsLoading) {
     return (
-      <div className="flex">
+      <div className="flex min-h-screen">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -307,33 +307,35 @@ export default function AIGeneration() {
   const hasAIToken = restaurant?.aiToken;
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen">
       <Sidebar />
       
-      <div className="flex-1">
+      <div className="flex-1 lg:ml-0 w-full">
         {/* Header */}
         <header className="bg-white shadow-sm border-b">
-          <div className="px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">ИИ генерация меню</h1>
-                <div className="flex items-center mt-1">
-                  {hasAIToken ? (
-                    <span className="text-green-600 mr-2">ИИ-токен активен ✅</span>
-                  ) : (
-                    <span className="text-red-600 mr-2">ИИ недоступен ❌</span>
-                  )}
-                  <Button variant="link" size="sm" className="p-0 h-auto">
-                    <Settings size={16} className="mr-1" />
-                    Изменить токен
-                  </Button>
+          <div className="px-4 lg:px-6 py-4">
+            <div className="pl-16 lg:pl-0"> {/* Space for mobile menu button */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h1 className="text-xl lg:text-2xl font-bold text-gray-900">ИИ генерация меню</h1>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
+                    {hasAIToken ? (
+                      <span className="text-green-600">ИИ-токен активен ✅</span>
+                    ) : (
+                      <span className="text-red-600">ИИ недоступен ❌</span>
+                    )}
+                    <Button variant="link" size="sm" className="p-0 h-auto text-left sm:text-center">
+                      <Settings size={16} className="mr-1" />
+                      Изменить токен
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </header>
 
-        <div className="p-6">
+        <div className="p-4 lg:p-6">
           {!hasAIToken ? (
             <Card>
               <CardContent className="py-12 text-center">
@@ -347,7 +349,7 @@ export default function AIGeneration() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Panel - Input */}
               <Card>
                 <CardHeader>

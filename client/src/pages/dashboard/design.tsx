@@ -195,7 +195,7 @@ export default function Design() {
 
   if (restaurantsLoading || restaurantLoading) {
     return (
-      <div className="flex">
+      <div className="flex min-h-screen">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -206,11 +206,11 @@ export default function Design() {
 
   if (!restaurant) {
     return (
-      <div className="flex">
+      <div className="flex min-h-screen">
         <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Выберите ресторан</h2>
+            <h2 className="text-xl lg:text-2xl font-bold mb-4">Выберите ресторан</h2>
             <p className="text-gray-600">Для настройки дизайна выберите ресторан</p>
           </div>
         </div>
@@ -221,27 +221,31 @@ export default function Design() {
   const filteredDishes = getFilteredDishes();
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen">
       <Sidebar />
       
-      <div className="flex-1">
+      <div className="flex-1 lg:ml-0 w-full">
         {/* Header */}
         <header className="bg-white shadow-sm border-b">
-          <div className="px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Редактор дизайна меню</h1>
-                <p className="text-gray-600">Настройте внешний вид вашего меню</p>
-              </div>
-              <div className="flex space-x-2">
-                <Button variant="outline" onClick={handlePreview}>
-                  <ExternalLink className="mr-2" size={16} />
-                  Предпросмотр в новой вкладке
-                </Button>
-                <Button onClick={() => saveDesignMutation.mutate()}>
-                  <Save className="mr-2" size={16} />
-                  Сохранить стиль
-                </Button>
+          <div className="px-4 lg:px-6 py-4">
+            <div className="pl-16 lg:pl-0"> {/* Space for mobile menu button */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Редактор дизайна меню</h1>
+                  <p className="text-gray-600">Настройте внешний вид вашего меню</p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button variant="outline" onClick={handlePreview} className="w-full sm:w-auto">
+                    <ExternalLink className="mr-2" size={16} />
+                    <span className="hidden sm:inline">Предпросмотр в новой вкладке</span>
+                    <span className="sm:hidden">Предпросмотр</span>
+                  </Button>
+                  <Button onClick={() => saveDesignMutation.mutate()} className="w-full sm:w-auto">
+                    <Save className="mr-2" size={16} />
+                    <span className="hidden sm:inline">Сохранить стиль</span>
+                    <span className="sm:hidden">Сохранить</span>
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

@@ -164,7 +164,7 @@ export default function QRPage() {
 
   if (restaurantsLoading) {
     return (
-      <div className="flex">
+      <div className="flex min-h-screen">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -175,11 +175,11 @@ export default function QRPage() {
 
   if (!restaurant) {
     return (
-      <div className="flex">
+      <div className="flex min-h-screen">
         <Sidebar />
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Выберите ресторан</h2>
+            <h2 className="text-xl lg:text-2xl font-bold mb-4">Выберите ресторан</h2>
             <p className="text-gray-600">Для получения QR-кода выберите ресторан</p>
           </div>
         </div>
@@ -188,27 +188,29 @@ export default function QRPage() {
   }
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen">
       <Sidebar />
       
-      <div className="flex-1">
+      <div className="flex-1 lg:ml-0 w-full">
         {/* Header */}
         <header className="bg-white shadow-sm border-b">
-          <div className="px-6 py-4">
-            <h1 className="text-2xl font-bold text-gray-900">QR и Ссылки</h1>
-            <p className="text-gray-600">Поделитесь своим меню с гостями</p>
+          <div className="px-4 lg:px-6 py-4">
+            <div className="pl-16 lg:pl-0"> {/* Space for mobile menu button */}
+              <h1 className="text-xl lg:text-2xl font-bold text-gray-900">QR и Ссылки</h1>
+              <p className="text-gray-600">Поделитесь своим меню с гостями</p>
+            </div>
           </div>
         </header>
 
-        <div className="p-6 max-w-4xl mx-auto">
+        <div className="p-4 lg:p-6 max-w-4xl mx-auto">
           <div className="space-y-6">
             {/* Restaurant Info */}
             <Card>
               <CardHeader>
-                <CardTitle>Публичная ссылка вашего меню</CardTitle>
+                <CardTitle className="text-lg lg:text-xl">Публичная ссылка вашего меню</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 mb-4 text-sm lg:text-base">
                   Это ссылка на онлайн-меню, которую видят ваши гости. Вы можете отправлять её или размещать в соцсетях.
                 </p>
                 
