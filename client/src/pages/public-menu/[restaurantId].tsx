@@ -8,7 +8,7 @@ import { CategoryTabs } from "@/components/menu/category-tabs";
 import { DishCard } from "@/components/menu/dish-card";
 import { DishDetailsModal } from "@/components/modals/dish-details";
 import { useRealTimeMenu } from "@/hooks/useRealTimeMenu";
-import { Search, X } from "lucide-react";
+import { Search, X, Utensils } from "lucide-react";
 import type { PublicMenu, Dish } from "@shared/schema";
 
 function getCurrencySymbol(currency: string): string {

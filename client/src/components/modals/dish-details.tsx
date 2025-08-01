@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -10,12 +11,11 @@ import type { Dish } from "@shared/schema";
 
 interface DishDetailsModalProps {
   dish: Dish | null;
-  isOpen: boolean;
-  onClose: () => void;
   currency: string;
+  onClose: () => void;
 }
 
-export function DishDetailsModal({ dish, isOpen, onClose, currency }: DishDetailsModalProps) {
+export function DishDetailsModal({ dish, currency, onClose }: DishDetailsModalProps) {
   if (!dish) return null;
 
   const getCurrencySymbol = (currency: string) => {
@@ -54,10 +54,13 @@ export function DishDetailsModal({ dish, isOpen, onClose, currency }: DishDetail
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={!!dish} onOpenChange={onClose}>
       <DialogContent className="max-w-xs sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-lg sm:text-xl text-left">{dish.name}</DialogTitle>
+          <DialogDescription className="sr-only">
+            Подробная информация о блюде {dish.name}
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-3 sm:space-y-4">
