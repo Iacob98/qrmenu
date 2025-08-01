@@ -226,13 +226,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const updatedRestaurant = await storage.updateRestaurant(req.params.id, req.body);
       
-      // Notify WebSocket clients about the design update
-      if (req.body.design && restaurant.slug) {
+      // Notify WebSocket clients about restaurant updates (including banner, logo, design, etc.)
+      if (restaurant.slug) {
+        const updateType = req.body.design ? 'design_update' : 'restaurant_update';
+        
         menuWebSocketManager.notifyMenuUpdate(restaurant.slug, {
-          type: 'design_update',
+          type: updateType,
           design: req.body.design,
-          restaurantSlug: restaurant.slug
+          banner: req.body.banner,
+          logo: req.body.logo,
+          name: req.body.name,
+          city: req.body.city,
+          restaurantSlug: restaurant.slug,
+          timestamp: new Date().toISOString()
         });
+        
+        console.log(`📡 Sent ${updateType} notification for restaurant: ${restaurant.slug}`);
       }
       
       res.json(updatedRestaurant);

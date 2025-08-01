@@ -416,7 +416,7 @@ function PublicMenuContent() {
         </div>
 
         {/* Banner (if exists) - Simplified */}
-        {menu?.restaurant?.banner && (
+        {menu?.restaurant?.banner && menu.restaurant.banner.trim() !== '' && (
           <div 
             className="h-24 bg-cover bg-center relative"
             style={{

@@ -76,6 +76,7 @@ export function useRealTimeMenu(restaurantSlug: string) {
             data.type === 'dish_created' || 
             data.type === 'dish_deleted' ||
             data.type === 'design_update' ||
+            data.type === 'restaurant_update' ||
             data.type === 'connected') {
           
           console.log('📡 Received real-time menu update:', data);
@@ -89,10 +90,22 @@ export function useRealTimeMenu(restaurantSlug: string) {
               applyDesignSettings(data.design);
             }
             
-            // Invalidate and refetch the menu data
-            queryClient.invalidateQueries({ 
-              queryKey: ["/api/public/menu", restaurantSlug] 
-            });
+            // For restaurant updates (banner, logo, name, etc.), force refresh
+            if (data.type === 'restaurant_update') {
+              console.log('🏢 Restaurant data updated, forcing refresh:', data);
+              // Force refresh by invalidating cache and removing any cached data
+              queryClient.removeQueries({ 
+                queryKey: ["/api/public/menu", restaurantSlug] 
+              });
+              queryClient.invalidateQueries({ 
+                queryKey: ["/api/public/menu", restaurantSlug] 
+              });
+            } else {
+              // Invalidate and refetch the menu data
+              queryClient.invalidateQueries({ 
+                queryKey: ["/api/public/menu", restaurantSlug] 
+              });
+            }
             
             // Also invalidate admin dashboard if available
             queryClient.invalidateQueries({ 
