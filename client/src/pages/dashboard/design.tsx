@@ -50,10 +50,16 @@ const colorThemes = {
 };
 
 const fontOptions = [
-  { value: "Inter", label: "Inter (по умолчанию)" },
-  { value: "Roboto", label: "Roboto" },
-  { value: "Montserrat", label: "Montserrat" },
-  { value: "Playfair Display", label: "Playfair Display" },
+  { value: "Inter", label: "Inter (рекомендуется)" },
+  { value: "Roboto", label: "Roboto (классический)" },
+  { value: "Open Sans", label: "Open Sans (универсальный)" },
+  { value: "Source Sans Pro", label: "Source Sans Pro (читаемый)" },
+  { value: "Lato", label: "Lato (дружелюбный)" },
+  { value: "Nunito", label: "Nunito (современный)" },
+  { value: "PT Sans", label: "PT Sans (русский)" },
+  { value: "PT Serif", label: "PT Serif (с засечками)" },
+  { value: "Fira Sans", label: "Fira Sans (технический)" },
+  { value: "Ubuntu", label: "Ubuntu (гуманистический)" },
 ];
 
 export default function Design() {

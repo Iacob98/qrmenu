@@ -7,8 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { CategoryTabs } from "@/components/menu/category-tabs";
 import { DishCard } from "@/components/menu/dish-card";
 import { DishDetailsModal } from "@/components/modals/dish-details";
+import { ErrorBoundary, ErrorFallback } from "@/components/error-boundary";
 import { useRealTimeMenu } from "@/hooks/useRealTimeMenu";
 import { Search, X, Utensils } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { PublicMenu, Dish } from "@shared/schema";
 
 function getCurrencySymbol(currency: string): string {
@@ -33,7 +35,7 @@ function getTagEmoji(tag: string): string {
   return emojis[tag] || "🏷️";
 }
 
-export default function PublicMenu() {
+function PublicMenuContent() {
   // All hooks must be called in the same order every time
   const [, params] = useRoute("/menu/:slug");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -137,25 +139,30 @@ export default function PublicMenu() {
     setFilteredDishes(dishes);
   }, [menu, selectedCategory, searchQuery, activeTags]);
 
-  // Dynamic Google Font Loading
+  // Dynamic Google Font Loading with Cyrillic support
   const loadGoogleFont = (fontFamily: string) => {
+    // Font already preloaded in HTML, just return resolved promise
+    if (['Inter', 'Roboto', 'Open Sans', 'Source Sans Pro', 'Lato', 'Nunito', 'PT Sans', 'PT Serif', 'Fira Sans', 'Ubuntu'].includes(fontFamily)) {
+      return Promise.resolve();
+    }
+
     // Remove existing dynamic font link
     const existingLink = document.querySelector('#dynamic-google-font');
     if (existingLink) {
       existingLink.remove();
     }
 
-    // Create new link for Google Font
+    // Create new link for Google Font with Cyrillic support
     const link = document.createElement('link');
     link.id = 'dynamic-google-font';
     link.rel = 'stylesheet';
     
-    // Handle font names with spaces
+    // Handle font names with spaces and add Cyrillic support
     const fontUrl = fontFamily.includes(' ') 
       ? fontFamily.replace(/ /g, '+')
       : fontFamily;
     
-    link.href = `https://fonts.googleapis.com/css2?family=${fontUrl}:wght@300;400;500;600;700&display=swap`;
+    link.href = `https://fonts.googleapis.com/css2?family=${fontUrl}:wght@300;400;500;600;700&subset=cyrillic,cyrillic-ext,latin,latin-ext&display=swap`;
     
     return new Promise<void>((resolve) => {
       link.onload = () => resolve();
@@ -286,21 +293,47 @@ export default function PublicMenu() {
   // Early returns after all hooks have been called
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center p-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-sm">Загружается меню...</p>
+          <p className="text-gray-400 text-xs mt-2">
+            {navigator.userAgent.includes('Mobile') ? 'Мобильная версия' : 'Версия для ПК'}
+          </p>
+        </div>
       </div>
     );
   }
 
   if (error || !menu) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Меню не найдено</h1>
-          <p className="text-gray-600">
+      <div className="min-h-screen flex items-center justify-center bg-white p-4">
+        <div className="text-center max-w-md w-full">
+          <h1 className="text-xl font-bold text-gray-900 mb-4">Меню не найдено</h1>
+          <p className="text-gray-600 mb-4">
             Проверьте правильность ссылки или обратитесь в ресторан
           </p>
-          {error && <p className="text-red-500 mt-2">Ошибка: {error.message}</p>}
+          
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-green-600 text-white px-6 py-2 rounded-lg mb-4 hover:bg-green-700 transition-colors"
+          >
+            Обновить страницу
+          </button>
+          
+          {error && (
+            <details className="text-left mt-4">
+              <summary className="text-sm text-gray-500 cursor-pointer mb-2">
+                Техническая информация
+              </summary>
+              <div className="text-xs text-gray-400 bg-gray-50 p-3 rounded">
+                <p>Ошибка: {error.message}</p>
+                <p>URL: {window.location.href}</p>
+                <p>Устройство: {navigator.userAgent}</p>
+                <p>Время: {new Date().toLocaleString()}</p>
+              </div>
+            </details>
+          )}
         </div>
       </div>
     );
@@ -310,16 +343,19 @@ export default function PublicMenu() {
 
   return (
     <div 
-      className="min-h-screen bg-gray-50"
+      className="min-h-screen bg-gray-50 antialiased safe-area-inset"
       style={{ 
         backgroundColor: 'var(--background, #f9fafb)',
-        fontFamily: 'var(--font-family, system-ui)',
+        fontFamily: 'var(--font-family, "Inter", system-ui, -apple-system, sans-serif)',
         fontSize: 'var(--font-size, 16px)',
-        color: 'var(--foreground, #111827)'
+        color: 'var(--foreground, #111827)',
+        lineHeight: '1.5',
+        WebkitTextSizeAdjust: '100%',
+        textSizeAdjust: '100%'
       }}
     >
-      {/* Simplified Mobile-First Layout */}
-      <div className="max-w-lg mx-auto bg-white min-h-screen">
+      {/* Mobile-First Layout with error boundary */}
+      <div className="max-w-lg mx-auto bg-white min-h-screen relative">
         
         {/* Compact Header */}
         <div 
@@ -512,5 +548,14 @@ export default function PublicMenu() {
         )}
       </div>
     </div>
+  );
+}
+
+// Main export with Error Boundary
+export default function PublicMenu() {
+  return (
+    <ErrorBoundary fallback={ErrorFallback}>
+      <PublicMenuContent />
+    </ErrorBoundary>
   );
 }
