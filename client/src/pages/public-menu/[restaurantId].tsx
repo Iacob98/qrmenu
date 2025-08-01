@@ -137,6 +137,33 @@ export default function PublicMenu() {
     setFilteredDishes(dishes);
   }, [menu, selectedCategory, searchQuery, activeTags]);
 
+  // Dynamic Google Font Loading
+  const loadGoogleFont = (fontFamily: string) => {
+    // Remove existing dynamic font link
+    const existingLink = document.querySelector('#dynamic-google-font');
+    if (existingLink) {
+      existingLink.remove();
+    }
+
+    // Create new link for Google Font
+    const link = document.createElement('link');
+    link.id = 'dynamic-google-font';
+    link.rel = 'stylesheet';
+    
+    // Handle font names with spaces
+    const fontUrl = fontFamily.includes(' ') 
+      ? fontFamily.replace(/ /g, '+')
+      : fontFamily;
+    
+    link.href = `https://fonts.googleapis.com/css2?family=${fontUrl}:wght@300;400;500;600;700&display=swap`;
+    
+    return new Promise<void>((resolve) => {
+      link.onload = () => resolve();
+      link.onerror = () => resolve(); // Continue even if font fails to load
+      document.head.appendChild(link);
+    });
+  };
+
   useEffect(() => {
     if (!menu?.restaurant?.design) return;
 
@@ -145,52 +172,84 @@ export default function PublicMenu() {
     
     console.log('Applying design settings:', design);
     
-    if (design.primaryColor) {
-      root.style.setProperty('--primary', design.primaryColor);
-      root.style.setProperty('--primary-600', design.primaryColor);
-      root.style.setProperty('--primary-700', design.primaryColor);
-    }
-    if (design.accentColor) {
-      root.style.setProperty('--accent', design.accentColor);
-      root.style.setProperty('--accent-600', design.accentColor);
-      root.style.setProperty('--accent-700', design.accentColor);
-    }
-    if (design.backgroundColor) {
-      root.style.setProperty('--background', design.backgroundColor);
-    }
-    if (design.textColor) {
-      root.style.setProperty('--foreground', design.textColor);
-    }
-    if (design.fontFamily) {
-      root.style.setProperty('--font-family', design.fontFamily);
-      document.body.style.fontFamily = design.fontFamily;
-    }
-    if (design.fontSize) {
-      const fontSizeMap: Record<string, string> = {
-        small: '14px',
-        medium: '16px',  
-        large: '18px'
-      };
-      const fontSize = fontSizeMap[design.fontSize as string] || '16px';
-      root.style.setProperty('--font-size', fontSize);
-      document.body.style.fontSize = fontSize;
-    }
-    if (design.cardRadius) {
-      root.style.setProperty('--card-radius', `${design.cardRadius}px`);
-    }
-    if (design.cardSpacing) {
-      const spacingMap: Record<string, string> = {
-        compact: '8px',
-        normal: '12px',
-        spacious: '16px'
-      };
-      const spacing = spacingMap[design.cardSpacing as string] || '12px';
-      root.style.setProperty('--card-spacing', spacing);
-    }
+    const applyDesign = async () => {
+      // Load Google Font first if fontFamily is specified
+      if (design.fontFamily && design.fontFamily !== 'system-ui') {
+        await loadGoogleFont(design.fontFamily);
+      }
+      
+      // Apply colors
+      if (design.primaryColor) {
+        root.style.setProperty('--primary', design.primaryColor);
+        root.style.setProperty('--primary-600', design.primaryColor);
+        root.style.setProperty('--primary-700', design.primaryColor);
+      }
+      if (design.accentColor) {
+        root.style.setProperty('--accent', design.accentColor);
+        root.style.setProperty('--accent-600', design.accentColor);
+        root.style.setProperty('--accent-700', design.accentColor);
+      }
+      if (design.backgroundColor) {
+        root.style.setProperty('--background', design.backgroundColor);
+        root.style.setProperty('--card-background', design.cardBackground || design.backgroundColor);
+      }
+      if (design.cardBackground) {
+        root.style.setProperty('--card-background', design.cardBackground);
+      }
+      if (design.textColor) {
+        root.style.setProperty('--foreground', design.textColor);
+      }
+      
+      // Apply font family after loading
+      if (design.fontFamily) {
+        const fontFamilyValue = design.fontFamily === 'system-ui' 
+          ? 'system-ui, -apple-system, sans-serif'
+          : `"${design.fontFamily}", sans-serif`;
+        
+        root.style.setProperty('--font-family', fontFamilyValue);
+        document.body.style.fontFamily = fontFamilyValue;
+      }
+      
+      // Apply font size
+      if (design.fontSize) {
+        const fontSizeMap: Record<string, string> = {
+          small: '14px',
+          medium: '16px',  
+          large: '18px'
+        };
+        const fontSize = fontSizeMap[design.fontSize as string] || '16px';
+        root.style.setProperty('--font-size', fontSize);
+        document.body.style.fontSize = fontSize;
+      }
+      
+      // Apply border radius
+      if (design.cardBorderRadius !== undefined) {
+        root.style.setProperty('--card-radius', `${design.cardBorderRadius}px`);
+      }
+      
+      // Apply card spacing
+      if (design.cardSpacing) {
+        const spacingMap: Record<string, string> = {
+          compact: '8px',
+          normal: '12px',
+          spacious: '16px'
+        };
+        const spacing = spacingMap[design.cardSpacing as string] || '12px';
+        root.style.setProperty('--card-spacing', spacing);
+      }
+    };
+    
+    // Apply design
+    applyDesign();
     
     // Cleanup on unmount
     return () => {
       const root = document.documentElement;
+      // Remove dynamic font link
+      const fontLink = document.querySelector('#dynamic-google-font');
+      if (fontLink) fontLink.remove();
+      
+      // Reset CSS variables
       root.style.removeProperty('--primary');
       root.style.removeProperty('--primary-600');
       root.style.removeProperty('--primary-700');
@@ -198,11 +257,14 @@ export default function PublicMenu() {
       root.style.removeProperty('--accent-600');
       root.style.removeProperty('--accent-700');
       root.style.removeProperty('--background');
+      root.style.removeProperty('--card-background');
       root.style.removeProperty('--foreground');
       root.style.removeProperty('--font-family');
       root.style.removeProperty('--font-size');
       root.style.removeProperty('--card-radius');
       root.style.removeProperty('--card-spacing');
+      
+      // Reset body styles
       document.body.style.fontFamily = '';
       document.body.style.fontSize = '';
     };
@@ -263,19 +325,54 @@ export default function PublicMenu() {
         <div 
           className="sticky top-0 z-50 bg-white border-b shadow-sm"
         >
-          <div className="flex items-center p-3 space-x-3">
-            {menu?.restaurant?.logo && (
+          <div 
+            className="flex items-center p-4 space-x-3"
+            style={{
+              flexDirection: menu?.restaurant?.design?.logoPosition === 'top' ? 'column' : 'row',
+              textAlign: menu?.restaurant?.design?.logoPosition === 'top' ? 'center' : 'left'
+            }}
+          >
+            {/* Logo with positioning */}
+            {menu?.restaurant?.logo && menu?.restaurant?.design?.logoPosition !== 'hidden' && (
               <img 
                 src={menu.restaurant.logo} 
                 alt="Логотип"
-                className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                className={cn(
+                  "object-cover flex-shrink-0",
+                  menu?.restaurant?.design?.logoPosition === 'top' 
+                    ? "w-16 h-16 rounded-lg mb-2" 
+                    : "w-12 h-12 rounded-full",
+                  menu?.restaurant?.design?.logoPosition === 'right' && "order-2 ml-auto"
+                )}
+                style={{
+                  borderRadius: menu?.restaurant?.design?.logoPosition === 'top' ? '8px' : '50%'
+                }}
               />
             )}
-            <div className="min-w-0 flex-1">
-              <h1 className="font-bold text-lg truncate" style={{ color: 'var(--primary, #1f2937)' }}>
+            
+            {/* Restaurant Info */}
+            <div 
+              className={cn(
+                "min-w-0 flex-1",
+                menu?.restaurant?.design?.logoPosition === 'top' && "flex-none",
+                menu?.restaurant?.design?.logoPosition === 'right' && "order-1"
+              )}
+            >
+              <h1 
+                className={cn(
+                  "font-bold truncate",
+                  menu?.restaurant?.design?.logoPosition === 'top' ? "text-xl" : "text-lg"
+                )}
+                style={{ color: 'var(--primary, #1f2937)' }}
+              >
                 {menu?.restaurant?.name}
               </h1>
-              <p className="text-sm text-gray-500 truncate">
+              <p 
+                className={cn(
+                  "text-gray-500 truncate",
+                  menu?.restaurant?.design?.logoPosition === 'top' ? "text-base" : "text-sm"
+                )}
+              >
                 {menu?.restaurant?.city || 'Меню ресторана'}
               </p>
             </div>
@@ -325,12 +422,14 @@ export default function PublicMenu() {
           </div>
         </div>
 
-        {/* Category Tabs */}
-        <CategoryTabs
-          categories={menuWithFavorites?.categories || []}
-          activeCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-        />
+        {/* Sticky Category Tabs */}
+        <div className="sticky top-[105px] z-40 bg-white/95 backdrop-blur-sm border-b shadow-sm">
+          <CategoryTabs
+            categories={menuWithFavorites?.categories || []}
+            activeCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+          />
+        </div>
 
         {/* Active Filters - Compact */}
         {(activeTags.length > 0 || searchQuery) && (
