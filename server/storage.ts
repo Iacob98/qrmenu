@@ -1,7 +1,7 @@
 import { type User, type InsertUser, type Restaurant, type InsertRestaurant, type Category, type InsertCategory, type Dish, type InsertDish, type RestaurantWithCategories, type PublicMenu, users, restaurants, categories, dishes } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
-import { eq, and, or, ilike } from "drizzle-orm";
+import { eq, and, or, ilike, asc } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -119,9 +119,13 @@ export class DatabaseStorage implements IStorage {
     await db.delete(restaurants).where(eq(restaurants.id, id));
   }
 
-  // Category operations
+  // Category operations - Optimized with ordering
   async getCategoriesByRestaurantId(restaurantId: string): Promise<Category[]> {
-    return await db.select().from(categories).where(eq(categories.restaurantId, restaurantId));
+    return await db
+      .select()
+      .from(categories)
+      .where(eq(categories.restaurantId, restaurantId))
+      .orderBy(categories.sortOrder);
   }
 
   async getCategory(id: string): Promise<Category | undefined> {
@@ -150,9 +154,13 @@ export class DatabaseStorage implements IStorage {
     await db.delete(categories).where(eq(categories.id, id));
   }
 
-  // Dish operations
+  // Dish operations - Optimized with ordering
   async getDishesByCategoryId(categoryId: string): Promise<Dish[]> {
-    return await db.select().from(dishes).where(eq(dishes.categoryId, categoryId));
+    return await db
+      .select()
+      .from(dishes)
+      .where(eq(dishes.categoryId, categoryId))
+      .orderBy(dishes.sortOrder);
   }
 
   async getDish(id: string): Promise<Dish | undefined> {
@@ -181,22 +189,43 @@ export class DatabaseStorage implements IStorage {
     await db.delete(dishes).where(eq(dishes.id, id));
   }
 
-  // Complex queries
+  // Complex queries - Optimized with JOIN to reduce DB calls
   async getRestaurantWithCategories(restaurantId: string): Promise<RestaurantWithCategories | undefined> {
     const restaurant = await this.getRestaurant(restaurantId);
     if (!restaurant) return undefined;
 
-    const categoriesData = await this.getCategoriesByRestaurantId(restaurantId);
-    const categoriesWithDishes = await Promise.all(
-      categoriesData.map(async (category) => ({
-        ...category,
-        dishes: await this.getDishesByCategoryId(category.id),
-      }))
-    );
+    // Use single query with join to get all data at once
+    const result = await db
+      .select({
+        category: categories,
+        dish: dishes,
+      })
+      .from(categories)
+      .leftJoin(dishes, eq(dishes.categoryId, categories.id))
+      .where(eq(categories.restaurantId, restaurantId))
+      .orderBy(categories.sortOrder, dishes.sortOrder);
+
+    // Group results by category
+    const categoriesMap = new Map<string, any>();
+    
+    for (const row of result) {
+      const categoryId = row.category.id;
+      
+      if (!categoriesMap.has(categoryId)) {
+        categoriesMap.set(categoryId, {
+          ...row.category,
+          dishes: [],
+        });
+      }
+      
+      if (row.dish) {
+        categoriesMap.get(categoryId)!.dishes.push(row.dish);
+      }
+    }
 
     return {
       ...restaurant,
-      categories: categoriesWithDishes,
+      categories: Array.from(categoriesMap.values()),
     };
   }
 
@@ -204,18 +233,37 @@ export class DatabaseStorage implements IStorage {
     const restaurant = await this.getRestaurantBySlug(restaurantSlug);
     if (!restaurant) return undefined;
 
-    const categoriesData = await this.getCategoriesByRestaurantId(restaurant.id);
-    const categoriesWithDishes = await Promise.all(
-      categoriesData.map(async (category) => {
-        // Get all dishes for category and filter out hidden ones for public view
-        const allDishes = await this.getDishesByCategoryId(category.id);
-        const visibleDishes = allDishes.filter(dish => !dish.isHidden);
-        return {
-          ...category,
-          dishes: visibleDishes,
-        };
+    // Optimized single query with join and filtering
+    const result = await db
+      .select({
+        category: categories,
+        dish: dishes,
       })
-    );
+      .from(categories)
+      .leftJoin(dishes, and(
+        eq(dishes.categoryId, categories.id),
+        eq(dishes.isHidden, false) // Filter hidden dishes at DB level
+      ))
+      .where(eq(categories.restaurantId, restaurant.id))
+      .orderBy(categories.sortOrder, dishes.sortOrder);
+
+    // Group results by category
+    const categoriesMap = new Map<string, any>();
+    
+    for (const row of result) {
+      const categoryId = row.category.id;
+      
+      if (!categoriesMap.has(categoryId)) {
+        categoriesMap.set(categoryId, {
+          ...row.category,
+          dishes: [],
+        });
+      }
+      
+      if (row.dish) {
+        categoriesMap.get(categoryId)!.dishes.push(row.dish);
+      }
+    }
 
     return {
       restaurant: {
@@ -229,7 +277,7 @@ export class DatabaseStorage implements IStorage {
         banner: restaurant.banner,
         favoritesTitle: restaurant.favoritesTitle,
       },
-      categories: categoriesWithDishes,
+      categories: Array.from(categoriesMap.values()),
     };
   }
 

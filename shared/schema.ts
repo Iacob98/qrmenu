@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, decimal, boolean, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, decimal, boolean, integer, timestamp, jsonb, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -9,7 +9,9 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   name: text("name"),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => ({
+  emailIdx: index("users_email_idx").on(table.email),
+}));
 
 export const restaurants = pgTable("restaurants", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -28,7 +30,10 @@ export const restaurants = pgTable("restaurants", {
   banner: text("banner"),
   design: jsonb("design"),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => ({
+  userIdIdx: index("restaurants_user_id_idx").on(table.userId),
+  slugIdx: index("restaurants_slug_idx").on(table.slug),
+}));
 
 export const categories = pgTable("categories", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -37,7 +42,10 @@ export const categories = pgTable("categories", {
   sortOrder: integer("sort_order").default(0),
   icon: text("icon"),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => ({
+  restaurantIdIdx: index("categories_restaurant_id_idx").on(table.restaurantId),
+  sortOrderIdx: index("categories_sort_order_idx").on(table.sortOrder),
+}));
 
 export const dishes = pgTable("dishes", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -54,7 +62,13 @@ export const dishes = pgTable("dishes", {
   isHidden: boolean("is_hidden").default(false),
   sortOrder: integer("sort_order").default(0),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => ({
+  categoryIdIdx: index("dishes_category_id_idx").on(table.categoryId),
+  sortOrderIdx: index("dishes_sort_order_idx").on(table.sortOrder),
+  isFavoriteIdx: index("dishes_is_favorite_idx").on(table.isFavorite),
+  isHiddenIdx: index("dishes_is_hidden_idx").on(table.isHidden),
+  availableIdx: index("dishes_available_idx").on(table.available),
+}));
 
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({

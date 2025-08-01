@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CategoryTabs } from "@/components/menu/category-tabs";
-import { DishCard } from "@/components/menu/dish-card";
+import { MemoCategoryTabs } from "@/components/optimized/memo-category-tabs";
+import { MemoDishCard } from "@/components/optimized/memo-dish-card";
+
 import { DishDetailsModal } from "@/components/modals/dish-details";
 import { ErrorBoundary, ErrorFallback } from "@/components/error-boundary";
 import { useRealTimeMenu } from "@/hooks/useRealTimeMenu";
@@ -50,19 +51,21 @@ function PublicMenuContent() {
     enabled: !!params?.slug,
   });
 
-  // Get all unique tags from dishes
-  const allTags = menu ? 
-    Array.from(new Set(
+  // Get all unique tags from dishes - Memoized for performance
+  const allTags = useMemo(() => {
+    if (!menu) return [];
+    return Array.from(new Set(
       menu.categories
         .flatMap(cat => cat.dishes)
         .flatMap(dish => dish.tags || [])
-    )) : [];
+    ));
+  }, [menu]);
 
   // Real-time updates for dynamic menu synchronization
   const { isConnected } = useRealTimeMenu(params?.slug || "");
 
-  // Helper function to create menu with favorites
-  const getMenuWithFavorites = () => {
+  // Helper function to create menu with favorites - Memoized for performance
+  const menuWithFavorites = useMemo(() => {
     if (!menu) return null;
 
     const favoritesDishes = menu.categories
@@ -90,18 +93,16 @@ function PublicMenuContent() {
       ...menu,
       categories: categoriesWithFavorites,
     };
-  };
+  }, [menu]);
 
   // Effect hooks - must always be called
   useEffect(() => {
-    const menuWithFavorites = getMenuWithFavorites();
     if (menuWithFavorites && selectedCategory === null && menuWithFavorites.categories.length > 0) {
       setSelectedCategory(menuWithFavorites.categories[0].id);
     }
-  }, [menu, selectedCategory]);
+  }, [menu, selectedCategory, menuWithFavorites]);
 
   useEffect(() => {
-    const menuWithFavorites = getMenuWithFavorites();
     if (!menuWithFavorites) {
       setFilteredDishes([]);
       return;
@@ -277,18 +278,18 @@ function PublicMenuContent() {
     };
   }, [menu?.restaurant?.design]);
 
-  const handleTagFilter = (tag: string) => {
+  const handleTagFilter = useCallback((tag: string) => {
     setActiveTags(prev => 
       prev.includes(tag) 
         ? prev.filter(t => t !== tag)
         : [...prev, tag]
     );
-  };
+  }, []);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setActiveTags([]);
     setSearchQuery("");
-  };
+  }, []);
 
   // Early returns after all hooks have been called
   if (isLoading) {
@@ -338,8 +339,6 @@ function PublicMenuContent() {
       </div>
     );
   }
-
-  const menuWithFavorites = getMenuWithFavorites();
 
   return (
     <div 
@@ -460,7 +459,7 @@ function PublicMenuContent() {
 
         {/* Sticky Category Tabs - Mobile optimized */}
         <div className="sticky-nav top-[73px] md:top-[105px] z-40 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
-          <CategoryTabs
+          <MemoCategoryTabs
             categories={menuWithFavorites?.categories || []}
             activeCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
@@ -517,14 +516,12 @@ function PublicMenuContent() {
             </div>
           ) : (
             filteredDishes.map((dish) => (
-              <DishCard
+              <MemoDishCard
                 key={dish.id}
                 dish={dish}
                 currency={menu?.restaurant?.currency || 'EUR'}
-                onFilterByTag={handleTagFilter}
-                onShowDetails={setSelectedDish}
-                showActions={false}
-                showDetails={true}
+                onViewDetails={setSelectedDish}
+                isCompact={false}
               />
             ))
           )}

@@ -90,29 +90,32 @@ export function useRealTimeMenu(restaurantSlug: string) {
               applyDesignSettings(data.design);
             }
             
-            // For restaurant updates (banner, logo, name, etc.), force refresh
-            if (data.type === 'restaurant_update') {
-              console.log('🏢 Restaurant data updated, forcing refresh:', data);
-              // Force refresh by invalidating cache and removing any cached data
-              queryClient.removeQueries({ 
-                queryKey: ["/api/public/menu", restaurantSlug] 
-              });
+            // Throttle invalidations to avoid excessive refetching
+            const invalidateMenu = () => {
+              if (data.type === 'restaurant_update') {
+                console.log('🏢 Restaurant data updated, forcing refresh:', data);
+                queryClient.removeQueries({ 
+                  queryKey: ["/api/public/menu", restaurantSlug] 
+                });
+              }
+              
               queryClient.invalidateQueries({ 
                 queryKey: ["/api/public/menu", restaurantSlug] 
               });
-            } else {
-              // Invalidate and refetch the menu data
-              queryClient.invalidateQueries({ 
-                queryKey: ["/api/public/menu", restaurantSlug] 
-              });
-            }
+              
+              // Only invalidate admin dashboard for relevant updates
+              if (data.type === 'restaurant_update' || data.type === 'design_update') {
+                queryClient.invalidateQueries({ 
+                  queryKey: ["/api/restaurants"] 
+                });
+              }
+            };
             
-            // Also invalidate admin dashboard if available
-            queryClient.invalidateQueries({ 
-              queryKey: ["/api/restaurants"] 
-            });
+            // Debounce multiple rapid updates
+            clearTimeout((window as any).invalidateTimeout);
+            (window as any).invalidateTimeout = setTimeout(invalidateMenu, 100);
             
-            console.log('✅ Menu data refreshed due to real-time update');
+            console.log('✅ Menu data refresh scheduled');
           }
         }
       } catch (error) {
