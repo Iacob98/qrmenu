@@ -41,6 +41,7 @@ This is a full-stack restaurant online menu management system built with React, 
 - ✅ **Enhanced Category Tabs**: Updated category tabs with modern rounded pill design and smooth animations
 - ✅ **CSS Variables System**: Fixed CSS variables application for themes, colors, fonts, and customization in public menu
 - ✅ **Design Settings Integration**: Ensured all design customization settings (colors, fonts, spacing, radius) properly apply to public menu
+- ✅ **AI Banner Generation Removed**: Removed AI banner generation functionality per user request to simplify interface
 
 # User Preferences
 

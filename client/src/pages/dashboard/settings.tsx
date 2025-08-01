@@ -11,7 +11,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
-import { Copy, Check, AlertTriangle, Upload, Wand2, X, Image } from "lucide-react";
+import { Copy, Check, AlertTriangle, Upload, X, Image } from "lucide-react";
 import { FileUpload } from "@/components/ui/file-upload";
 import type { Restaurant } from "@shared/schema";
 
@@ -35,7 +35,6 @@ export default function Settings() {
   });
   const [copied, setCopied] = useState(false);
   const [aiTokenStatus, setAiTokenStatus] = useState<'checking' | 'valid' | 'invalid' | null>(null);
-  const [bannerGenerating, setBannerGenerating] = useState(false);
   
   const { toast } = useToast();
   const { user, logout } = useAuth();
@@ -157,37 +156,7 @@ export default function Settings() {
     });
   };
 
-  const generateBannerMutation = useMutation({
-    mutationFn: async () => {
-      return await apiRequest("POST", `/api/ai/generate-image`, { 
-        restaurantId: selectedRestaurant, 
-        dishName: `${restaurantForm.name} restaurant banner`, 
-        description: `Professional restaurant interior banner for ${restaurantForm.name} in ${restaurantForm.city}. Modern, welcoming atmosphere, high quality photography.`
-      });
-    },
-    onSuccess: (data: any) => {
-      setRestaurantForm(prev => ({ ...prev, banner: data.imageUrl }));
-      toast({ title: "Баннер сгенерирован", description: "AI создал новый баннер для ресторана" });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Ошибка генерации баннера",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
 
-  const handleGenerateBanner = () => {
-    if (!restaurantForm.name.trim()) {
-      toast({
-        title: "Введите название ресторана",
-        variant: "destructive",
-      });
-      return;
-    }
-    generateBannerMutation.mutate();
-  };
 
   const checkAiToken = async () => {
     if (!restaurantForm.aiToken.trim()) return;
@@ -348,18 +317,6 @@ export default function Settings() {
                           maxSize={8}
                           hideUrlInput={true}
                         />
-                        <div className="mt-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleGenerateBanner}
-                            disabled={generateBannerMutation.isPending || !restaurantForm.name.trim()}
-                            className="w-full"
-                          >
-                            <Wand2 className="mr-2 h-4 w-4" />
-                            {generateBannerMutation.isPending ? "Генерирую..." : "Сгенерировать AI баннер"}
-                          </Button>
-                        </div>
                       </div>
                       
                       <Button 
