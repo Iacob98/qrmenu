@@ -475,6 +475,30 @@ The composition is minimal and elegant, focused on the food, with no distracting
       throw new Error(`Failed to enhance dish: ${handleError(error)}`);
     }
   }
+
+  async improveText(prompt: string): Promise<string> {
+    try {
+      if (!this.openai) {
+        throw new Error("OpenAI client not initialized for text improvement");
+      }
+      
+      const response = await this.openai.chat.completions.create({
+        model: this.model,
+        messages: [
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        max_tokens: 300,
+        temperature: 0.7,
+      });
+
+      return response.choices[0].message.content || "";
+    } catch (error) {
+      throw new Error(`Failed to improve text: ${handleError(error)}`);
+    }
+  }
 }
 
 export function createAIService(apiKey: string, provider?: string, model?: string): AIService {

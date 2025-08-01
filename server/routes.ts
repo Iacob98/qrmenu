@@ -721,6 +721,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/ai/improve-description", requireAuth, async (req, res) => {
+    try {
+      const { restaurantId, dishName, currentDescription, ingredients, tags } = req.body;
+      
+      if (!restaurantId || !dishName) {
+        return res.status(400).json({ message: "Missing required fields: restaurantId, dishName" });
+      }
+      
+      const restaurant = await storage.getRestaurant(restaurantId);
+      if (!restaurant || restaurant.userId !== req.session.userId) {
+        return res.status(404).json({ message: "Restaurant not found" });
+      }
+
+      const apiKey = restaurant.aiToken || process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        return res.status(400).json({ message: "AI token not configured" });
+      }
+
+      console.log(`[AI Description] Improving description for dish: ${dishName}`);
+      const aiService = createAIService(apiKey, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
+      
+      // Create a prompt for improving the description
+      const prompt = `Улучши описание этого блюда для ресторанного меню. Сделай его более аппетитным и привлекательным, но кратким и информативным.
+
+Название блюда: ${dishName}
+Текущее описание: ${currentDescription || "Отсутствует"}
+Ингредиенты: ${ingredients ? ingredients.join(", ") : "Не указаны"}
+Теги: ${tags ? tags.join(", ") : "Не указаны"}
+
+Напиши новое описание на том же языке, что и название блюда. Описание должно быть:
+- Аппетитным и привлекательным
+- Кратким (1-2 предложения)
+- Информативным о вкусе и приготовлении
+- Без лишних прилагательных
+
+Верни только улучшенное описание без дополнительного текста.`;
+
+      const improvedDescription = await aiService.improveText(prompt);
+      
+      console.log(`[AI Description] Improved successfully`);
+      res.json({ improvedDescription: improvedDescription.trim() });
+    } catch (error) {
+      console.error('[AI Description] Error:', error);
+      res.status(500).json({ message: handleError(error) });
+    }
+  });
+
   app.post("/api/ai/generate-image", requireAuth, async (req, res) => {
     try {
       const { restaurantId, dishName, description, ingredients, tags } = req.body;

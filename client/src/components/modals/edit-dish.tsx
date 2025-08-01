@@ -134,6 +134,44 @@ export function EditDishModal({
     },
   });
 
+  const improveDescriptionMutation = useMutation({
+    mutationFn: async ({ dishName, currentDescription, ingredients, tags }: { 
+      dishName: string; 
+      currentDescription: string;
+      ingredients?: string[];
+      tags?: string[];
+    }) => {
+      const response = await apiRequest("POST", `/api/ai/improve-description`, { 
+        restaurantId, 
+        dishName, 
+        currentDescription,
+        ingredients,
+        tags
+      });
+      return await response.json();
+    },
+    onSuccess: (response: any) => {
+      const improvedDescription = response?.improvedDescription;
+      if (improvedDescription) {
+        setFormData(prev => ({ ...prev, description: improvedDescription }));
+        toast({ title: "Описание улучшено с помощью ИИ" });
+      } else {
+        toast({
+          title: "Ошибка",
+          description: "Не удалось получить улучшенное описание",
+          variant: "destructive",
+        });
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ошибка улучшения описания",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleGenerateImage = () => {
     if (!formData.name.trim()) {
       toast({
@@ -150,6 +188,28 @@ export function EditDishModal({
     generateImageMutation.mutate({
       dishName: formData.name,
       description: formData.description,
+      ingredients: ingredients.length > 0 ? ingredients : undefined,
+      tags: formData.tags.length > 0 ? formData.tags : undefined,
+    });
+  };
+
+  const handleImproveDescription = () => {
+    if (!formData.name.trim()) {
+      toast({
+        title: "Введите название блюда",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const ingredients = formData.ingredients
+      .split(",")
+      .map(ing => ing.trim())
+      .filter(ing => ing.length > 0);
+      
+    improveDescriptionMutation.mutate({
+      dishName: formData.name,
+      currentDescription: formData.description,
       ingredients: ingredients.length > 0 ? ingredients : undefined,
       tags: formData.tags.length > 0 ? formData.tags : undefined,
     });
@@ -247,7 +307,23 @@ export function EditDishModal({
           </div>
           
           <div>
-            <Label htmlFor="description">Описание</Label>
+            <div className="flex items-center justify-between mb-2">
+              <Label htmlFor="description">Описание</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleImproveDescription}
+                disabled={improveDescriptionMutation.isPending || !formData.name.trim()}
+                className="text-xs"
+              >
+                {improveDescriptionMutation.isPending ? (
+                  "Улучшение..."
+                ) : (
+                  "🤖 Улучшить с помощью ИИ"
+                )}
+              </Button>
+            </div>
             <Textarea
               id="description"
               value={formData.description}
