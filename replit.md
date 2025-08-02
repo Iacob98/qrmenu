@@ -56,6 +56,12 @@ This is a full-stack restaurant online menu management system built with React, 
   - Implemented mobile-first approach with proper breakpoints (sm:, lg:)
   - Added responsive padding, buttons, and form layouts throughout dashboard
   - Ensured touch-friendly navigation with larger tap targets on mobile devices
+- ⚠️ **Database Connectivity Issue (August 2, 2025)**: Currently experiencing DNS resolution problems with Neon database connections:
+  - Error: "getaddrinfo EAI_AGAIN" when connecting to Neon PostgreSQL hosts
+  - Affects both authentication (login/register) and all database operations
+  - Application architecture and code are functional - issue is network/DNS related
+  - Switched from Neon serverless to standard PostgreSQL client to troubleshoot
+  - Authentication endpoints are processing requests but timing out on database queries
 
 # User Preferences
 
