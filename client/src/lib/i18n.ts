@@ -181,6 +181,11 @@ const resources = {
       
       // AI page additional
       "uploadOrEnterText": "Загрузите файл или введите текст для анализа",
+      "categories": "Категории",
+      "selectAll": "Выбрать всё",
+      "deselectAll": "Снять всё", 
+      "adding": "Добавляем...",
+      "addSelected": "Добавить выбранные",
       
       // Additional status texts
       "checking": "Проверка...",
@@ -418,6 +423,11 @@ const resources = {
       
       // AI page additional
       "uploadOrEnterText": "Upload file or enter text for analysis",
+      "categories": "Categories",
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "adding": "Adding...",
+      "addSelected": "Add Selected",
       
       // Additional status texts
       "checking": "Checking...",
@@ -650,6 +660,11 @@ const resources = {
       
       // AI page additional
       "uploadOrEnterText": "Datei hochladen oder Text zur Analyse eingeben",
+      "categories": "Kategorien",
+      "selectAll": "Alle auswählen",
+      "deselectAll": "Alle abwählen",
+      "adding": "Hinzufügen...",
+      "addSelected": "Ausgewählte hinzufügen",
       
       // Additional status texts
       "checking": "Überprüfung...",

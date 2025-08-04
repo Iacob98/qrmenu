@@ -442,7 +442,7 @@ export default function AIGeneration() {
                       <CardTitle>{t('foundDishes')}</CardTitle>
                       {generatedCategories.length > 0 && (
                         <p className="text-sm text-gray-600 mt-1">
-                          Категории: {generatedCategories.map(cat => cat.icon ? `${cat.icon} ${cat.name}` : cat.name).join(', ')}
+                          {t('categories')}: {generatedCategories.map(cat => cat.icon ? `${cat.icon} ${cat.name}` : cat.name).join(', ')}
                         </p>
                       )}
                     </div>
@@ -453,7 +453,7 @@ export default function AIGeneration() {
                           size="sm"
                           onClick={selectAllDishes}
                         >
-                          {selectedDishes.size === generatedDishes.length ? "Снять всё" : "Выбрать всё"}
+                          {selectedDishes.size === generatedDishes.length ? t('deselectAll') : t('selectAll')}
                         </Button>
                         <Button
                           size="sm"
@@ -463,10 +463,10 @@ export default function AIGeneration() {
                           {addSelectedDishesMutation.isPending ? (
                             <>
                               <Loader2 className="mr-2 animate-spin" size={16} />
-                              Добавляем...
+                              {t('adding')}
                             </>
                           ) : (
-                            `Добавить выбранные (${selectedDishes.size})`
+                            `${t('addSelected')} (${selectedDishes.size})`
                           )}
                         </Button>
                       </div>
