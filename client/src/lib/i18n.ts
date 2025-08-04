@@ -128,6 +128,8 @@ const resources = {
       "howItWorks": "Как это работает",
       "examples": "Примеры", 
       "support": "Поддержка",
+      "links": "Ссылки",
+      "privacyPolicy": "Политика конфиденциальности",
       
       // Landing page content
       "heroTitle": "Онлайн-меню для вашего ресторана — за 5 минут",
@@ -152,6 +154,8 @@ const resources = {
       "loginButton": "Вход", 
       "registerButton": "Регистрация",
       "startNow": "Начать сейчас",
+      "ctaTitle": "Готовы начать?",
+      "ctaSubtitle": "Создайте красивое меню для вашего ресторана уже сегодня",
       
       // AI page
       "foundDishes": "Найденные блюда",
@@ -370,6 +374,8 @@ const resources = {
       "howItWorks": "How It Works",
       "examples": "Examples",
       "support": "Support",
+      "links": "Links",
+      "privacyPolicy": "Privacy Policy",
       
       // Landing page content
       "heroTitle": "Online menu for your restaurant — in 5 minutes",
@@ -394,6 +400,8 @@ const resources = {
       "loginButton": "Login",
       "registerButton": "Register", 
       "startNow": "Start Now",
+      "ctaTitle": "Ready to start?",
+      "ctaSubtitle": "Create a beautiful menu for your restaurant today",
       
       // AI page
       "foundDishes": "Found Dishes",
@@ -607,6 +615,8 @@ const resources = {
       "howItWorks": "Wie es funktioniert",
       "examples": "Beispiele",
       "support": "Support",
+      "links": "Links",
+      "privacyPolicy": "Datenschutzrichtlinie",
       
       // Landing page content
       "heroTitle": "Online-Menü für Ihr Restaurant — in 5 Minuten",
@@ -631,6 +641,8 @@ const resources = {
       "loginButton": "Anmelden",
       "registerButton": "Registrieren",
       "startNow": "Jetzt starten",
+      "ctaTitle": "Bereit anzufangen?",
+      "ctaSubtitle": "Erstellen Sie heute ein schönes Menü für Ihr Restaurant",
       
       // AI page  
       "foundDishes": "Gefundene Gerichte",

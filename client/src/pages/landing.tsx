@@ -251,7 +251,7 @@ export default function Landing() {
               </div>
               
               <div>
-                <h3 className="font-semibold mb-4">Валюта</h3>
+                <h3 className="font-semibold mb-4">{t('currency')}</h3>
                 <select className="bg-gray-800 text-white rounded px-3 py-2 border border-gray-700">
                   <option>💶 EUR</option>
                   <option>💵 USD</option>
