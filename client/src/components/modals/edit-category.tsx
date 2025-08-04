@@ -56,13 +56,13 @@ export function EditCategoryModal({
       return await apiRequest("PUT", `/api/categories/${category.id}`, data);
     },
     onSuccess: () => {
-      toast({ title: "Категория обновлена" });
+      toast({ title: t('categoryUpdated') });
       queryClient.invalidateQueries({ queryKey: ["/api/restaurants", restaurantId] });
       onOpenChange(false);
     },
     onError: (error: any) => {
       toast({
-        title: "Ошибка обновления категории",
+        title: t('categoryUpdateError'),
         description: error.message,
         variant: "destructive",
       });
@@ -90,7 +90,7 @@ export function EditCategoryModal({
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="name">Название категории</Label>
+            <Label htmlFor="name">{t('categoryLabel')}</Label>
             <Input
               id="name"
               value={formData.name}
@@ -125,7 +125,7 @@ export function EditCategoryModal({
               onClick={() => onOpenChange(false)}
               className="w-full sm:w-auto"
             >
-              Отмена
+              {t('cancel')}
             </Button>
             <Button 
               type="submit" 

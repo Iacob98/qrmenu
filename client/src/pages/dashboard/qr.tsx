@@ -282,7 +282,7 @@ export default function QRPage() {
                         className="w-full"
                       >
                         <Download className="mr-2" size={16} />
-                        Скачать QR (PNG)
+                        {t('downloadQR')} (PNG)
                       </Button>
                       <Button
                         variant="outline"
@@ -290,7 +290,7 @@ export default function QRPage() {
                         className="w-full"
                       >
                         <Download className="mr-2" size={16} />
-                        Скачать QR (SVG)
+                        {t('downloadQR')} (SVG)
                       </Button>
                       <Button
                         onClick={generatePrintTemplate}
@@ -304,7 +304,7 @@ export default function QRPage() {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Как использовать QR-код</CardTitle>
+                    <CardTitle>{t('howToUseQR')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
@@ -364,7 +364,7 @@ export default function QRPage() {
             {/* Settings */}
             <Card>
               <CardHeader>
-                <CardTitle>Дополнительные настройки</CardTitle>
+                <CardTitle>{t('additionalSettings')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center">

@@ -73,6 +73,7 @@ This is a full-stack restaurant online menu management system built with React, 
   - Translation system is fully functional without errors across entire platform - all UI elements, forms, buttons, and messages properly internationalized
   - Added over 50 additional translation keys covering menu management, authentication, error messages, and component-specific translations
   - Internationalization system now covers 100% of the application interface with no remaining hardcoded texts
+  - **Final i18n Cleanup Complete**: Recreated clean i18n.ts file without duplicate keys, added all missing translation keys for Settings, AI, and QR pages, updated all components to use proper translation hooks
 - ⚠️ **Database Connectivity Issue (August 2, 2025)**: Currently experiencing DNS resolution problems with Neon database connections:
   - Error: "getaddrinfo EAI_AGAIN" when connecting to Neon PostgreSQL hosts
   - Affects both authentication (login/register) and all database operations

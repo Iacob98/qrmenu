@@ -74,7 +74,7 @@ export function EditFavoritesTitleModal({
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Название раздела</Label>
+            <Label htmlFor="title">{t('favoriteTitleLabel')}</Label>
             <Input
               id="title"
               value={title}
@@ -90,13 +90,13 @@ export function EditFavoritesTitleModal({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Отмена
+              {t('cancel')}
             </Button>
             <Button
               type="submit"
               disabled={updateTitleMutation.isPending || !title.trim()}
             >
-              {updateTitleMutation.isPending ? "Сохранение..." : "Сохранить"}
+              {updateTitleMutation.isPending ? t('saving') : t('save')}
             </Button>
           </DialogFooter>
         </form>

@@ -355,7 +355,7 @@ export default function AIGeneration() {
               {/* Left Panel - Input */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Создание блюд с помощью ИИ</CardTitle>
+                  <CardTitle>{t('createDishesWithAI')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -385,7 +385,7 @@ export default function AIGeneration() {
                         </p>
                         <Button onClick={() => handleFileUpload('pdf')}>
                           <Upload className="mr-2" size={16} />
-                          Выбрать файл
+                          {t('chooseFile')}
                         </Button>
                       </div>
                     </TabsContent>
