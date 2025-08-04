@@ -4,9 +4,12 @@ import { Header } from "@/components/layout/header";
 import { AuthGuard } from "@/components/auth/auth-guard";
 import { Utensils, Brain, Smartphone, Globe } from "lucide-react";
 import { useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
+import { LanguageSelector } from "@/components/ui/language-selector";
 
 export default function Landing() {
   const [, setLocation] = useLocation();
+  const { t } = useTranslation();
 
   const handleShowRegister = () => {
     setLocation("/register");
@@ -26,17 +29,17 @@ export default function Landing() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-                Онлайн-меню для вашего ресторана — за 5 минут
+                {t('heroTitle')}
               </h1>
               <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-                Просто загрузите PDF, фото или введите текст — и мы создадим красивое меню с ИИ.
+                {t('heroSubtitle')}
               </p>
               <Button 
                 size="lg" 
                 className="text-lg px-8 py-4"
                 onClick={handleShowRegister}
               >
-                Создать меню
+                {t('createMenu')}
               </Button>
             </div>
             
@@ -86,24 +89,24 @@ export default function Landing() {
                 <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Brain className="text-primary-600" size={32} />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">ИИ в помощь</h3>
-                <p className="text-gray-600">Генерирует фото блюд, БЖУ и состав по PDF или фото</p>
+                <h3 className="text-xl font-semibold mb-3">{t('aiFeatureTitle')}</h3>
+                <p className="text-gray-600">{t('aiFeatureDesc')}</p>
               </div>
               
               <div className="text-center card-hover p-6">
                 <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Smartphone className="text-primary-600" size={32} />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Удобно</h3>
-                <p className="text-gray-600">Современный дизайн, легко открывается с телефона</p>
+                <h3 className="text-xl font-semibold mb-3">{t('convenientTitle')}</h3>
+                <p className="text-gray-600">{t('convenientDesc')}</p>
               </div>
               
               <div className="text-center card-hover p-6">
                 <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Globe className="text-primary-600" size={32} />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">На русском</h3>
-                <p className="text-gray-600">Интерфейс полностью на русском языке</p>
+                <h3 className="text-xl font-semibold mb-3">{t('multilingualTitle')}</h3>
+                <p className="text-gray-600">{t('multilingualDesc')}</p>
               </div>
             </div>
           </div>
@@ -113,15 +116,15 @@ export default function Landing() {
         <section id="how-it-works" className="py-20 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Как это работает?</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t('howItWorksTitle')}</h2>
             </div>
             
             <div className="grid md:grid-cols-3 gap-8">
               <div className="relative">
                 <div className="bg-white rounded-xl p-8 card-hover">
                   <div className="w-12 h-12 bg-primary-600 text-white rounded-full flex items-center justify-center mb-4 font-bold text-lg">1</div>
-                  <h3 className="text-xl font-semibold mb-3">Зарегистрируйтесь и укажите данные ресторана</h3>
-                  <p className="text-gray-600">Название, адрес, валюта, контакт.</p>
+                  <h3 className="text-xl font-semibold mb-3">{t('step1Title')}</h3>
+                  <p className="text-gray-600">{t('step1Desc')}</p>
                 </div>
                 <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-1 bg-primary-200"></div>
               </div>
@@ -129,8 +132,8 @@ export default function Landing() {
               <div className="relative">
                 <div className="bg-white rounded-xl p-8 card-hover">
                   <div className="w-12 h-12 bg-primary-600 text-white rounded-full flex items-center justify-center mb-4 font-bold text-lg">2</div>
-                  <h3 className="text-xl font-semibold mb-3">Создайте меню вручную или загрузите PDF/фото</h3>
-                  <p className="text-gray-600">Наш ИИ сам достанет нужную информацию.</p>
+                  <h3 className="text-xl font-semibold mb-3">{t('step2Title')}</h3>
+                  <p className="text-gray-600">{t('step2Desc')}</p>
                 </div>
                 <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-1 bg-primary-200"></div>
               </div>
@@ -138,8 +141,8 @@ export default function Landing() {
               <div>
                 <div className="bg-white rounded-xl p-8 card-hover">
                   <div className="w-12 h-12 bg-primary-600 text-white rounded-full flex items-center justify-center mb-4 font-bold text-lg">3</div>
-                  <h3 className="text-xl font-semibold mb-3">Получите QR-ссылку для гостей</h3>
-                  <p className="text-gray-600">Показывайте меню на экране или на столах.</p>
+                  <h3 className="text-xl font-semibold mb-3">{t('step3Title')}</h3>
+                  <p className="text-gray-600">{t('step3Desc')}</p>
                 </div>
               </div>
             </div>
@@ -150,7 +153,7 @@ export default function Landing() {
         <section id="examples" className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Как выглядит меню</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t('menuExamplesTitle')}</h2>
             </div>
             
             <div className="grid md:grid-cols-3 gap-6">
@@ -209,16 +212,16 @@ export default function Landing() {
         {/* CTA Section */}
         <section className="py-20 bg-primary-50">
           <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Готовы попробовать?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{t('ctaTitle')}</h2>
             <p className="text-xl text-gray-600 mb-8">
-              Создайте своё первое меню бесплатно — это займёт 5 минут.
+              {t('ctaSubtitle')}
             </p>
             <Button 
               size="lg" 
               className="text-lg px-8 py-4"
               onClick={handleShowRegister}
             >
-              Начать сейчас
+              {t('startNow')}
             </Button>
           </div>
         </section>
@@ -235,18 +238,16 @@ export default function Landing() {
               </div>
               
               <div>
-                <h3 className="font-semibold mb-4">Ссылки</h3>
+                <h3 className="font-semibold mb-4">{t('links')}</h3>
                 <ul className="space-y-2 text-gray-400">
-                  <li><a href="#" className="hover:text-white transition-colors">Поддержка</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Конфиденциальность</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">{t('support')}</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">{t('privacyPolicy')}</a></li>
                 </ul>
               </div>
               
               <div>
-                <h3 className="font-semibold mb-4">Язык</h3>
-                <select className="bg-gray-800 text-white rounded px-3 py-2 border border-gray-700">
-                  <option>🇷🇺 Русский</option>
-                </select>
+                <h3 className="font-semibold mb-4">{t('language')}</h3>
+                <LanguageSelector />
               </div>
               
               <div>

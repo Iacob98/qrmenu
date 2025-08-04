@@ -12,6 +12,7 @@ import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { LanguageSelector } from "@/components/ui/language-selector";
 
 const createLoginSchema = (t: (key: string) => string) => z.object({
   email: z.string().email(t('emailInvalid')),
