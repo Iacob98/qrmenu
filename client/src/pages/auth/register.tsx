@@ -12,6 +12,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { AuthGuard } from "@/components/auth/auth-guard";
+import { useTranslation } from "react-i18next";
 
 export default function Register() {
   const [step, setStep] = useState(1);
@@ -33,6 +34,7 @@ export default function Register() {
   const { register } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const { t } = useTranslation();
 
   const createRestaurantMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -54,14 +56,14 @@ export default function Register() {
     },
     onSuccess: () => {
       toast({
-        title: "Готово! 🎉",
-        description: "Ваш ресторан зарегистрирован. Вы можете приступить к созданию категорий и добавлению блюд.",
+        title: t('success'),
+        description: t('restaurantCreated'),
       });
       setLocation("/dashboard");
     },
     onError: (error) => {
       toast({
-        title: "Ошибка",
+        title: t('error'),
         description: error.message,
         variant: "destructive",
       });
@@ -73,8 +75,8 @@ export default function Register() {
     
     if (formData.password !== formData.confirmPassword) {
       toast({
-        title: "Ошибка",
-        description: "Пароли не совпадают",
+        title: t('error'),
+        description: t('passwordMismatch'),
         variant: "destructive",
       });
       return;
@@ -82,8 +84,8 @@ export default function Register() {
 
     if (!formData.acceptTerms) {
       toast({
-        title: "Ошибка", 
-        description: "Необходимо принять условия использования",
+        title: t('error'), 
+        description: t('termsRequired'),
         variant: "destructive",
       });
       return;
@@ -94,7 +96,7 @@ export default function Register() {
       setStep(2);
     } catch (error: any) {
       toast({
-        title: "Ошибка",
+        title: t('error'),
         description: error.message,
         variant: "destructive",
       });
@@ -106,8 +108,8 @@ export default function Register() {
     
     if (!formData.restaurantName.trim()) {
       toast({
-        title: "Ошибка",
-        description: "Укажите название ресторана",
+        title: t('error'),
+        description: t('restaurantNameRequired'),
         variant: "destructive",
       });
       return;
@@ -138,7 +140,7 @@ export default function Register() {
               onClick={() => setLocation("/")}
               className="text-sm"
             >
-              ← Вернуться на главную
+              ← {t('backToMain')}
             </Button>
           </div>
 
@@ -146,40 +148,40 @@ export default function Register() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-center">
-                  Создайте аккаунт и начните работать с меню
+                  {t('createAccountTitle')}
                 </CardTitle>
                 <p className="text-center text-gray-600 text-sm">
-                  Укажите только самое необходимое — всё остальное можно добавить позже.
+                  {t('createAccountSubtitle')}
                 </p>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleStepOne} className="space-y-4">
                   <div>
-                    <Label htmlFor="email">📧 Email</Label>
+                    <Label htmlFor="email">📧 {t('email')}</Label>
                     <Input
                       id="email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                      placeholder="restaurant@example.com"
+                      placeholder={t('emailPlaceholder')}
                       required
                     />
                   </div>
                   
                   <div>
-                    <Label htmlFor="password">🔒 Пароль</Label>
+                    <Label htmlFor="password">🔒 {t('password')}</Label>
                     <Input
                       id="password"
                       type="password"
                       value={formData.password}
                       onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                      placeholder="Минимум 8 символов"
+                      placeholder={t('passwordMinLength')}
                       required
                     />
                   </div>
                   
                   <div>
-                    <Label htmlFor="confirmPassword">🔒 Повторите пароль</Label>
+                    <Label htmlFor="confirmPassword">🔒 {t('confirmPassword')}</Label>
                     <Input
                       id="confirmPassword"
                       type="password"
@@ -196,12 +198,12 @@ export default function Register() {
                       onCheckedChange={(checked) => setFormData(prev => ({ ...prev, acceptTerms: checked === true }))}
                     />
                     <Label htmlFor="terms" className="text-sm">
-                      Я принимаю условия использования и политику конфиденциальности
+                      {t('acceptTerms')}
                     </Label>
                   </div>
                   
                   <Button type="submit" className="w-full">
-                    Продолжить →
+                    {t('continue')} →
                   </Button>
                 </form>
               </CardContent>
@@ -209,47 +211,47 @@ export default function Register() {
           ) : (
             <Card>
               <CardHeader>
-                <CardTitle className="text-center">Информация о ресторане</CardTitle>
+                <CardTitle className="text-center">{t('restaurantInfo')}</CardTitle>
                 <p className="text-center text-gray-600 text-sm">
-                  Расскажите о вашем заведении
+                  {t('restaurantInfoSubtitle')}
                 </p>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleStepTwo} className="space-y-4">
                   <div>
-                    <Label htmlFor="restaurantName">🏠 Название ресторана</Label>
+                    <Label htmlFor="restaurantName">🏠 {t('restaurantName')}</Label>
                     <Input
                       id="restaurantName"
                       value={formData.restaurantName}
                       onChange={(e) => setFormData(prev => ({ ...prev, restaurantName: e.target.value }))}
-                      placeholder="Итальянский ресторан"
+                      placeholder={t('restaurantNamePlaceholder')}
                       required
                     />
                   </div>
                   
                   <div>
-                    <Label htmlFor="city">🌍 Город</Label>
+                    <Label htmlFor="city">🌍 {t('city')}</Label>
                     <Input
                       id="city"
                       value={formData.city}
                       onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                      placeholder="Берлин"
+                      placeholder={t('cityPlaceholder')}
                     />
                   </div>
                   
                   <div>
-                    <Label htmlFor="phone">📞 Контактный телефон (опционально)</Label>
+                    <Label htmlFor="phone">📞 {t('phoneOptional')}</Label>
                     <Input
                       id="phone"
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                      placeholder="+49 123 456 789"
+                      placeholder={t('phonePlaceholder')}
                     />
                   </div>
                   
                   <div>
-                    <Label htmlFor="currency">💱 Валюта</Label>
+                    <Label htmlFor="currency">💱 {t('currency')}</Label>
                     <Select
                       value={formData.currency}
                       onValueChange={(value) => setFormData(prev => ({ ...prev, currency: value }))}
@@ -267,15 +269,15 @@ export default function Register() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="aiToken">🧠 ИИ-токен (опционально)</Label>
+                    <Label htmlFor="aiToken">🧠 {t('aiTokenOptional')}</Label>
                     <Input
                       id="aiToken"
                       value={formData.aiToken}
                       onChange={(e) => setFormData(prev => ({ ...prev, aiToken: e.target.value }))}
-                      placeholder="sk-..."
+                      placeholder={t('aiTokenPlaceholder')}
                     />
                     <p className="text-sm text-gray-500 mt-1">
-                      Добавьте токен своего ИИ-провайдера (например, OpenRouter или OpenAI), чтобы мы могли автоматически генерировать фото, состав и БЖУ.
+                      {t('aiTokenDescription')}
                     </p>
                   </div>
                   
@@ -286,14 +288,14 @@ export default function Register() {
                       onClick={() => setStep(1)}
                       className="flex-1"
                     >
-                      Назад
+                      {t('back')}
                     </Button>
                     <Button 
                       type="submit" 
                       disabled={createRestaurantMutation.isPending}
                       className="flex-1"
                     >
-                      {createRestaurantMutation.isPending ? "Создание..." : "Завершить регистрацию"}
+                      {createRestaurantMutation.isPending ? t('creating') : t('completeRegistration')}
                     </Button>
                   </div>
                 </form>

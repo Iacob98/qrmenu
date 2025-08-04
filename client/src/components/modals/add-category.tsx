@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,6 +24,7 @@ export function AddCategoryModal({ open, onOpenChange, restaurantId }: AddCatego
   const [icon, setIcon] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const createCategoryMutation = useMutation({
     mutationFn: async (data: { name: string; icon?: string; restaurantId: string }) => {
@@ -32,8 +34,8 @@ export function AddCategoryModal({ open, onOpenChange, restaurantId }: AddCatego
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/restaurants", restaurantId] });
       toast({
-        title: "Успешно",
-        description: "Категория создана",
+        title: t('success'),
+        description: t('categoryCreated'),
       });
       onOpenChange(false);
       setName("");
@@ -41,7 +43,7 @@ export function AddCategoryModal({ open, onOpenChange, restaurantId }: AddCatego
     },
     onError: (error) => {
       toast({
-        title: "Ошибка",
+        title: t('error'),
         description: error.message,
         variant: "destructive",
       });
@@ -63,23 +65,23 @@ export function AddCategoryModal({ open, onOpenChange, restaurantId }: AddCatego
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
         <DialogHeader>
-          <DialogTitle>Добавить категорию</DialogTitle>
+          <DialogTitle>{t('addCategory')}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="name">Название категории</Label>
+            <Label htmlFor="name">{t('categoryName')}</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Например: Супы, Горячее, Десерты"
+              placeholder={t('categoryNamePlaceholder')}
               required
             />
           </div>
           
           <div>
-            <Label htmlFor="icon">Иконка (опционально)</Label>
+            <Label htmlFor="icon">{t('iconOptional')}</Label>
             <Input
               id="icon"
               value={icon}
@@ -95,14 +97,14 @@ export function AddCategoryModal({ open, onOpenChange, restaurantId }: AddCatego
               onClick={() => onOpenChange(false)}
               className="w-full sm:w-auto"
             >
-              Отмена
+              {t('cancel')}
             </Button>
             <Button 
               type="submit" 
               disabled={createCategoryMutation.isPending}
               className="w-full sm:w-auto"
             >
-              {createCategoryMutation.isPending ? "Создание..." : "Создать"}
+              {createCategoryMutation.isPending ? t('creating') : t('create')}
             </Button>
           </div>
         </form>

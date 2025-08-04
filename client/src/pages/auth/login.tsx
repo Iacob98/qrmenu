@@ -11,18 +11,22 @@ import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-const loginSchema = z.object({
-  email: z.string().email("Введите корректный email"),
-  password: z.string().min(6, "Пароль должен содержать минимум 6 символов"),
+const createLoginSchema = (t: (key: string) => string) => z.object({
+  email: z.string().email(t('emailInvalid')),
+  password: z.string().min(6, t('passwordMin')),
 });
 
-type LoginForm = z.infer<typeof loginSchema>;
+type LoginForm = z.infer<ReturnType<typeof createLoginSchema>>;
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { t } = useTranslation();
+  
+  const loginSchema = createLoginSchema(t);
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -52,16 +56,16 @@ export default function Login() {
     },
     onSuccess: () => {
       toast({
-        title: "Успешно!",
-        description: "Вы вошли в систему",
+        title: t('success'),
+        description: t('loginSuccess'),
       });
       // Redirect to dashboard
       window.location.href = "/dashboard";
     },
     onError: (error: any) => {
       toast({
-        title: "Ошибка входа",
-        description: error.message || "Неверные учетные данные",
+        title: t('loginError'),
+        description: error.message || t('loginErrorDesc'),
         variant: "destructive",
       });
     },
@@ -81,15 +85,15 @@ export default function Login() {
             className="text-gray-600 hover:text-gray-800"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Назад
+            {t('back')}
           </Button>
         </div>
 
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Вход</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">{t('loginTitle')}</CardTitle>
             <CardDescription className="text-center">
-              Войдите в свой аккаунт для управления меню
+              {t('loginDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -100,11 +104,11 @@ export default function Login() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t('email')}</FormLabel>
                       <FormControl>
                         <Input 
                           type="email" 
-                          placeholder="example@mail.com" 
+                          placeholder={t('emailPlaceholder')} 
                           {...field} 
                         />
                       </FormControl>
@@ -118,12 +122,12 @@ export default function Login() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Пароль</FormLabel>
+                      <FormLabel>{t('password')}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showPassword ? "text" : "password"}
-                            placeholder="Введите пароль"
+                            placeholder={t('passwordPlaceholder')}
                             {...field}
                           />
                           <Button
@@ -151,19 +155,19 @@ export default function Login() {
                   className="w-full"
                   disabled={loginMutation.isPending}
                 >
-                  {loginMutation.isPending ? "Вход..." : "Войти"}
+                  {loginMutation.isPending ? t('loggingIn') : t('loginButton')}
                 </Button>
               </form>
             </Form>
 
             <div className="mt-4 text-center text-sm">
-              <span className="text-gray-600">Нет аккаунта? </span>
+              <span className="text-gray-600">{t('noAccount')} </span>
               <Button
                 variant="link"
                 className="p-0 h-auto font-normal"
                 onClick={() => setLocation("/register")}
               >
-                Зарегистрироваться
+                {t('registerButton')}
               </Button>
             </div>
           </CardContent>
