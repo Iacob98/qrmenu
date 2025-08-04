@@ -476,7 +476,7 @@ export default function AIGeneration() {
                 <CardContent>
                   {generatedDishes.length === 0 ? (
                     <div className="text-center py-12 text-gray-500">
-                      <p>Загрузите файл или введите текст для анализа</p>
+                      <p>{t('uploadOrEnterText')}</p>
                     </div>
                   ) : (
                     <div className="space-y-4 max-h-[600px] overflow-y-auto">

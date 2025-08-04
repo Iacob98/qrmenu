@@ -170,6 +170,41 @@ const resources = {
       "qrColorCustomization": "Настройка цвета и стиля QR-кода",
       "logoIntegration": "Интеграция логотипа в QR-код",
       "analytics": "Аналитика переходов",
+      
+      // Settings page additional
+      "checkToken": "Проверить токен",
+      "dangerZone": "Опасная зона", 
+      "deleteRestaurant": "Удалить ресторан",
+      "deleteRestaurantDesc": "Это действие нельзя отменить. Будут удалены все данные ресторана.",
+      "aiProviderDesc": "Токен OpenAI для генерации меню из фото и текста",
+      "imageGenerationInfo": "Генерация изображений использует Imagen-4 Fast через Replicate",
+      
+      // AI page additional
+      "uploadOrEnterText": "Загрузите файл или введите текст для анализа",
+      
+      // Additional status texts
+      "checking": "Проверка...",
+      "active": "Активен",
+      "deleting": "Удаление...",
+      "selectProvider": "Выберите провайдера",
+      "myProfile": "Мой профиль",
+      "emailCannotChange": "Email нельзя изменить",
+      "name": "Имя",
+      "newPassword": "Новый пароль",
+      "confirmNewPassword": "Подтвердите новый пароль",
+      "changePassword": "Изменить пароль",
+      "changing": "Изменение...",
+      "profileUpdated": "Профиль обновлен",
+      "passwordChanged": "Пароль изменен",
+      "invalidPassword": "Неверный пароль",
+      "yourName": "Ваше имя",
+      "saveProfile": "Сохранить профиль",
+      "logOut": "Выйти из аккаунта",
+      "displayMenuParams": "Эти параметры влияют на отображение меню",
+      "specifyModel": "Укажите конкретную модель для OpenRouter",
+      "openrouterToken": "Токен OpenRouter для генерации меню",
+      "replicateToken": "Токен Replicate для всех функций ИИ",
+      "emailInstructions": "Мы отправим инструкции на ваш email",
 
       // Color themes
       "defaultTheme": "По умолчанию",
@@ -372,6 +407,41 @@ const resources = {
       "qrColorCustomization": "QR code color and style customization",
       "logoIntegration": "Logo integration in QR code",
       "analytics": "Click analytics",
+      
+      // Settings page additional
+      "checkToken": "Check Token",
+      "dangerZone": "Danger Zone",
+      "deleteRestaurant": "Delete Restaurant", 
+      "deleteRestaurantDesc": "This action cannot be undone. All restaurant data will be deleted.",
+      "aiProviderDesc": "OpenAI token for menu generation from photos and text",
+      "imageGenerationInfo": "Image generation uses Imagen-4 Fast via Replicate",
+      
+      // AI page additional
+      "uploadOrEnterText": "Upload file or enter text for analysis",
+      
+      // Additional status texts
+      "checking": "Checking...",
+      "active": "Active",
+      "deleting": "Deleting...",
+      "selectProvider": "Select provider",
+      "myProfile": "My Profile",
+      "emailCannotChange": "Email cannot be changed",
+      "name": "Name",
+      "newPassword": "New Password",
+      "confirmNewPassword": "Confirm New Password",
+      "changePassword": "Change Password",
+      "changing": "Changing...",
+      "profileUpdated": "Profile updated",
+      "passwordChanged": "Password changed",
+      "invalidPassword": "Invalid password",
+      "yourName": "Your name",
+      "saveProfile": "Save Profile",
+      "logOut": "Logout",
+      "displayMenuParams": "These parameters affect menu display",
+      "specifyModel": "Specify specific model for OpenRouter",
+      "openrouterToken": "OpenRouter token for menu generation",
+      "replicateToken": "Replicate token for all AI functions",
+      "emailInstructions": "We will send instructions to your email",
 
       // Color themes
       "defaultTheme": "Default",
@@ -569,6 +639,41 @@ const resources = {
       "qrColorCustomization": "QR-Code-Farb- und Stilanpassung",
       "logoIntegration": "Logo-Integration in QR-Code",
       "analytics": "Klick-Analytik",
+      
+      // Settings page additional
+      "checkToken": "Token prüfen",
+      "dangerZone": "Gefahrenzone",
+      "deleteRestaurant": "Restaurant löschen",
+      "deleteRestaurantDesc": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Restaurant-Daten werden gelöscht.",
+      "aiProviderDesc": "OpenAI-Token für Menügenerierung aus Fotos und Text",
+      "imageGenerationInfo": "Bildgenerierung verwendet Imagen-4 Fast über Replicate",
+      
+      // AI page additional
+      "uploadOrEnterText": "Datei hochladen oder Text zur Analyse eingeben",
+      
+      // Additional status texts
+      "checking": "Überprüfung...",
+      "active": "Aktiv",
+      "deleting": "Löschen...",
+      "selectProvider": "Anbieter auswählen",
+      "myProfile": "Mein Profil",
+      "emailCannotChange": "E-Mail kann nicht geändert werden",
+      "name": "Name",
+      "newPassword": "Neues Passwort",
+      "confirmNewPassword": "Neues Passwort bestätigen",
+      "changePassword": "Passwort ändern",
+      "changing": "Ändern...",
+      "profileUpdated": "Profil aktualisiert",
+      "passwordChanged": "Passwort geändert",
+      "invalidPassword": "Ungültiges Passwort",
+      "yourName": "Ihr Name",
+      "saveProfile": "Profil speichern",
+      "logOut": "Ausloggen",
+      "displayMenuParams": "Diese Parameter beeinflussen die Menüanzeige",
+      "specifyModel": "Spezifisches Modell für OpenRouter angeben",
+      "openrouterToken": "OpenRouter-Token für Menügenerierung",
+      "replicateToken": "Replicate-Token für alle KI-Funktionen",
+      "emailInstructions": "Wir senden Anweisungen an Ihre E-Mail",
 
       // Color themes
       "defaultTheme": "Standard",

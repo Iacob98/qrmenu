@@ -375,7 +375,7 @@ export default function Settings() {
                         </div>
                       </div>
                       <p className="text-sm text-gray-500 mt-2">
-                        Эти параметры влияют на отображение меню
+                        {t('displayMenuParams')}
                       </p>
                       
                       <Button 
@@ -384,7 +384,7 @@ export default function Settings() {
                         disabled={updateRestaurantMutation.isPending}
                         className="w-full mt-4"
                       >
-                        {updateRestaurantMutation.isPending ? "Сохранение..." : "Сохранить изменения"}
+                        {updateRestaurantMutation.isPending ? t('saving') : t('saveChanges')}
                       </Button>
                     </CardContent>
                   </Card>
@@ -392,17 +392,17 @@ export default function Settings() {
                   {/* AI Configuration */}
                   <Card>
                     <CardHeader>
-                      <CardTitle>Настройки ИИ</CardTitle>
+                      <CardTitle>{t('aiSettings')}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div>
-                        <Label htmlFor="aiProvider">🤖 AI провайдер</Label>
+                        <Label htmlFor="aiProvider">🤖 {t('aiProvider')}</Label>
                         <Select
                           value={restaurantForm.aiProvider}
                           onValueChange={(value) => setRestaurantForm(prev => ({ ...prev, aiProvider: value }))}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Выберите провайдера" />
+                            <SelectValue placeholder={t('selectProvider')} />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="openai">OpenAI</SelectItem>
@@ -413,7 +413,7 @@ export default function Settings() {
                       </div>
 
                       <div>
-                        <Label htmlFor="aiToken">🔐 API Token</Label>
+                        <Label htmlFor="aiToken">🔐 {t('apiToken')}</Label>
                         <div className="flex items-center space-x-2 mt-1">
                           <Input
                             id="aiToken"
@@ -428,31 +428,31 @@ export default function Settings() {
                             onClick={checkAiToken}
                             disabled={!restaurantForm.aiToken.trim() || aiTokenStatus === 'checking'}
                           >
-                            {aiTokenStatus === 'checking' ? "Проверка..." : "Проверить токен"}
+                            {aiTokenStatus === 'checking' ? t('checking') : t('checkToken')}
                           </Button>
                         </div>
                         {aiTokenStatus === 'valid' && (
                           <p className="text-sm text-green-600 mt-1 flex items-center">
                             <Check size={16} className="mr-1" />
-                            Активен
+                            {t('active')}
                           </p>
                         )}
                         {aiTokenStatus === 'invalid' && (
                           <p className="text-sm text-red-600 mt-1 flex items-center">
                             <AlertTriangle size={16} className="mr-1" />
-                            Ошибка
+                            {t('error')}
                           </p>
                         )}
                         <p className="text-sm text-gray-500 mt-1">
                           {restaurantForm.aiProvider === "openrouter" 
-                            ? "Токен OpenRouter для генерации меню" 
+                            ? t('openrouterToken') 
                             : restaurantForm.aiProvider === "replicate"
-                            ? "Токен Replicate для всех функций ИИ"
-                            : "Токен OpenAI для генерации меню из фото и текста"
+                            ? t('replicateToken')
+                            : t('aiProviderDesc')
                           }
                         </p>
                         <p className="text-xs text-blue-600 mt-1">
-                          💡 Генерация изображений использует Imagen-4 Fast через Replicate
+                          💡 {t('imageGenerationInfo')}
                         </p>
                       </div>
 
@@ -466,7 +466,7 @@ export default function Settings() {
                             placeholder="gpt-4o, claude-3-sonnet, etc."
                           />
                           <p className="text-sm text-gray-500 mt-1">
-                            Укажите конкретную модель для OpenRouter
+                            {t('specifyModel')}
                           </p>
                         </div>
                       )}
@@ -477,7 +477,7 @@ export default function Settings() {
                         disabled={updateRestaurantMutation.isPending}
                         className="w-full mt-4"
                       >
-                        {updateRestaurantMutation.isPending ? "Сохранение..." : "Сохранить изменения"}
+                        {updateRestaurantMutation.isPending ? t('saving') : t('saveChanges')}
                       </Button>
                     </CardContent>
                   </Card>
@@ -485,14 +485,14 @@ export default function Settings() {
                   {/* Danger Zone */}
                   <Card className="border-red-200">
                     <CardHeader>
-                      <CardTitle className="text-red-600">Опасная зона</CardTitle>
+                      <CardTitle className="text-red-600">{t('dangerZone')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium">Удалить ресторан</p>
+                          <p className="font-medium">{t('deleteRestaurant')}</p>
                           <p className="text-sm text-gray-500">
-                            Это действие нельзя отменить. Будут удалены все данные ресторана.
+                            {t('deleteRestaurantDesc')}
                           </p>
                         </div>
                         <Button
@@ -500,7 +500,7 @@ export default function Settings() {
                           onClick={handleDeleteRestaurant}
                           disabled={deleteRestaurantMutation.isPending}
                         >
-                          {deleteRestaurantMutation.isPending ? "Удаление..." : "Удалить ресторан"}
+                          {deleteRestaurantMutation.isPending ? t('deleting') : t('deleteRestaurant')}
                         </Button>
                       </div>
                     </CardContent>
@@ -512,12 +512,12 @@ export default function Settings() {
             <TabsContent value="profile" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Мой профиль</CardTitle>
+                  <CardTitle>{t('myProfile')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleProfileSubmit} className="space-y-4">
                     <div>
-                      <Label htmlFor="email">👤 Email</Label>
+                      <Label htmlFor="email">👤 {t('email')}</Label>
                       <Input
                         id="email"
                         type="email"
@@ -526,27 +526,27 @@ export default function Settings() {
                         className="bg-gray-50"
                       />
                       <p className="text-sm text-gray-500 mt-1">
-                        Email нельзя изменить
+                        {t('emailCannotChange')}
                       </p>
                     </div>
                     
                     <div>
-                      <Label htmlFor="profileName">🧑‍💼 Имя</Label>
+                      <Label htmlFor="profileName">🧑‍💼 {t('name')}</Label>
                       <Input
                         id="profileName"
                         value={profileForm.name}
                         onChange={(e) => setProfileForm(prev => ({ ...prev, name: e.target.value }))}
-                        placeholder="Ваше имя"
+                        placeholder={t('yourName')}
                       />
                     </div>
 
                     <div>
-                      <Label>🔒 Пароль</Label>
+                      <Label>🔒 {t('password')}</Label>
                       <Button type="button" variant="outline" className="w-full mt-1">
-                        Изменить пароль
+                        {t('changePassword')}
                       </Button>
                       <p className="text-sm text-gray-500 mt-1">
-                        Мы отправим инструкции на ваш email
+                        {t('emailInstructions')}
                       </p>
                     </div>
 
@@ -554,10 +554,10 @@ export default function Settings() {
 
                     <div className="flex justify-between">
                       <Button type="submit" variant="outline">
-                        Сохранить профиль
+                        {t('saveProfile')}
                       </Button>
                       <Button type="button" variant="outline" onClick={logout}>
-                        Выйти из аккаунта
+                        {t('logOut')}
                       </Button>
                     </div>
                   </form>
