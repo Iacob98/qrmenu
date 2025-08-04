@@ -3,18 +3,21 @@ import { cn } from "@/lib/utils";
 import { Utensils, Palette, Settings, Bot, QrCode, Menu, X } from "lucide-react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
+import { LanguageSelector } from "@/components/ui/language-selector";
 
 const navigation = [
-  { name: "Меню", href: "/dashboard", icon: Utensils },
-  { name: "Дизайн", href: "/dashboard/design", icon: Palette },
-  { name: "Настройки", href: "/dashboard/settings", icon: Settings },
-  { name: "ИИ", href: "/dashboard/ai", icon: Bot },
-  { name: "QR и Ссылки", href: "/dashboard/qr", icon: QrCode },
+  { nameKey: "menu", href: "/dashboard", icon: Utensils },
+  { nameKey: "design", href: "/dashboard/design", icon: Palette },
+  { nameKey: "settings", href: "/dashboard/settings", icon: Settings },
+  { nameKey: "ai", href: "/dashboard/ai", icon: Bot },
+  { nameKey: "qr", href: "/dashboard/qr", icon: QrCode },
 ];
 
 export function Sidebar() {
   const [location] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <>
@@ -62,6 +65,11 @@ export function Sidebar() {
               <X size={16} />
             </Button>
           </div>
+          
+          {/* Language Selector */}
+          <div className="mt-4 flex justify-center">
+            <LanguageSelector />
+          </div>
         </div>
         
         <nav className="p-4">
@@ -69,7 +77,7 @@ export function Sidebar() {
             {navigation.map((item) => {
               const isActive = location === item.href || (item.href !== "/dashboard" && location.startsWith(item.href));
               return (
-                <li key={item.name}>
+                <li key={item.nameKey}>
                   <a
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)} // Close mobile menu on navigation
@@ -81,7 +89,7 @@ export function Sidebar() {
                     )}
                   >
                     <item.icon className="mr-3" size={20} />
-                    {item.name}
+                    {t(item.nameKey)}
                   </a>
                 </li>
               );

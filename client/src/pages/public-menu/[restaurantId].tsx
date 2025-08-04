@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MemoCategoryTabs } from "@/components/optimized/memo-category-tabs";
 import { MemoDishCard } from "@/components/optimized/memo-dish-card";
+import { useTranslation } from 'react-i18next';
+import { LanguageSelector } from "@/components/ui/language-selector";
 
 import { DishDetailsModal } from "@/components/modals/dish-details";
 import { ErrorBoundary, ErrorFallback } from "@/components/error-boundary";
@@ -39,6 +41,7 @@ function getTagEmoji(tag: string): string {
 function PublicMenuContent() {
   // All hooks must be called in the same order every time
   const [, params] = useRoute("/menu/:slug");
+  const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTags, setActiveTags] = useState<string[]>([]);
@@ -78,7 +81,7 @@ function PublicMenuContent() {
     if (favoritesDishes.length > 0) {
       categoriesWithFavorites.push({
         id: 'favorites',
-        name: menu.restaurant.favoritesTitle || 'Избранное',
+        name: menu.restaurant.favoritesTitle || t('favorites'),
         restaurantId: '',
         icon: '⭐',
         sortOrder: -1,
@@ -297,9 +300,9 @@ function PublicMenuContent() {
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center p-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-sm">Загружается меню...</p>
+          <p className="text-gray-600 text-sm">{t('loading')}</p>
           <p className="text-gray-400 text-xs mt-2">
-            {navigator.userAgent.includes('Mobile') ? 'Мобильная версия' : 'Версия для ПК'}
+            {navigator.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop'}
           </p>
         </div>
       </div>
@@ -310,28 +313,28 @@ function PublicMenuContent() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white p-4">
         <div className="text-center max-w-md w-full">
-          <h1 className="text-xl font-bold text-gray-900 mb-4">Меню не найдено</h1>
+          <h1 className="text-xl font-bold text-gray-900 mb-4">{t('noResults')}</h1>
           <p className="text-gray-600 mb-4">
-            Проверьте правильность ссылки или обратитесь в ресторан
+            {t('error')}
           </p>
           
           <button
             onClick={() => window.location.reload()}
             className="bg-green-600 text-white px-6 py-2 rounded-lg mb-4 hover:bg-green-700 transition-colors"
           >
-            Обновить страницу
+            {t('loading')}
           </button>
           
           {error && (
             <details className="text-left mt-4">
               <summary className="text-sm text-gray-500 cursor-pointer mb-2">
-                Техническая информация
+                Technical Information
               </summary>
               <div className="text-xs text-gray-400 bg-gray-50 p-3 rounded">
-                <p>Ошибка: {error.message}</p>
+                <p>{t('error')}: {error.message}</p>
                 <p>URL: {window.location.href}</p>
-                <p>Устройство: {navigator.userAgent}</p>
-                <p>Время: {new Date().toLocaleString()}</p>
+                <p>Device: {navigator.userAgent}</p>
+                <p>Time: {new Date().toLocaleString()}</p>
               </div>
             </details>
           )}
@@ -367,11 +370,16 @@ function PublicMenuContent() {
               textAlign: menu?.restaurant?.design?.logoPosition === 'top' ? 'center' : 'left'
             }}
           >
+            {/* Language Selector */}
+            <div className="absolute top-4 right-4">
+              <LanguageSelector />
+            </div>
+            
             {/* Logo with positioning */}
             {menu?.restaurant?.logo && menu?.restaurant?.design?.logoPosition !== 'hidden' && (
               <img 
                 src={menu.restaurant.logo} 
-                alt="Логотип"
+                alt="Logo"
                 className={cn(
                   "object-cover flex-shrink-0",
                   menu?.restaurant?.design?.logoPosition === 'top' 
@@ -439,7 +447,7 @@ function PublicMenuContent() {
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <Input
               type="text"
-              placeholder="Найти блюдо..."
+              placeholder={t('searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 h-10 text-base border-gray-300"
@@ -499,8 +507,8 @@ function PublicMenuContent() {
               <Utensils className="mx-auto h-12 w-12 text-gray-300 mb-4" />
               <p className="text-gray-500 text-sm">
                 {searchQuery || activeTags.length > 0 
-                  ? "Ничего не найдено"
-                  : "Нет блюд в категории"
+                  ? t('noResults')
+                  : t('noDishes')
                 }
               </p>
               {(searchQuery || activeTags.length > 0) && (
@@ -510,7 +518,7 @@ function PublicMenuContent() {
                   className="mt-3"
                   onClick={clearFilters}
                 >
-                  Сбросить
+                  {t('remove')}
                 </Button>
               )}
             </div>
