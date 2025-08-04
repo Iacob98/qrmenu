@@ -13,6 +13,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { AuthGuard } from "@/components/auth/auth-guard";
 import { useTranslation } from "react-i18next";
+import { LanguageSelector } from "@/components/ui/language-selector";
 
 export default function Register() {
   const [step, setStep] = useState(1);
@@ -302,6 +303,11 @@ export default function Register() {
               </CardContent>
             </Card>
           )}
+          
+          {/* Language Selector at Bottom */}
+          <div className="mt-8 flex justify-center">
+            <LanguageSelector />
+          </div>
         </div>
       </div>
     </AuthGuard>

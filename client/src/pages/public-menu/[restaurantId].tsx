@@ -551,6 +551,11 @@ function PublicMenuContent() {
             ⏳
           </div>
         )}
+        
+        {/* Language Selector at Bottom */}
+        <div className="p-4 border-t mt-4 flex justify-center">
+          <LanguageSelector />
+        </div>
       </div>
     </div>
   );

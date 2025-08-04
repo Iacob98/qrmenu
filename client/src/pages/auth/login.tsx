@@ -172,6 +172,11 @@ export default function Login() {
             </div>
           </CardContent>
         </Card>
+        
+        {/* Language Selector at Bottom */}
+        <div className="mt-8 flex justify-center">
+          <LanguageSelector />
+        </div>
       </div>
     </div>
   );
