@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { FileUpload } from "@/components/ui/file-upload";
+import { useTranslation } from "react-i18next";
 import type { Category } from "@shared/schema";
 
 interface AddDishModalProps {
@@ -59,6 +60,7 @@ export function AddDishModal({
   const [imageGenerating, setImageGenerating] = useState(false);
 
   const { toast } = useToast();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const createDishMutation = useMutation({
@@ -69,15 +71,15 @@ export function AddDishModal({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/restaurants", restaurantId] });
       toast({
-        title: "Успешно",
-        description: "Блюдо создано",
+        title: t('success'),
+        description: t('dishCreated'),
       });
       onOpenChange(false);
       resetForm();
     },
     onError: (error) => {
       toast({
-        title: "Ошибка",
+        title: t('error'),
         description: error.message,
         variant: "destructive",
       });
@@ -117,19 +119,19 @@ export function AddDishModal({
       const imageUrl = response?.imageUrl;
       if (imageUrl) {
         setFormData(prev => ({ ...prev, image: imageUrl }));
-        toast({ title: "Фото сгенерировано" });
+        toast({ title: t('photoGenerated') });
         console.log('[Generated Image] URL:', imageUrl);
       } else {
         toast({
-          title: "Ошибка",
-          description: "Не удалось получить URL изображения",
+          title: t('error'),
+          description: t('failedToGetImageUrl'),
           variant: "destructive",
         });
       }
     },
     onError: (error: any) => {
       toast({
-        title: "Ошибка генерации фото",
+        title: t('photoGenerationError'),
         description: error.message,
         variant: "destructive",
       });
@@ -139,7 +141,7 @@ export function AddDishModal({
   const handleGenerateImage = () => {
     if (!formData.name.trim()) {
       toast({
-        title: "Введите название блюда",
+        title: t('enterDishName'),
         variant: "destructive",
       });
       return;
@@ -197,24 +199,24 @@ export function AddDishModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
         <DialogHeader>
-          <DialogTitle>Добавить блюдо</DialogTitle>
+          <DialogTitle>{t('addDish')}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="name">Название блюда</Label>
+              <Label htmlFor="name">{t('dishName')}</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Борщ украинский"
+                placeholder={t('dishNamePlaceholder')}
                 required
               />
             </div>
             
             <div>
-              <Label htmlFor="price">Цена</Label>
+              <Label htmlFor="price">{t('price')}</Label>
               <Input
                 id="price"
                 type="number"
@@ -228,13 +230,13 @@ export function AddDishModal({
           </div>
           
           <div>
-            <Label htmlFor="category">Категория</Label>
+            <Label htmlFor="category">{t('category')}</Label>
             <Select
               value={formData.categoryId}
               onValueChange={(value) => setFormData(prev => ({ ...prev, categoryId: value }))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Выберите категорию" />
+                <SelectValue placeholder={t('selectCategory')} />
               </SelectTrigger>
               <SelectContent>
                 {categories.map((category) => (
@@ -247,28 +249,28 @@ export function AddDishModal({
           </div>
           
           <div>
-            <Label htmlFor="description">Описание</Label>
+            <Label htmlFor="description">{t('description')}</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              placeholder="Традиционный украинский борщ с говядиной, свеклой и сметаной"
+              placeholder={t('descriptionPlaceholder')}
               rows={3}
             />
           </div>
           
           <div>
-            <Label htmlFor="ingredients">Ингредиенты (через запятую)</Label>
+            <Label htmlFor="ingredients">{t('ingredients')}</Label>
             <Input
               id="ingredients"
               value={formData.ingredients}
               onChange={(e) => setFormData(prev => ({ ...prev, ingredients: e.target.value }))}
-              placeholder="Говядина, свекла, капуста, морковь, сметана"
+              placeholder={t('ingredientsPlaceholder')}
             />
           </div>
           
           <div>
-            <Label>Теги</Label>
+            <Label>{t('tags')}</Label>
             <div className="flex flex-wrap gap-2 mb-2">
               {formData.tags.map((tag) => (
                 <Badge key={tag} variant="secondary" className="gap-1">
@@ -307,7 +309,7 @@ export function AddDishModal({
           <div>
             <FileUpload
               key={formData.image || 'no-image'} // Force re-render when image changes
-              label="🖼️ Фото блюда"
+              label={t('dishPhoto')}
               value={formData.image}
               onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
               endpoint="image"
@@ -325,12 +327,12 @@ export function AddDishModal({
                 className="w-full"
               >
                 <Wand2 className="mr-2 h-4 w-4" />
-                {generateImageMutation.isPending ? "Генерирую..." : "Сгенерировать AI фото"}
+                {generateImageMutation.isPending ? t('generating') : t('generateAIPhoto')}
               </Button>
             </div>
             {formData.image && (
               <div className="mt-2 text-sm text-muted-foreground">
-                Текущее изображение: {formData.image}
+                {t('currentImage')} {formData.image}
               </div>
             )}
           </div>
@@ -342,14 +344,14 @@ export function AddDishModal({
               onClick={() => onOpenChange(false)}
               className="w-full sm:w-auto"
             >
-              Отмена
+              {t('cancel')}
             </Button>
             <Button 
               type="submit" 
               disabled={createDishMutation.isPending}
               className="w-full sm:w-auto"
             >
-              {createDishMutation.isPending ? "Создание..." : "Создать"}
+              {createDishMutation.isPending ? t('creating') : t('create')}
             </Button>
           </div>
         </form>
