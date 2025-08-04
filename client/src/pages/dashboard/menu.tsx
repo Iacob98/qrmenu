@@ -14,6 +14,7 @@ import { EditFavoritesTitleModal } from "@/components/modals/edit-favorites-titl
 import { DishCard } from "@/components/menu/dish-card";
 import { Plus, ExternalLink, User, Edit, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import type { RestaurantWithCategories, Dish, Category } from "@shared/schema";
@@ -30,6 +31,7 @@ export default function MenuManagement() {
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   // Get user restaurants
@@ -70,12 +72,12 @@ export default function MenuManagement() {
       return await apiRequest("DELETE", `/api/dishes/${dishId}`);
     },
     onSuccess: () => {
-      toast({ title: "Блюдо удалено" });
+      toast({ title: t('dishCreated') + " " + t('delete') });
       queryClient.invalidateQueries({ queryKey: ["/api/restaurants", selectedRestaurant] });
     },
     onError: (error: any) => {
       toast({
-        title: "Ошибка удаления блюда",
+        title: t('error') + " " + t('delete') + " " + t('dish'),
         description: error.message,
         variant: "destructive",
       });
@@ -83,7 +85,7 @@ export default function MenuManagement() {
   });
 
   const handleDeleteDish = (dish: Dish) => {
-    if (confirm(`Вы уверены, что хотите удалить блюдо "${dish.name}"?`)) {
+    if (confirm(`${t('confirmDeleteCategory')} "${dish.name}"?`)) {
       deleteDishMutation.mutate(dish.id);
     }
   };
@@ -93,12 +95,12 @@ export default function MenuManagement() {
       return await apiRequest("DELETE", `/api/categories/${categoryId}`);
     },
     onSuccess: () => {
-      toast({ title: "Категория удалена" });
+      toast({ title: t('categoryCreated') + " " + t('delete') });
       queryClient.invalidateQueries({ queryKey: ["/api/restaurants", selectedRestaurant] });
     },
     onError: (error: any) => {
       toast({
-        title: "Ошибка удаления категории",
+        title: t('error') + " " + t('delete') + " " + t('category'),
         description: error.message,
         variant: "destructive",
       });
@@ -106,7 +108,7 @@ export default function MenuManagement() {
   });
 
   const handleDeleteCategory = (category: Category) => {
-    if (confirm(`Вы уверены, что хотите удалить категорию "${category.name}" и все блюда в ней?`)) {
+    if (confirm(`${t('confirmDeleteCategory')} "${category.name}"?`)) {
       deleteCategoryMutation.mutate(category.id);
     }
   };
@@ -134,10 +136,10 @@ export default function MenuManagement() {
         <Sidebar />
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center">
-            <h2 className="text-xl lg:text-2xl font-bold mb-4">Добро пожаловать!</h2>
-            <p className="text-gray-600 mb-6">У вас пока нет ресторанов. Создайте первый.</p>
+            <h2 className="text-xl lg:text-2xl font-bold mb-4">{t('heroTitle')}</h2>
+            <p className="text-gray-600 mb-6">{t('noRestaurantDesc')}</p>
             <Button onClick={() => setCreateRestaurantOpen(true)}>
-              Создать ресторан
+              {t('createRestaurant')}
             </Button>
           </div>
         </div>
@@ -157,9 +159,9 @@ export default function MenuManagement() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <h1 className="text-xl lg:text-2xl font-bold text-gray-900">
-                    {restaurant?.name || "Загрузка..."}
+                    {restaurant?.name || t('loading')}
                   </h1>
-                  <p className="text-gray-600">Управление меню</p>
+                  <p className="text-gray-600">{t('menuManagement')}</p>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
@@ -170,8 +172,8 @@ export default function MenuManagement() {
                     className="w-full sm:w-auto"
                   >
                     <ExternalLink className="mr-2" size={16} />
-                    <span className="hidden sm:inline">Предпросмотр меню</span>
-                    <span className="sm:hidden">Предпросмотр</span>
+                    <span className="hidden sm:inline">{t('previewMenu')}</span>
+                    <span className="sm:hidden">{t('previewMenu')}</span>
                   </Button>
                   
                   <div className="relative">
@@ -189,12 +191,12 @@ export default function MenuManagement() {
         <div className="p-4 lg:p-6">
           <div className="mb-6">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-              <h2 className="text-lg lg:text-xl font-semibold text-gray-900">Категории и блюда</h2>
+              <h2 className="text-lg lg:text-xl font-semibold text-gray-900">{t('categoriesAndDishes')}</h2>
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <Button onClick={() => setAddCategoryOpen(true)} className="w-full sm:w-auto">
                   <Plus className="mr-2" size={16} />
-                  <span className="hidden sm:inline">Добавить категорию</span>
-                  <span className="sm:hidden">Категория</span>
+                  <span className="hidden sm:inline">{t('addCategory')}</span>
+                  <span className="sm:hidden">{t('category')}</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -202,8 +204,8 @@ export default function MenuManagement() {
                   className="w-full sm:w-auto"
                 >
                   <Plus className="mr-2" size={16} />
-                  <span className="hidden sm:inline">Добавить блюдо</span>
-                  <span className="sm:hidden">Блюдо</span>
+                  <span className="hidden sm:inline">{t('addDish')}</span>
+                  <span className="sm:hidden">{t('dish')}</span>
                 </Button>
               </div>
             </div>
@@ -217,11 +219,11 @@ export default function MenuManagement() {
                   <CardHeader>
                     <div className="flex justify-between items-center">
                       <CardTitle className="flex items-center">
-                        ⭐ {restaurant.favoritesTitle || "Избранное"}
+                        ⭐ {restaurant.favoritesTitle || t('favorites')}
                         <Badge variant="secondary" className="ml-2">
                           {restaurant.categories.reduce((count, cat) => 
                             count + cat.dishes.filter(dish => dish.isFavorite).length, 0
-                          )} блюд
+                          )} {t('dishes')}
                         </Badge>
                       </CardTitle>
                       <Button 
@@ -259,13 +261,13 @@ export default function MenuManagement() {
               {restaurant.categories.length === 0 ? (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <h3 className="text-lg font-semibold mb-2">Создайте первую категорию</h3>
+                    <h3 className="text-lg font-semibold mb-2">{t('createFirstCategory')}</h3>
                     <p className="text-gray-600 mb-4">
-                      Начните с создания категорий блюд, например "Супы", "Горячее", "Десерты"
+                      {t('startByCategoryDesc')}
                     </p>
                     <Button onClick={() => setAddCategoryOpen(true)}>
                       <Plus className="mr-2" size={16} />
-                      Добавить категорию
+                      {t('addCategory')}
                     </Button>
                   </CardContent>
                 </Card>
@@ -307,7 +309,7 @@ export default function MenuManagement() {
                           onClick={() => handleAddDish(category.id)}
                         >
                           <Plus className="mr-2" size={16} />
-                          Добавить блюдо в категорию "{category.name}"
+                          {t('addDishToCategory')} "{category.name}"
                         </Button>
                       ) : (
                         <div className="space-y-4">
@@ -329,7 +331,7 @@ export default function MenuManagement() {
                             onClick={() => handleAddDish(category.id)}
                           >
                             <Plus className="mr-2" size={16} />
-                            Добавить ещё блюдо
+                            {t('addAnotherDish')}
                           </Button>
                         </div>
                       )}
@@ -340,7 +342,7 @@ export default function MenuManagement() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-gray-600">Выберите ресторан для управления меню</p>
+              <p className="text-gray-600">{t('selectRestaurantToManage')}</p>
             </div>
           )}
         </div>
