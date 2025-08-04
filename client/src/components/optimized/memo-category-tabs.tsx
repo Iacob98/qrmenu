@@ -1,6 +1,5 @@
 import React, { memo } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { Category } from "@shared/schema";
 
@@ -23,8 +22,6 @@ export const MemoCategoryTabs = memo(function CategoryTabs({
       <div className="flex gap-2 overflow-x-auto scrollbar-hide">
         {categories.map((category) => {
           const isActive = activeCategory === category.id;
-          const dishCount = (category as any).dishes?.length || 0;
-          
           return (
             <Button
               key={category.id}
@@ -42,19 +39,6 @@ export const MemoCategoryTabs = memo(function CategoryTabs({
                 <span className="mr-1.5 text-base">{category.icon}</span>
               )}
               {category.name}
-              {dishCount > 0 && (
-                <Badge 
-                  variant="secondary" 
-                  className={cn(
-                    "ml-1.5 h-5 px-1.5 text-xs font-medium",
-                    isActive 
-                      ? "bg-primary-foreground/20 text-inherit" 
-                      : "bg-gray-100 text-gray-600"
-                  )}
-                >
-                  {dishCount}
-                </Badge>
-              )}
             </Button>
           );
         })}
@@ -68,8 +52,7 @@ export const MemoCategoryTabs = memo(function CategoryTabs({
     prevProps.categories.length === nextProps.categories.length &&
     prevProps.categories.every((cat, index) => 
       cat.id === nextProps.categories[index]?.id &&
-      cat.name === nextProps.categories[index]?.name &&
-      (cat as any).dishes?.length === (nextProps.categories[index] as any)?.dishes?.length
+      cat.name === nextProps.categories[index]?.name
     )
   );
 });

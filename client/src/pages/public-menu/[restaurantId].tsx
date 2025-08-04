@@ -458,7 +458,7 @@ function PublicMenuContent() {
         </div>
 
         {/* Sticky Category Tabs - Mobile optimized */}
-        <div className="sticky-nav top-[73px] md:top-[105px] z-40 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
+        <div className="sticky top-[73px] md:top-[105px] z-40 bg-white border-b border-gray-100 shadow-sm">
           <MemoCategoryTabs
             categories={menuWithFavorites?.categories || []}
             activeCategory={selectedCategory}
