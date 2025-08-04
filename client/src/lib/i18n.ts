@@ -157,6 +157,20 @@ const resources = {
       "ctaTitle": "Готовы начать?",
       "ctaSubtitle": "Создайте красивое меню для вашего ресторана уже сегодня",
       
+      // Menu examples
+      "menuExamplesTitle": "Примеры меню",
+      "hotDishes": "Горячее",
+      "desserts": "Десерты", 
+      "drinks": "Напитки",
+      "beefWellington": "Стейк Веллингтон",
+      "beefWellingtonDesc": "Говядина, грибы, слоёное тесто",
+      "tiramisu": "Тирамису",
+      "tiramisuDesc": "Маскарпоне, кофе, какао",
+      "espresso": "Эспрессо",
+      "espressoDesc": "Арабика, двойная экстракция",
+      "spicy": "🌶️ Острое",
+      "vegetarian": "🥦 Вегетарианское",
+      
       // AI page
       "foundDishes": "Найденные блюда",
       "dishesFound": "найдено блюд",
@@ -403,6 +417,20 @@ const resources = {
       "ctaTitle": "Ready to start?",
       "ctaSubtitle": "Create a beautiful menu for your restaurant today",
       
+      // Menu examples
+      "menuExamplesTitle": "Menu Examples",
+      "hotDishes": "Hot Dishes",
+      "desserts": "Desserts",
+      "drinks": "Drinks", 
+      "beefWellington": "Beef Wellington",
+      "beefWellingtonDesc": "Beef, mushrooms, puff pastry",
+      "tiramisu": "Tiramisu",
+      "tiramisuDesc": "Mascarpone, coffee, cocoa",
+      "espresso": "Espresso",
+      "espressoDesc": "Arabica, double extraction",
+      "spicy": "🌶️ Spicy",
+      "vegetarian": "🥦 Vegetarian",
+      
       // AI page
       "foundDishes": "Found Dishes",
       "dishesFound": "dishes found",
@@ -643,6 +671,20 @@ const resources = {
       "startNow": "Jetzt starten",
       "ctaTitle": "Bereit anzufangen?",
       "ctaSubtitle": "Erstellen Sie heute ein schönes Menü für Ihr Restaurant",
+      
+      // Menu examples
+      "menuExamplesTitle": "Menü-Beispiele",
+      "hotDishes": "Warme Gerichte",
+      "desserts": "Desserts",
+      "drinks": "Getränke",
+      "beefWellington": "Beef Wellington",
+      "beefWellingtonDesc": "Rindfleisch, Pilze, Blätterteig",
+      "tiramisu": "Tiramisu",
+      "tiramisuDesc": "Mascarpone, Kaffee, Kakao",
+      "espresso": "Espresso",
+      "espressoDesc": "Arabica, Doppelextraktion",
+      "spicy": "🌶️ Scharf",
+      "vegetarian": "🥦 Vegetarisch",
       
       // AI page  
       "foundDishes": "Gefundene Gerichte",

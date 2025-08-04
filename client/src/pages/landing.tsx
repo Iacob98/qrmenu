@@ -159,48 +159,48 @@ export default function Landing() {
             <div className="grid md:grid-cols-3 gap-6">
               {/* Menu category examples */}
               <div className="bg-gray-50 rounded-xl p-6">
-                <h3 className="font-semibold text-lg mb-4 text-primary-600">Горячее</h3>
+                <h3 className="font-semibold text-lg mb-4 text-primary-600">{t('hotDishes')}</h3>
                 <div className="space-y-3">
                   <div className="bg-white rounded-lg p-4 border">
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium">Стейк Веллингтон</h4>
+                      <h4 className="font-medium">{t('beefWellington')}</h4>
                       <span className="text-primary-600 font-semibold">€24.90</span>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">Говядина, грибы, слоёное тесто</p>
+                    <p className="text-sm text-gray-600 mb-2">{t('beefWellingtonDesc')}</p>
                     <div className="flex space-x-1">
-                      <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded">🌶️ Острое</span>
+                      <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded">{t('spicy')}</span>
                     </div>
                   </div>
                 </div>
               </div>
               
               <div className="bg-gray-50 rounded-xl p-6">
-                <h3 className="font-semibold text-lg mb-4 text-primary-600">Десерты</h3>
+                <h3 className="font-semibold text-lg mb-4 text-primary-600">{t('desserts')}</h3>
                 <div className="space-y-3">
                   <div className="bg-white rounded-lg p-4 border">
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium">Тирамису</h4>
+                      <h4 className="font-medium">{t('tiramisu')}</h4>
                       <span className="text-primary-600 font-semibold">€7.50</span>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">Маскарпоне, кофе, какао</p>
+                    <p className="text-sm text-gray-600 mb-2">{t('tiramisuDesc')}</p>
                     <div className="flex space-x-1">
-                      <span className="bg-green-100 text-green-600 text-xs px-2 py-1 rounded">🥦 Вегетарианское</span>
+                      <span className="bg-green-100 text-green-600 text-xs px-2 py-1 rounded">{t('vegetarian')}</span>
                     </div>
                   </div>
                 </div>
               </div>
               
               <div className="bg-gray-50 rounded-xl p-6">
-                <h3 className="font-semibold text-lg mb-4 text-primary-600">Напитки</h3>
+                <h3 className="font-semibold text-lg mb-4 text-primary-600">{t('drinks')}</h3>
                 <div className="space-y-3">
                   <div className="bg-white rounded-lg p-4 border">
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium">Эспрессо</h4>
+                      <h4 className="font-medium">{t('espresso')}</h4>
                       <span className="text-primary-600 font-semibold">€2.50</span>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">Арабика, двойная экстракция</p>
+                    <p className="text-sm text-gray-600 mb-2">{t('espressoDesc')}</p>
                     <div className="flex space-x-1">
-                      <span className="bg-green-100 text-green-600 text-xs px-2 py-1 rounded">🥦 Вегетарианское</span>
+                      <span className="bg-green-100 text-green-600 text-xs px-2 py-1 rounded">{t('vegetarian')}</span>
                     </div>
                   </div>
                 </div>
