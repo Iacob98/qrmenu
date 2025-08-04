@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useTranslation } from "react-i18next";
 
 interface EditFavoritesTitleModalProps {
   open: boolean;
@@ -26,6 +27,7 @@ export function EditFavoritesTitleModal({
   restaurantId,
   currentTitle,
 }: EditFavoritesTitleModalProps) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState(currentTitle);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -42,15 +44,15 @@ export function EditFavoritesTitleModal({
       queryClient.invalidateQueries({ queryKey: ["/api/restaurants", restaurantId] });
       queryClient.invalidateQueries({ queryKey: ["/api/restaurants"] });
       toast({
-        title: "Успешно!",
-        description: "Название раздела избранного обновлено",
+        title: t('success'),
+        description: t('favoritesTitleUpdated'),
       });
       onOpenChange(false);
     },
     onError: (error: any) => {
       toast({
-        title: "Ошибка",
-        description: error.message || "Не удалось обновить название",
+        title: t('error'),
+        description: error.message || t('failedToUpdateTitle'),
         variant: "destructive",
       });
     },
@@ -67,7 +69,7 @@ export function EditFavoritesTitleModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Изменить название раздела избранного</DialogTitle>
+          <DialogTitle>{t('editFavoritesTitle')}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -77,7 +79,7 @@ export function EditFavoritesTitleModal({
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Например: Хиты, Рекомендуем, Любимое..."
+              placeholder={t('favoriteTitlePlaceholder')}
               required
             />
           </div>

@@ -85,7 +85,7 @@ export function EditCategoryModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
         <DialogHeader>
-          <DialogTitle>Редактировать категорию: {category.name}</DialogTitle>
+          <DialogTitle>{t('editCategory')}: {category.name}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -95,7 +95,7 @@ export function EditCategoryModal({
               id="name"
               value={formData.name}
               onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              placeholder="Например: Супы, Горячее, Десерты"
+              placeholder={t('categoryNamePlaceholder')}
               required
             />
           </div>
@@ -132,7 +132,7 @@ export function EditCategoryModal({
               disabled={updateCategoryMutation.isPending}
               className="w-full sm:w-auto"
             >
-              {updateCategoryMutation.isPending ? "Обновление..." : "Обновить"}
+              {updateCategoryMutation.isPending ? t('updating') : t('update')}
             </Button>
           </div>
         </form>

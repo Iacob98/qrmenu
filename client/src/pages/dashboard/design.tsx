@@ -50,22 +50,23 @@ const getColorThemes = (t: (key: string) => string) => ({
   },
 });
 
-const fontOptions = [
-  { value: "Inter", label: "Inter (рекомендуется)" },
-  { value: "Roboto", label: "Roboto (классический)" },
-  { value: "Open Sans", label: "Open Sans (универсальный)" },
-  { value: "Source Sans Pro", label: "Source Sans Pro (читаемый)" },
-  { value: "Lato", label: "Lato (дружелюбный)" },
-  { value: "Nunito", label: "Nunito (современный)" },
-  { value: "PT Sans", label: "PT Sans (русский)" },
-  { value: "PT Serif", label: "PT Serif (с засечками)" },
-  { value: "Fira Sans", label: "Fira Sans (технический)" },
-  { value: "Ubuntu", label: "Ubuntu (гуманистический)" },
+const getFontOptions = (t: (key: string) => string) => [
+  { value: "Inter", label: t('interFont') },
+  { value: "Roboto", label: t('robotoFont') },
+  { value: "Open Sans", label: t('openSansFont') },
+  { value: "Source Sans Pro", label: t('sourceSansFont') },
+  { value: "Lato", label: t('latoFont') },
+  { value: "Nunito", label: t('nunitoFont') },
+  { value: "PT Sans", label: t('ptSansFont') },
+  { value: "PT Serif", label: t('ptSerifFont') },
+  { value: "Fira Sans", label: t('firaFont') },
+  { value: "Ubuntu", label: t('ubuntuFont') },
 ];
 
 export default function Design() {
   const { t } = useTranslation();
   const colorThemes = getColorThemes(t);
+  const fontOptions = getFontOptions(t);
   const [selectedRestaurant, setSelectedRestaurant] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [designSettings, setDesignSettings] = useState({
@@ -263,12 +264,12 @@ export default function Design() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Palette className="mr-2" size={20} />
-                    Цветовая схема
+                    {t('colorSchemeCard')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label>Готовые темы</Label>
+                    <Label>{t('readyThemes')}</Label>
                     <div className="grid grid-cols-2 gap-2 mt-2">
                       {Object.entries(colorThemes).map(([key, theme]) => (
                         <Button
@@ -289,7 +290,7 @@ export default function Design() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="primaryColor">Основной цвет</Label>
+                    <Label htmlFor="primaryColor">{t('primaryColor')}</Label>
                     <div className="flex items-center space-x-2 mt-1">
                       <input
                         type="color"
@@ -302,7 +303,7 @@ export default function Design() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="accentColor">Акцентный цвет</Label>
+                    <Label htmlFor="accentColor">{t('accentColor')}</Label>
                     <div className="flex items-center space-x-2 mt-1">
                       <input
                         type="color"
@@ -315,7 +316,7 @@ export default function Design() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="backgroundColor">Цвет фона</Label>
+                    <Label htmlFor="backgroundColor">{t('backgroundColor')}</Label>
                     <div className="flex items-center space-x-2 mt-1">
                       <input
                         type="color"
@@ -332,11 +333,11 @@ export default function Design() {
               {/* Typography */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Шрифт</CardTitle>
+                  <CardTitle>{t('fontCard')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label>Семейство шрифтов</Label>
+                    <Label>{t('fontFamily')}</Label>
                     <Select
                       value={designSettings.fontFamily}
                       onValueChange={(value) => setDesignSettings(prev => ({ ...prev, fontFamily: value }))}
@@ -355,7 +356,7 @@ export default function Design() {
                   </div>
                   
                   <div>
-                    <Label>Размер шрифта</Label>
+                    <Label>{t('fontSize')}</Label>
                     <Select
                       value={designSettings.fontSize}
                       onValueChange={(value) => setDesignSettings(prev => ({ ...prev, fontSize: value }))}
@@ -364,9 +365,9 @@ export default function Design() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="small">Маленький</SelectItem>
-                        <SelectItem value="medium">Средний</SelectItem>
-                        <SelectItem value="large">Большой</SelectItem>
+                        <SelectItem value="small">{t('small')}</SelectItem>
+                        <SelectItem value="medium">{t('medium')}</SelectItem>
+                        <SelectItem value="large">{t('large')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -376,11 +377,11 @@ export default function Design() {
               {/* Card Style */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Стиль карточек блюд</CardTitle>
+                  <CardTitle>{t('cardStyleCard')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label>Скругление углов</Label>
+                    <Label>{t('borderRadius')}</Label>
                     <Slider
                       value={[designSettings.cardBorderRadius]}
                       onValueChange={([value]) => setDesignSettings(prev => ({ ...prev, cardBorderRadius: value }))}
@@ -392,7 +393,7 @@ export default function Design() {
                   </div>
                   
                   <div>
-                    <Label>Отступы</Label>
+                    <Label>{t('padding')}</Label>
                     <Select
                       value={designSettings.cardSpacing}
                       onValueChange={(value) => setDesignSettings(prev => ({ ...prev, cardSpacing: value }))}
@@ -401,9 +402,9 @@ export default function Design() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="compact">Компактные</SelectItem>
-                        <SelectItem value="normal">Обычные</SelectItem>
-                        <SelectItem value="spacious">Просторные</SelectItem>
+                        <SelectItem value="compact">{t('compact')}</SelectItem>
+                        <SelectItem value="normal">{t('normal')}</SelectItem>
+                        <SelectItem value="spacious">{t('spacious')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -413,11 +414,11 @@ export default function Design() {
               {/* Layout */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Оформление</CardTitle>
+                  <CardTitle>{t('designCard')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label>Логотип ресторана</Label>
+                    <Label>{t('restaurantLogo')}</Label>
                     <Select
                       value={designSettings.logoPosition}
                       onValueChange={(value) => setDesignSettings(prev => ({ ...prev, logoPosition: value }))}
@@ -426,9 +427,9 @@ export default function Design() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="left">Слева от названия</SelectItem>
-                        <SelectItem value="center">По центру</SelectItem>
-                        <SelectItem value="hidden">Скрыть</SelectItem>
+                        <SelectItem value="left">{t('left')}</SelectItem>
+                        <SelectItem value="center">{t('center')}</SelectItem>
+                        <SelectItem value="hidden">{t('hidden')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -436,10 +437,10 @@ export default function Design() {
                   <Separator />
 
                   <div className="space-y-4">
-                    <Label className="text-sm font-medium">Позиционирование баннера</Label>
+                    <Label className="text-sm font-medium">{t('bannerPositioning')}</Label>
                     
                     <div>
-                      <Label className="text-xs">Позиция по горизонтали</Label>
+                      <Label className="text-xs">{t('horizontalPosition')}</Label>
                       <Slider
                         value={[designSettings.bannerPositionX]}
                         onValueChange={([value]) => setDesignSettings(prev => ({ ...prev, bannerPositionX: value }))}
@@ -451,7 +452,7 @@ export default function Design() {
                     </div>
 
                     <div>
-                      <Label className="text-xs">Позиция по вертикали</Label>
+                      <Label className="text-xs">{t('verticalPosition')}</Label>
                       <Slider
                         value={[designSettings.bannerPositionY]}
                         onValueChange={([value]) => setDesignSettings(prev => ({ ...prev, bannerPositionY: value }))}
@@ -466,10 +467,10 @@ export default function Design() {
                   <Separator />
 
                   <div className="space-y-4">
-                    <Label className="text-sm font-medium">Заливка баннера</Label>
+                    <Label className="text-sm font-medium">{t('bannerOverlay')}</Label>
                     
                     <div>
-                      <Label className="text-xs">Цвет заливки</Label>
+                      <Label className="text-xs">{t('overlayColor')}</Label>
                       <div className="flex items-center space-x-2 mt-1">
                         <input
                           type="color"
@@ -482,7 +483,7 @@ export default function Design() {
                     </div>
 
                     <div>
-                      <Label className="text-xs">Прозрачность заливки</Label>
+                      <Label className="text-xs">{t('overlayOpacity')}</Label>
                       <Slider
                         value={[designSettings.bannerOverlayOpacity]}
                         onValueChange={([value]) => setDesignSettings(prev => ({ ...prev, bannerOverlayOpacity: value }))}
@@ -504,7 +505,7 @@ export default function Design() {
                   className="flex-1"
                 >
                   <RotateCcw className="mr-2" size={16} />
-                  Сбросить
+                  {t('reset')}
                 </Button>
               </div>
             </div>
@@ -603,14 +604,14 @@ export default function Design() {
                   
                   {filteredDishes.length === 0 && (
                     <div className="text-center py-8 text-gray-500">
-                      <p>Добавьте блюда для предпросмотра</p>
+                      <p>{t('addDishesForPreview')}</p>
                     </div>
                   )}
                 </div>
 
                 {/* Footer */}
                 <div className="bg-gray-50 p-3 text-center text-xs text-gray-600">
-                  <p>Создано с помощью QRMenu</p>
+                  <p>{t('createdWithQRMenu')}</p>
                 </div>
               </div>
             </div>
