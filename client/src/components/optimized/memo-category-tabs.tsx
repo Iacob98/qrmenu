@@ -18,28 +18,26 @@ export const MemoCategoryTabs = memo(function CategoryTabs({
   console.log('CategoryTabs rendering with categories:', categories.length);
   
   return (
-    <div className="px-3 py-2">
-      <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+    <div className="px-4 py-4">
+      <div className="flex gap-3 overflow-x-auto overflow-y-hidden scrollbar-hide">
         {categories.map((category) => {
           const isActive = activeCategory === category.id;
           return (
-            <Button
+            <button
               key={category.id}
-              variant={isActive ? "default" : "outline"}
-              size="sm"
               onClick={() => onCategoryChange(category.id)}
               className={cn(
-                "flex-shrink-0 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap",
+                "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap border",
                 isActive 
-                  ? "bg-primary text-primary-foreground shadow-md transform scale-105" 
-                  : "bg-white text-gray-700 border-gray-300 hover:border-primary hover:text-primary"
+                  ? "bg-green-500 text-white border-green-500" 
+                  : "bg-white text-gray-700 border-gray-300"
               )}
             >
               {category.icon && (
-                <span className="mr-1.5 text-base">{category.icon}</span>
+                <span className="mr-1.5">{category.icon}</span>
               )}
               {category.name}
-            </Button>
+            </button>
           );
         })}
       </div>

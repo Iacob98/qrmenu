@@ -457,8 +457,8 @@ function PublicMenuContent() {
           </div>
         </div>
 
-        {/* Sticky Category Tabs - Mobile optimized */}
-        <div className="sticky top-[73px] md:top-[105px] z-40 bg-white border-b border-gray-100 shadow-sm">
+        {/* Category Tabs - Simple horizontal carousel */}
+        <div className="bg-white border-b border-gray-100">
           <MemoCategoryTabs
             categories={menuWithFavorites?.categories || []}
             activeCategory={selectedCategory}
