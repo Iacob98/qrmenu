@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { Utensils, Menu } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface HeaderProps {
   onShowRegister?: () => void;
@@ -11,6 +12,7 @@ interface HeaderProps {
 export function Header({ onShowRegister, onShowLogin }: HeaderProps) {
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -23,22 +25,22 @@ export function Header({ onShowRegister, onShowLogin }: HeaderProps) {
           
           <nav className="hidden md:flex space-x-8">
             <a href="#how-it-works" className="text-gray-600 hover:text-primary-600 transition-colors">
-              Как это работает
+              {t('howItWorks')}
             </a>
             <a href="#examples" className="text-gray-600 hover:text-primary-600 transition-colors">
-              Примеры
+              {t('examples')}
             </a>
             <a href="#support" className="text-gray-600 hover:text-primary-600 transition-colors">
-              Поддержка
+              {t('support')}
             </a>
           </nav>
           
           <div className="flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-4">
-                <span className="text-gray-700">Привет, {user.name || user.email}</span>
+                <span className="text-gray-700">{t('hello')}, {user.name || user.email}</span>
                 <Button variant="outline" onClick={logout}>
-                  Выйти
+                  {t('logout')}
                 </Button>
               </div>
             ) : (

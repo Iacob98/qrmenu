@@ -124,6 +124,30 @@ const resources = {
       "designSaved": "Дизайн сохранен",
       "designSaveError": "Ошибка сохранения дизайна",
 
+      // Landing page navigation
+      "howItWorks": "Как это работает",
+      "examples": "Примеры", 
+      "support": "Поддержка",
+      
+      // Landing page content
+      "heroTitle": "Онлайн-меню для вашего ресторана — за 5 минут",
+      "heroSubtitle": "Просто загрузите PDF, фото или введите текст — и мы создадим красивое меню с ИИ.",
+      "createMenu": "Создать меню",
+      "aiFeatureTitle": "ИИ в помощь",
+      "aiFeatureDesc": "Генерирует фото блюд, БЖУ и состав по PDF или фото",
+      "convenientTitle": "Удобно",
+      "convenientDesc": "Современный дизайн, легко открывается с телефона",
+      "multilingualTitle": "Многоязычность",
+      "multilingualDesc": "Интерфейс поддерживает немецкий, английский и русский языки",
+      "howItWorksTitle": "Как это работает?",
+      "step1Title": "Зарегистрируйтесь и укажите данные ресторана",
+      "step1Desc": "Название, адрес, валюта, контакт.",
+      "step2Title": "Создайте меню вручную или загрузите PDF/фото",
+      "step2Desc": "Наш ИИ сам достанет нужную информацию.",
+      "step3Title": "Получите QR-ссылку для гостей",
+      "step3Desc": "Показывайте меню на экране или на столах.",
+      "hello": "Привет",
+
       // Color themes
       "defaultTheme": "По умолчанию",
       "elegantTheme": "Элегантная",
@@ -274,6 +298,30 @@ const resources = {
       "designSaved": "Design saved",
       "designSaveError": "Design save error",
 
+      // Landing page navigation
+      "howItWorks": "How It Works",
+      "examples": "Examples",
+      "support": "Support",
+      
+      // Landing page content
+      "heroTitle": "Online menu for your restaurant — in 5 minutes",
+      "heroSubtitle": "Just upload PDF, photo or enter text — and we'll create a beautiful menu with AI.",
+      "createMenu": "Create Menu",
+      "aiFeatureTitle": "AI Assistant",
+      "aiFeatureDesc": "Generates dish photos, nutrition facts and ingredients from PDF or photo",
+      "convenientTitle": "Convenient",
+      "convenientDesc": "Modern design, easy to open from phone",
+      "multilingualTitle": "Multilingual",
+      "multilingualDesc": "Interface supports German, English and Russian languages",
+      "howItWorksTitle": "How does it work?",
+      "step1Title": "Register and add restaurant details",
+      "step1Desc": "Name, address, currency, contact.",
+      "step2Title": "Create menu manually or upload PDF/photo",
+      "step2Desc": "Our AI will extract the necessary information.",
+      "step3Title": "Get QR link for guests",
+      "step3Desc": "Show menu on screen or on tables.",
+      "hello": "Hello",
+
       // Color themes
       "defaultTheme": "Default",
       "elegantTheme": "Elegant",
@@ -423,6 +471,30 @@ const resources = {
       "resetToDefault": "Auf Standard zurücksetzen",
       "designSaved": "Design gespeichert",
       "designSaveError": "Fehler beim Speichern des Designs",
+
+      // Landing page navigation
+      "howItWorks": "Wie es funktioniert",
+      "examples": "Beispiele",
+      "support": "Support",
+      
+      // Landing page content
+      "heroTitle": "Online-Menü für Ihr Restaurant — in 5 Minuten",
+      "heroSubtitle": "Laden Sie einfach PDF, Foto hoch oder geben Sie Text ein — und wir erstellen ein schönes Menü mit KI.",
+      "createMenu": "Menü erstellen",
+      "aiFeatureTitle": "KI-Assistent",
+      "aiFeatureDesc": "Generiert Gerichtfotos, Nährwerte und Zutaten aus PDF oder Foto",
+      "convenientTitle": "Bequem",
+      "convenientDesc": "Modernes Design, einfach vom Handy zu öffnen",
+      "multilingualTitle": "Mehrsprachig",
+      "multilingualDesc": "Benutzeroberfläche unterstützt Deutsch, Englisch und Russisch",
+      "howItWorksTitle": "Wie funktioniert es?",
+      "step1Title": "Registrieren Sie sich und geben Sie Restaurant-Details ein",
+      "step1Desc": "Name, Adresse, Währung, Kontakt.",
+      "step2Title": "Menü manuell erstellen oder PDF/Foto hochladen",
+      "step2Desc": "Unsere KI extrahiert die notwendigen Informationen.",
+      "step3Title": "QR-Link für Gäste erhalten",
+      "step3Desc": "Menü auf Bildschirm oder auf Tischen anzeigen.",
+      "hello": "Hallo",
 
       // Color themes
       "defaultTheme": "Standard",
