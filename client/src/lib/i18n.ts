@@ -147,6 +147,29 @@ const resources = {
       "step3Title": "Получите QR-ссылку для гостей",
       "step3Desc": "Показывайте меню на экране или на столах.",
       "hello": "Привет",
+      
+      // Auth buttons
+      "loginButton": "Вход", 
+      "registerButton": "Регистрация",
+      "startNow": "Начать сейчас",
+      
+      // AI page
+      "foundDishes": "Найденные блюда",
+      "dishesFound": "найдено блюд",
+      
+      // QR instructions
+      "qrInstructions1Title": "На столах",
+      "qrInstructions1Desc": "Распечатайте QR-код и разместите на каждом столике",
+      "qrInstructions2Title": "В витрине", 
+      "qrInstructions2Desc": "Разместите на входе или в витрине для привлечения гостей",
+      "qrInstructions3Title": "В соцсетях",
+      "qrInstructions3Desc": "Добавьте в посты Instagram, Facebook или на сайт",
+      "qrInstructions4Title": "На визитках",
+      "qrInstructions4Desc": "Добавьте на визитки или рекламные материалы",
+      "additionalFunctions": "Дополнительные функции будут добавлены в следующих версиях:",
+      "qrColorCustomization": "Настройка цвета и стиля QR-кода",
+      "logoIntegration": "Интеграция логотипа в QR-код",
+      "analytics": "Аналитика переходов",
 
       // Color themes
       "defaultTheme": "По умолчанию",
@@ -163,6 +186,11 @@ const resources = {
       "dishCreated": "Блюдо создано",
       "dishUpdated": "Блюдо обновлено",
       "updateDishError": "Ошибка обновления блюда",
+      
+      // Auth page additional keys
+      "loggingIn": "Вход...",
+      "continue": "Продолжить",
+      "completeRegistration": "Завершить регистрацию",
       
       // Form labels and placeholders
       "categoryNamePlaceholder": "Название категории",
@@ -321,6 +349,29 @@ const resources = {
       "step3Title": "Get QR link for guests",
       "step3Desc": "Show menu on screen or on tables.",
       "hello": "Hello",
+      
+      // Auth buttons
+      "loginButton": "Login",
+      "registerButton": "Register", 
+      "startNow": "Start Now",
+      
+      // AI page
+      "foundDishes": "Found Dishes",
+      "dishesFound": "dishes found",
+      
+      // QR instructions
+      "qrInstructions1Title": "On Tables",
+      "qrInstructions1Desc": "Print QR code and place on each table",
+      "qrInstructions2Title": "In Showcase",
+      "qrInstructions2Desc": "Place at entrance or in showcase to attract guests",
+      "qrInstructions3Title": "On Social Media", 
+      "qrInstructions3Desc": "Add to Instagram, Facebook posts or website",
+      "qrInstructions4Title": "On Business Cards",
+      "qrInstructions4Desc": "Add to business cards or promotional materials",
+      "additionalFunctions": "Additional features will be added in future versions:",
+      "qrColorCustomization": "QR code color and style customization",
+      "logoIntegration": "Logo integration in QR code",
+      "analytics": "Click analytics",
 
       // Color themes
       "defaultTheme": "Default",
@@ -495,6 +546,29 @@ const resources = {
       "step3Title": "QR-Link für Gäste erhalten",
       "step3Desc": "Menü auf Bildschirm oder auf Tischen anzeigen.",
       "hello": "Hallo",
+      
+      // Auth buttons
+      "loginButton": "Anmelden",
+      "registerButton": "Registrieren",
+      "startNow": "Jetzt starten",
+      
+      // AI page  
+      "foundDishes": "Gefundene Gerichte",
+      "dishesFound": "Gerichte gefunden",
+      
+      // QR instructions
+      "qrInstructions1Title": "Auf Tischen",
+      "qrInstructions1Desc": "QR-Code drucken und auf jeden Tisch legen",
+      "qrInstructions2Title": "Im Schaufenster",
+      "qrInstructions2Desc": "Am Eingang oder im Schaufenster platzieren, um Gäste anzulocken",
+      "qrInstructions3Title": "In sozialen Medien",
+      "qrInstructions3Desc": "Zu Instagram-, Facebook-Posts oder Website hinzufügen",
+      "qrInstructions4Title": "Auf Visitenkarten", 
+      "qrInstructions4Desc": "Zu Visitenkarten oder Werbematerialien hinzufügen",
+      "additionalFunctions": "Zusätzliche Funktionen werden in zukünftigen Versionen hinzugefügt:",
+      "qrColorCustomization": "QR-Code-Farb- und Stilanpassung",
+      "logoIntegration": "Logo-Integration in QR-Code",
+      "analytics": "Klick-Analytik",
 
       // Color themes
       "defaultTheme": "Standard",
@@ -523,6 +597,11 @@ const resources = {
       "saving": "Speichern...",
       "creating": "Erstelle...",
       "updating": "Aktualisiere...",
+      
+      // Auth page additional keys
+      "loggingIn": "Anmelden...",
+      "continue": "Weiter",
+      "completeRegistration": "Registrierung abschließen",
     }
   }
 };

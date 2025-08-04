@@ -439,7 +439,7 @@ export default function AIGeneration() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle>Найденные блюда</CardTitle>
+                      <CardTitle>{t('foundDishes')}</CardTitle>
                       {generatedCategories.length > 0 && (
                         <p className="text-sm text-gray-600 mt-1">
                           Категории: {generatedCategories.map(cat => cat.icon ? `${cat.icon} ${cat.name}` : cat.name).join(', ')}

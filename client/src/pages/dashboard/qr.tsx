@@ -313,9 +313,9 @@ export default function QRPage() {
                           1
                         </div>
                         <div>
-                          <h4 className="font-medium">На столах</h4>
+                          <h4 className="font-medium">{t('qrInstructions1Title')}</h4>
                           <p className="text-gray-600 text-sm">
-                            Распечатайте QR-код и разместите на каждом столике
+                            {t('qrInstructions1Desc')}
                           </p>
                         </div>
                       </div>
@@ -325,9 +325,9 @@ export default function QRPage() {
                           2
                         </div>
                         <div>
-                          <h4 className="font-medium">В витрине</h4>
+                          <h4 className="font-medium">{t('qrInstructions2Title')}</h4>
                           <p className="text-gray-600 text-sm">
-                            Разместите на входе или в витрине для привлечения гостей
+                            {t('qrInstructions2Desc')}
                           </p>
                         </div>
                       </div>
@@ -337,9 +337,9 @@ export default function QRPage() {
                           3
                         </div>
                         <div>
-                          <h4 className="font-medium">В соцсетях</h4>
+                          <h4 className="font-medium">{t('qrInstructions3Title')}</h4>
                           <p className="text-gray-600 text-sm">
-                            Добавьте в посты Instagram, Facebook или на сайт
+                            {t('qrInstructions3Desc')}
                           </p>
                         </div>
                       </div>
@@ -349,9 +349,9 @@ export default function QRPage() {
                           4
                         </div>
                         <div>
-                          <h4 className="font-medium">На визитках</h4>
+                          <h4 className="font-medium">{t('qrInstructions4Title')}</h4>
                           <p className="text-gray-600 text-sm">
-                            Добавьте на визитки или рекламные материалы
+                            {t('qrInstructions4Desc')}
                           </p>
                         </div>
                       </div>
@@ -369,13 +369,12 @@ export default function QRPage() {
               <CardContent>
                 <div className="text-center">
                   <p className="text-gray-600 mb-4">
-                    Дополнительные функции будут добавлены в следующих версиях:
+                    {t('additionalFunctions')}
                   </p>
                   <ul className="text-sm text-gray-500 space-y-1">
-                    <li>• Настройка цвета и стиля QR-кода</li>
-                    <li>• Добавление логотипа в центр QR-кода</li>
-                    <li>• Аналитика сканирований</li>
-                    <li>• Несколько QR-кодов для разных локаций</li>
+                    <li>• {t('qrColorCustomization')}</li>
+                    <li>• {t('logoIntegration')}</li>
+                    <li>• {t('analytics')}</li>
                   </ul>
                 </div>
               </CardContent>

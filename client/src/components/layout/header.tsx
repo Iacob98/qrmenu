@@ -46,10 +46,10 @@ export function Header({ onShowRegister, onShowLogin }: HeaderProps) {
             ) : (
               <>
                 <Button variant="ghost" onClick={onShowLogin}>
-                  Вход
+                  {t('loginButton')}
                 </Button>
                 <Button onClick={onShowRegister}>
-                  Зарегистрироваться
+                  {t('registerButton')}
                 </Button>
               </>
             )}
