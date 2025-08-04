@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Sidebar } from "@/components/layout/sidebar";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import { Copy, Check, ExternalLink, Download, QrCode } from "lucide-react";
 import type { Restaurant } from "@shared/schema";
 
@@ -18,6 +19,7 @@ export default function QRPage() {
   const [selectedRestaurant, setSelectedRestaurant] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   // Get user restaurants
   const { data: restaurants, isLoading: restaurantsLoading } = useQuery({
@@ -50,8 +52,8 @@ export default function QRPage() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
     toast({
-      title: "Ссылка скопирована",
-      description: "Публичная ссылка на меню скопирована в буфер обмена",
+      title: t('linkCopied'),
+      description: t('menuLinkCopied'),
     });
   };
 
@@ -83,8 +85,8 @@ export default function QRPage() {
     }
 
     toast({
-      title: "QR-код загружен",
-      description: `Файл ${filename} сохранён`,
+      title: t('qrDownloaded'),
+      description: `${t('fileSaved')}: ${filename}`,
     });
   };
 
@@ -145,8 +147,8 @@ export default function QRPage() {
             ${qrData.qrCodeSVG}
           </div>
           <div class="instruction">
-            Отсканируйте QR-код<br>
-            чтобы открыть меню
+            ${t('scanQRCode')}<br>
+            ${t('toOpenMenu')}
           </div>
           <div class="url">${qrData.url}</div>
         </div>
@@ -179,8 +181,8 @@ export default function QRPage() {
         <Sidebar />
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center">
-            <h2 className="text-xl lg:text-2xl font-bold mb-4">Выберите ресторан</h2>
-            <p className="text-gray-600">Для получения QR-кода выберите ресторан</p>
+            <h2 className="text-xl lg:text-2xl font-bold mb-4">{t('selectRestaurant')}</h2>
+            <p className="text-gray-600">{t('selectRestaurantForQR')}</p>
           </div>
         </div>
       </div>
@@ -196,8 +198,8 @@ export default function QRPage() {
         <header className="bg-white shadow-sm border-b">
           <div className="px-4 lg:px-6 py-4">
             <div className="pl-16 lg:pl-0"> {/* Space for mobile menu button */}
-              <h1 className="text-xl lg:text-2xl font-bold text-gray-900">QR и Ссылки</h1>
-              <p className="text-gray-600">Поделитесь своим меню с гостями</p>
+              <h1 className="text-xl lg:text-2xl font-bold text-gray-900">{t('qrPageTitle')}</h1>
+              <p className="text-gray-600">{t('shareMenuWithGuests')}</p>
             </div>
           </div>
         </header>
@@ -207,11 +209,11 @@ export default function QRPage() {
             {/* Restaurant Info */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg lg:text-xl">Публичная ссылка вашего меню</CardTitle>
+                <CardTitle className="text-lg lg:text-xl">{t('publicMenuLink')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 mb-4 text-sm lg:text-base">
-                  Это ссылка на онлайн-меню, которую видят ваши гости. Вы можете отправлять её или размещать в соцсетях.
+                  {t('publicMenuDescription')}
                 </p>
                 
                 {qrLoading ? (
@@ -233,20 +235,20 @@ export default function QRPage() {
                         className="whitespace-nowrap"
                       >
                         {copied ? <Check size={16} /> : <Copy size={16} />}
-                        {copied ? "Скопировано" : "Скопировать"}
+                        {copied ? t('copied') : t('copyLink')}
                       </Button>
                       <Button
                         variant="outline"
                         onClick={openMenu}
                       >
                         <ExternalLink size={16} className="mr-1" />
-                        Открыть меню
+                        {t('openMenu')}
                       </Button>
                     </div>
                   </div>
                 ) : (
                   <div className="text-red-600">
-                    Ошибка загрузки QR-кода
+                    {t('qrLoadError')}
                   </div>
                 )}
               </CardContent>

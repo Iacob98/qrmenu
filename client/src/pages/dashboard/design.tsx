@@ -11,12 +11,13 @@ import { DishCard } from "@/components/menu/dish-card";
 import { Separator } from "@/components/ui/separator";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import { Palette, RotateCcw, Save, ExternalLink } from "lucide-react";
 import type { RestaurantWithCategories } from "@shared/schema";
 
-const colorThemes = {
+const getColorThemes = (t: (key: string) => string) => ({
   default: {
-    name: "По умолчанию",
+    name: t('defaultTheme'),
     primary: "#22c55e",
     accent: "#f59e0b",
     background: "#ffffff",
@@ -24,7 +25,7 @@ const colorThemes = {
     text: "#111827",
   },
   elegant: {
-    name: "Элегантный",
+    name: t('elegantTheme'),
     primary: "#6366f1",
     accent: "#ec4899", 
     background: "#f8fafc",
@@ -32,7 +33,7 @@ const colorThemes = {
     text: "#1e293b",
   },
   warm: {
-    name: "Тёплый",
+    name: t('warmTheme'),
     primary: "#f59e0b",
     accent: "#dc2626",
     background: "#fef3c7",
@@ -40,14 +41,14 @@ const colorThemes = {
     text: "#92400e",
   },
   dark: {
-    name: "Тёмный",
+    name: t('darkTheme'),
     primary: "#10b981",
     accent: "#f59e0b",
     background: "#1f2937",
     cardBg: "#374151",
     text: "#f9fafb",
   },
-};
+});
 
 const fontOptions = [
   { value: "Inter", label: "Inter (рекомендуется)" },
@@ -63,6 +64,8 @@ const fontOptions = [
 ];
 
 export default function Design() {
+  const { t } = useTranslation();
+  const colorThemes = getColorThemes(t);
   const [selectedRestaurant, setSelectedRestaurant] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [designSettings, setDesignSettings] = useState({
@@ -123,13 +126,13 @@ export default function Design() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/restaurants", selectedRestaurant] });
       toast({
-        title: "Дизайн сохранён",
-        description: "Изменения применены к вашему меню",
+        title: t('designSaved'),
+        description: t('designApplied'),
       });
     },
     onError: (error) => {
       toast({
-        title: "Ошибка",
+        title: t('error'),
         description: error.message,
         variant: "destructive",
       });
@@ -210,8 +213,8 @@ export default function Design() {
         <Sidebar />
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center">
-            <h2 className="text-xl lg:text-2xl font-bold mb-4">Выберите ресторан</h2>
-            <p className="text-gray-600">Для настройки дизайна выберите ресторан</p>
+            <h2 className="text-xl lg:text-2xl font-bold mb-4">{t('selectRestaurant')}</h2>
+            <p className="text-gray-600">{t('noRestaurantSelected')}</p>
           </div>
         </div>
       </div>
@@ -231,19 +234,19 @@ export default function Design() {
             <div className="pl-16 lg:pl-0"> {/* Space for mobile menu button */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Редактор дизайна меню</h1>
-                  <p className="text-gray-600">Настройте внешний вид вашего меню</p>
+                  <h1 className="text-xl lg:text-2xl font-bold text-gray-900">{t('designTitle')}</h1>
+                  <p className="text-gray-600">{t('colorScheme')}</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Button variant="outline" onClick={handlePreview} className="w-full sm:w-auto">
                     <ExternalLink className="mr-2" size={16} />
-                    <span className="hidden sm:inline">Предпросмотр в новой вкладке</span>
-                    <span className="sm:hidden">Предпросмотр</span>
+                    <span className="hidden sm:inline">{t('preview')}</span>
+                    <span className="sm:hidden">{t('preview')}</span>
                   </Button>
                   <Button onClick={() => saveDesignMutation.mutate()} className="w-full sm:w-auto">
                     <Save className="mr-2" size={16} />
-                    <span className="hidden sm:inline">Сохранить стиль</span>
-                    <span className="sm:hidden">Сохранить</span>
+                    <span className="hidden sm:inline">{t('saveDesign')}</span>
+                    <span className="sm:hidden">{t('saveChanges')}</span>
                   </Button>
                 </div>
               </div>

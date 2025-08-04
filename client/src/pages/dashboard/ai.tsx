@@ -9,6 +9,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import { FileText, Camera, PenTool, Upload, Check, Settings, Loader2 } from "lucide-react";
 import type { Restaurant } from "@shared/schema";
 
@@ -46,6 +47,7 @@ export default function AIGeneration() {
   const [selectedDishes, setSelectedDishes] = useState<Set<number>>(new Set());
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   // Get user restaurants
   const { data: restaurants, isLoading: restaurantsLoading } = useQuery({
@@ -317,16 +319,16 @@ export default function AIGeneration() {
             <div className="pl-16 lg:pl-0"> {/* Space for mobile menu button */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <h1 className="text-xl lg:text-2xl font-bold text-gray-900">ИИ генерация меню</h1>
+                  <h1 className="text-xl lg:text-2xl font-bold text-gray-900">{t('aiTitle')}</h1>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
                     {hasAIToken ? (
-                      <span className="text-green-600">ИИ-токен активен ✅</span>
+                      <span className="text-green-600">{t('aiTokenActive')} ✅</span>
                     ) : (
-                      <span className="text-red-600">ИИ недоступен ❌</span>
+                      <span className="text-red-600">{t('aiNotAvailable')} ❌</span>
                     )}
                     <Button variant="link" size="sm" className="p-0 h-auto text-left sm:text-center">
                       <Settings size={16} className="mr-1" />
-                      Изменить токен
+                      {t('changeToken')}
                     </Button>
                   </div>
                 </div>
@@ -339,12 +341,12 @@ export default function AIGeneration() {
           {!hasAIToken ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <h3 className="text-lg font-semibold mb-2">ИИ-токен не настроен</h3>
+                <h3 className="text-lg font-semibold mb-2">{t('aiTokenNotConfigured')}</h3>
                 <p className="text-gray-600 mb-4">
-                  Для использования ИИ-генерации необходимо добавить токен в настройках ресторана
+                  {t('aiTokenRequired')}
                 </p>
                 <Button onClick={() => window.location.href = "/dashboard/settings"}>
-                  Перейти в настройки
+                  {t('goToSettings')}
                 </Button>
               </CardContent>
             </Card>

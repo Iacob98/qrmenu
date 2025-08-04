@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
 import { Copy, Check, AlertTriangle, Upload, X, Image } from "lucide-react";
 import { FileUpload } from "@/components/ui/file-upload";
+import { useTranslation } from "react-i18next";
 import type { Restaurant } from "@shared/schema";
 
 export default function Settings() {
@@ -39,6 +40,7 @@ export default function Settings() {
   const { toast } = useToast();
   const { user, logout } = useAuth();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   // Get user restaurants
   const { data: restaurants, isLoading: restaurantsLoading } = useQuery({
@@ -213,8 +215,8 @@ export default function Settings() {
         <header className="bg-white shadow-sm border-b">
           <div className="px-4 lg:px-6 py-4">
             <div className="pl-16 lg:pl-0"> {/* Space for mobile menu button */}
-              <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Настройки</h1>
-              <p className="text-gray-600">Управление настройками ресторана и профиля</p>
+              <h1 className="text-xl lg:text-2xl font-bold text-gray-900">{t('settingsTitle')}</h1>
+              <p className="text-gray-600">{t('restaurantSettings')}</p>
             </div>
           </div>
         </header>
@@ -222,15 +224,15 @@ export default function Settings() {
         <div className="p-4 lg:p-6">
           <Tabs defaultValue="restaurant" className="space-y-6">
             <TabsList className="w-full sm:w-auto">
-              <TabsTrigger value="restaurant" className="flex-1 sm:flex-none">Ресторан</TabsTrigger>
-              <TabsTrigger value="profile" className="flex-1 sm:flex-none">Профиль</TabsTrigger>
+              <TabsTrigger value="restaurant" className="flex-1 sm:flex-none">{t('restaurantSettings')}</TabsTrigger>
+              <TabsTrigger value="profile" className="flex-1 sm:flex-none">{t('profileSettings')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="restaurant" className="space-y-6">
               {!restaurant ? (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <p className="text-gray-600">Выберите ресторан для настройки</p>
+                    <p className="text-gray-600">{t('selectRestaurant')}</p>
                   </CardContent>
                 </Card>
               ) : (
@@ -238,13 +240,13 @@ export default function Settings() {
                   {/* Basic Info */}
                   <Card>
                     <CardHeader>
-                      <CardTitle>Основная информация</CardTitle>
+                      <CardTitle>{t('restaurantSettings')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <form onSubmit={handleRestaurantSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                           <div>
-                            <Label htmlFor="name">🏠 Название ресторана</Label>
+                            <Label htmlFor="name">🏠 {t('restaurantNameSetting')}</Label>
                             <Input
                               id="name"
                               value={restaurantForm.name}
@@ -253,7 +255,7 @@ export default function Settings() {
                             />
                           </div>
                           <div>
-                            <Label htmlFor="city">🌍 Город</Label>
+                            <Label htmlFor="city">🌍 {t('citySetting')}</Label>
                             <Input
                               id="city"
                               value={restaurantForm.city}
@@ -263,7 +265,7 @@ export default function Settings() {
                         </div>
                         
                         <div>
-                          <Label htmlFor="phone">📞 Контактный телефон</Label>
+                          <Label htmlFor="phone">📞 {t('phoneSetting')}</Label>
                           <Input
                             id="phone"
                             type="tel"
@@ -271,7 +273,7 @@ export default function Settings() {
                             onChange={(e) => setRestaurantForm(prev => ({ ...prev, phone: e.target.value }))}
                           />
                           <p className="text-sm text-gray-500 mt-1">
-                            Отображается в футере меню
+                            {t('displayedInMenuFooter')}
                           </p>
                         </div>
 
@@ -281,7 +283,7 @@ export default function Settings() {
                           type="submit" 
                           disabled={updateRestaurantMutation.isPending}
                         >
-                          {updateRestaurantMutation.isPending ? "Сохранение..." : "Сохранить изменения"}
+                          {updateRestaurantMutation.isPending ? t('validating') : t('saveChanges')}
                         </Button>
                       </form>
                     </CardContent>
@@ -290,13 +292,13 @@ export default function Settings() {
                   {/* Visual Branding */}
                   <Card>
                     <CardHeader>
-                      <CardTitle>Визуальное оформление</CardTitle>
+                      <CardTitle>{t('logo')} и {t('banner')}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
                       {/* Logo Section */}
                       <div>
                         <FileUpload
-                          label="🏷️ Логотип ресторана"
+                          label={`🏷️ ${t('logo')}`}
                           value={restaurantForm.logo}
                           onChange={(url) => setRestaurantForm(prev => ({ ...prev, logo: url }))}
                           endpoint="logo"
@@ -310,7 +312,7 @@ export default function Settings() {
                       {/* Banner Section */}
                       <div>
                         <FileUpload
-                          label="🖼️ Баннер ресторана"
+                          label={`🖼️ ${t('banner')}`}
                           value={restaurantForm.banner}
                           onChange={(url) => setRestaurantForm(prev => ({ ...prev, banner: url }))}
                           endpoint="banner"
@@ -327,7 +329,7 @@ export default function Settings() {
                         disabled={updateRestaurantMutation.isPending}
                         className="w-full mt-4"
                       >
-                        {updateRestaurantMutation.isPending ? "Сохранение..." : "Сохранить изменения"}
+                        {updateRestaurantMutation.isPending ? t('validating') : t('saveChanges')}
                       </Button>
                     </CardContent>
                   </Card>
@@ -335,12 +337,12 @@ export default function Settings() {
                   {/* Currency and Language */}
                   <Card>
                     <CardHeader>
-                      <CardTitle>Валюта и язык</CardTitle>
+                      <CardTitle>{t('currencySetting')} и {t('languageSetting')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="currency">💱 Валюта</Label>
+                          <Label htmlFor="currency">💱 {t('currencySetting')}</Label>
                           <Select
                             value={restaurantForm.currency}
                             onValueChange={(value) => setRestaurantForm(prev => ({ ...prev, currency: value }))}
@@ -358,7 +360,7 @@ export default function Settings() {
                         </div>
                         
                         <div>
-                          <Label htmlFor="language">🌐 Язык меню</Label>
+                          <Label htmlFor="language">🌐 {t('languageSetting')}</Label>
                           <Select
                             value={restaurantForm.language}
                             onValueChange={(value) => setRestaurantForm(prev => ({ ...prev, language: value }))}
