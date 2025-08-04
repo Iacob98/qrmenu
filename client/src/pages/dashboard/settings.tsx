@@ -370,6 +370,8 @@ export default function Settings() {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="ru">🇷🇺 Русский</SelectItem>
+                              <SelectItem value="en">🇺🇸 English</SelectItem>
+                              <SelectItem value="de">🇩🇪 Deutsch</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -458,7 +460,7 @@ export default function Settings() {
 
                       {restaurantForm.aiProvider === "openrouter" && (
                         <div>
-                          <Label htmlFor="aiModel">🎯 Модель AI</Label>
+                          <Label htmlFor="aiModel">🎯 {t('aiModel')}</Label>
                           <Input
                             id="aiModel"
                             value={restaurantForm.aiModel}

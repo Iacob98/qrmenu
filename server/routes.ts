@@ -766,22 +766,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[AI Description] Improving description for dish: ${dishName}`);
       const aiService = createAIService(apiKey, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
       
-      // Create a prompt for improving the description
-      const prompt = `Улучши описание этого блюда для ресторанного меню. Сделай его более аппетитным и привлекательным, но кратким и информативным.
+      // Get restaurant language or default to Russian
+      const language = restaurant.language || 'ru';
+      
+      // Create language-specific prompts
+      const prompts = {
+        ru: `Улучши описание этого блюда для ресторанного меню. Сделай его более аппетитным и привлекательным, но кратким и информативным.
 
 Название блюда: ${dishName}
 Текущее описание: ${currentDescription || "Отсутствует"}
 Ингредиенты: ${ingredients ? ingredients.join(", ") : "Не указаны"}
 Теги: ${tags ? tags.join(", ") : "Не указаны"}
 
-Напиши новое описание на том же языке, что и название блюда. Описание должно быть:
+Напиши новое описание на русском языке. Описание должно быть:
 - Аппетитным и привлекательным
 - Кратким (1-2 предложения)
 - Информативным о вкусе и приготовлении
 - Без лишних прилагательных
 
-Верни только улучшенное описание без дополнительного текста.`;
+Верни только улучшенное описание без дополнительного текста.`,
 
+        en: `Improve this dish description for a restaurant menu. Make it more appetizing and attractive, but concise and informative.
+
+Dish name: ${dishName}
+Current description: ${currentDescription || "Not provided"}
+Ingredients: ${ingredients ? ingredients.join(", ") : "Not specified"}
+Tags: ${tags ? tags.join(", ") : "Not specified"}
+
+Write a new description in English. The description should be:
+- Appetizing and attractive
+- Concise (1-2 sentences)
+- Informative about taste and preparation
+- Without excessive adjectives
+
+Return only the improved description without additional text.`,
+
+        de: `Verbessere diese Gerichtsbeschreibung für eine Restaurantkarte. Mache sie appetitlicher und attraktiver, aber prägnant und informativ.
+
+Gericht: ${dishName}
+Aktuelle Beschreibung: ${currentDescription || "Nicht angegeben"}
+Zutaten: ${ingredients ? ingredients.join(", ") : "Nicht angegeben"}
+Tags: ${tags ? tags.join(", ") : "Nicht angegeben"}
+
+Schreibe eine neue Beschreibung auf Deutsch. Die Beschreibung sollte:
+- Appetitlich und attraktiv sein
+- Prägnant (1-2 Sätze)
+- Informativ über Geschmack und Zubereitung
+- Ohne übermäßige Adjektive
+
+Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
+      };
+      
+      const prompt = prompts[language] || prompts.ru;
       const improvedDescription = await aiService.improveText(prompt);
       
       console.log(`[AI Description] Improved successfully`);

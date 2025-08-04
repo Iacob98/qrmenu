@@ -228,6 +228,8 @@ const resources = {
       "openrouterToken": "Токен OpenRouter для генерации меню",
       "replicateToken": "Токен Replicate для всех функций ИИ",
       "emailInstructions": "Мы отправим инструкции на ваш email",
+      "languageSetting": "Язык меню",
+      "aiModel": "Модель AI",
 
       // Color themes
       "defaultTheme": "По умолчанию",
@@ -488,6 +490,8 @@ const resources = {
       "openrouterToken": "OpenRouter token for menu generation",
       "replicateToken": "Replicate token for all AI functions",
       "emailInstructions": "We will send instructions to your email",
+      "languageSetting": "Menu Language",
+      "aiModel": "AI Model",
 
       // Color themes
       "defaultTheme": "Default",
@@ -743,6 +747,8 @@ const resources = {
       "openrouterToken": "OpenRouter-Token für Menügenerierung",
       "replicateToken": "Replicate-Token für alle KI-Funktionen",
       "emailInstructions": "Wir senden Anweisungen an Ihre E-Mail",
+      "languageSetting": "Menü-Sprache",
+      "aiModel": "KI-Modell",
 
       // Color themes
       "defaultTheme": "Standard",
