@@ -11,6 +11,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { FileText, Camera, PenTool, Upload, Check, Settings, Loader2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 import type { Restaurant } from "@shared/schema";
 
 interface AIGeneratedDish {
@@ -45,6 +46,8 @@ export default function AIGeneration() {
   const [generatedDishes, setGeneratedDishes] = useState<AIGeneratedDish[]>([]);
   const [generatedCategories, setGeneratedCategories] = useState<AIGeneratedCategory[]>([]);
   const [selectedDishes, setSelectedDishes] = useState<Set<number>>(new Set());
+  const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
+  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
@@ -137,7 +140,7 @@ export default function AIGeneration() {
         return apiRequest("POST", `/api/categories/${categoryId}/dishes`, {
           name: dish.name,
           description: dish.description,
-          price: dish.price.toString(),
+          price: (dish.price || 0).toString(),
           ingredients: dish.ingredients,
           tags: dish.tags,
           nutrition: dish.nutrition,
@@ -211,60 +214,93 @@ export default function AIGeneration() {
         return;
       }
 
-      // For photos, process multiple files
+      // For photos, process multiple files with progress tracking
       let allDishes: any[] = [];
+      let allCategories: any[] = [];
       let processedCount = 0;
       
+      setIsUploading(true);
+      setUploadProgress({});
+      
       toast({
-        title: "Анализ начат",
-        description: `Обрабатываем ${files.length} фото...`,
+        title: t('analysisStarted'),
+        description: `${t('processingPhotos')}: ${files.length}`,
       });
 
-      for (const file of files) {
-        const reader = new FileReader();
-        reader.onload = async () => {
-          try {
-            const base64 = (reader.result as string).split(',')[1];
-            const response = await apiRequest("POST", '/api/ai/analyze-photo', {
-              restaurantId: selectedRestaurant,
-              base64Image: base64,
-            });
-            const data: AIMenuResult = await response.json();
-            
-            allDishes = [...allDishes, ...(data.dishes || [])];
-            processedCount++;
-            
-            if (processedCount === files.length) {
-              // Remove duplicate dishes by name
-              const uniqueDishes = allDishes.filter((dish, index, self) => 
-                index === self.findIndex(d => d.name === dish.name)
-              );
+      const processFile = async (file: File, index: number) => {
+        return new Promise<void>((resolve, reject) => {
+          const reader = new FileReader();
+          
+          reader.onprogress = (event) => {
+            if (event.lengthComputable) {
+              const progress = Math.round((event.loaded / event.total) * 50); // 50% for file reading
+              setUploadProgress(prev => ({ ...prev, [`file-${index}`]: progress }));
+            }
+          };
+          
+          reader.onload = async () => {
+            try {
+              // Set progress to 50% (file read complete)
+              setUploadProgress(prev => ({ ...prev, [`file-${index}`]: 50 }));
               
-              setGeneratedDishes(uniqueDishes);
-              // For photos, we'll collect categories from all analyzed photos
-              setGeneratedCategories([]); // Categories from multiple photos might be inconsistent
-              toast({
-                title: "Анализ фото завершён",
-                description: `Найдено ${uniqueDishes.length} уникальных блюд из ${files.length} фото`,
+              const base64 = (reader.result as string).split(',')[1];
+              const response = await apiRequest("POST", '/api/ai/analyze-photo', {
+                restaurantId: selectedRestaurant,
+                base64Image: base64,
               });
+              const data: AIMenuResult = await response.json();
+              
+              // Set progress to 100% (analysis complete)
+              setUploadProgress(prev => ({ ...prev, [`file-${index}`]: 100 }));
+              
+              allDishes = [...allDishes, ...(data.dishes || [])];
+              allCategories = [...allCategories, ...(data.categories || [])];
+              processedCount++;
+              
+              if (processedCount === files.length) {
+                // Remove duplicate dishes by name
+                const uniqueDishes = allDishes.filter((dish, index, self) => 
+                  index === self.findIndex(d => d.name === dish.name)
+                );
+                const uniqueCategories = allCategories.filter((cat, index, self) => 
+                  index === self.findIndex(c => c.name === cat.name)
+                );
+                
+                setGeneratedDishes(uniqueDishes);
+                setGeneratedCategories(uniqueCategories);
+                setIsUploading(false);
+                setUploadProgress({});
+                
+                toast({
+                  title: t('analysisCompleted'),
+                  description: `${t('foundDishes')}: ${uniqueDishes.length}, ${t('foundCategories')}: ${uniqueCategories.length}`,
+                });
+              }
+              resolve();
+            } catch (error: any) {
+              setUploadProgress(prev => ({ ...prev, [`file-${index}`]: -1 })); // Error state
+              reject(error);
             }
-          } catch (error: any) {
-            processedCount++;
-            toast({
-              title: "Ошибка анализа фото",
-              description: `${file.name}: ${error.message}`,
-              variant: "destructive",
-            });
-            
-            if (processedCount === files.length && allDishes.length > 0) {
-              const uniqueDishes = allDishes.filter((dish, index, self) => 
-                index === self.findIndex(d => d.name === dish.name)
-              );
-              setGeneratedDishes(uniqueDishes);
-            }
-          }
-        };
-        reader.readAsDataURL(file);
+          };
+          
+          reader.onerror = () => {
+            setUploadProgress(prev => ({ ...prev, [`file-${index}`]: -1 }));
+            reject(new Error('File reading failed'));
+          };
+          
+          reader.readAsDataURL(file);
+        });
+      };
+
+      try {
+        await Promise.all(files.map((file, index) => processFile(file, index)));
+      } catch (error: any) {
+        setIsUploading(false);
+        toast({
+          title: t('analysisError'),
+          description: error.message,
+          variant: "destructive", 
+        });
       }
     };
     
@@ -394,14 +430,50 @@ export default function AIGeneration() {
                       <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                         <Camera className="mx-auto text-4xl text-gray-400 mb-4" size={64} />
                         <h3 className="text-lg font-medium text-gray-900 mb-2">
-                          Сфотографируйте меню
+                          {t('photoUploadTitle')}
                         </h3>
                         <p className="text-gray-600 mb-4">
-                          Загрузите одно или несколько фото меню — мы извлечём все блюда и их описания
+                          {t('photoUploadDesc')}
                         </p>
-                        <Button onClick={() => handleFileUpload('photo')}>
-                          <Upload className="mr-2" size={16} />
-                          Загрузить фото (можно несколько)
+                        
+                        {/* Progress indicators */}
+                        {isUploading && (
+                          <div className="mb-4 space-y-2">
+                            <div className="text-sm text-gray-600 mb-2">{t('uploadingFiles')}...</div>
+                            {Object.entries(uploadProgress).map(([fileKey, progress]) => (
+                              <div key={fileKey} className="space-y-1">
+                                <div className="flex justify-between text-xs text-gray-500">
+                                  <span>{fileKey.replace('file-', t('file') + ' ')}</span>
+                                  <span>
+                                    {progress === -1 ? t('error') : 
+                                     progress === 100 ? t('completed') : 
+                                     progress < 50 ? t('uploading') : t('analyzing')}
+                                  </span>
+                                </div>
+                                <Progress 
+                                  value={progress === -1 ? 0 : progress} 
+                                  className={`h-2 ${progress === -1 ? 'bg-red-100' : ''}`}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
+                        <Button 
+                          onClick={() => handleFileUpload('photo')}
+                          disabled={isUploading}
+                        >
+                          {isUploading ? (
+                            <>
+                              <Loader2 className="mr-2 animate-spin" size={16} />
+                              {t('uploading')}...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="mr-2" size={16} />
+                              {t('uploadPhotos')}
+                            </>
+                          )}
                         </Button>
                       </div>
                     </TabsContent>
@@ -505,7 +577,7 @@ export default function AIGeneration() {
                                     </Badge>
                                   )}
                                   <span className="text-primary-600 font-bold">
-                                    €{dish.price.toFixed(2)}
+                                    €{(dish.price || 0).toFixed(2)}
                                   </span>
                                 </div>
                                 
@@ -517,7 +589,7 @@ export default function AIGeneration() {
                                 
                                 {dish.ingredients && dish.ingredients.length > 0 && (
                                   <p className="text-gray-500 text-xs mb-2">
-                                    Ингредиенты: {dish.ingredients.join(", ")}
+                                    {t('ingredients')}: {dish.ingredients.join(", ")}
                                   </p>
                                 )}
                                 
@@ -533,7 +605,7 @@ export default function AIGeneration() {
                                 
                                 {dish.nutrition && (
                                   <div className="mt-2 text-xs text-gray-500">
-                                    БЖУ: {dish.nutrition.protein}г/{dish.nutrition.fat}г/{dish.nutrition.carbs}г
+                                    {t('nutrition')}: {dish.nutrition.protein}г/{dish.nutrition.fat}г/{dish.nutrition.carbs}г
                                   </div>
                                 )}
                               </div>
