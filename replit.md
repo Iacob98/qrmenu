@@ -42,6 +42,10 @@ This is a full-stack restaurant online menu management system built with React, 
 - ✅ **CSS Variables System**: Fixed CSS variables application for themes, colors, fonts, and customization in public menu
 - ✅ **Design Settings Integration**: Ensured all design customization settings (colors, fonts, spacing, radius) properly apply to public menu
 - ✅ **AI Banner Generation Removed**: Removed AI banner generation functionality per user request to simplify interface
+- ✅ **JSON Parsing Error Handling Fixed**: Enhanced AI photo/PDF/text analysis endpoints with robust JSON parsing that handles malformed responses, extracts JSON from wrapped text, and provides detailed error logging for debugging
+- ✅ **Progress Bar for Photo Upload**: Added comprehensive upload progress tracking with individual file progress indicators showing upload/analysis stages with visual feedback and error states
+- ✅ **Duplicate Translation Keys Removed**: Fixed all duplicate i18n keys ("error", "analyzing") that were causing build warnings and conflicts
+- ✅ **Null Price Error Fixed**: Resolved critical AI page crash by adding null-safe price handling with (dish.price || 0) fallbacks
 - ✅ **Full Internationalization (i18n) System**: Implemented comprehensive multilingual support using react-i18next:
   - Created complete translation infrastructure with automatic browser language detection
   - Added language selector component with flag icons for German, English, and Russian

@@ -124,12 +124,37 @@ Example response structure:
         max_tokens: 2000,
       });
 
-      const result = JSON.parse(response.choices[0].message.content || '{"categories": [], "dishes": []}');
+      const content = response.choices[0].message.content;
+      if (!content) {
+        throw new Error("No response content from AI");
+      }
+
+      let result;
+      try {
+        result = JSON.parse(content);
+      } catch (jsonError) {
+        console.error("AI Response JSON Parse Error (PDF):", jsonError);
+        console.error("Raw AI Response:", content);
+        
+        // Try to extract JSON from response if it's wrapped in other text
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            result = JSON.parse(jsonMatch[0]);
+          } catch (secondJsonError) {
+            throw new Error(`Invalid JSON response from AI. Raw response: ${content.substring(0, 200)}...`);
+          }
+        } else {
+          throw new Error(`No valid JSON found in AI response. Raw response: ${content.substring(0, 200)}...`);
+        }
+      }
+
       return {
-        categories: result.categories || [],
-        dishes: result.dishes || []
+        categories: Array.isArray(result.categories) ? result.categories : [],
+        dishes: Array.isArray(result.dishes) ? result.dishes : []
       };
     } catch (error) {
+      console.error("PDF analysis error:", error);
       throw new Error(`Failed to analyze PDF: ${handleError(error)}`);
     }
   }
@@ -186,12 +211,37 @@ Return a JSON object with:
         max_tokens: 2000,
       });
 
-      const result = JSON.parse(response.choices[0].message.content || '{"categories": [], "dishes": []}');
+      const content = response.choices[0].message.content;
+      if (!content) {
+        throw new Error("No response content from AI");
+      }
+
+      let result;
+      try {
+        result = JSON.parse(content);
+      } catch (jsonError) {
+        console.error("AI Response JSON Parse Error:", jsonError);
+        console.error("Raw AI Response:", content);
+        
+        // Try to extract JSON from response if it's wrapped in other text
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            result = JSON.parse(jsonMatch[0]);
+          } catch (secondJsonError) {
+            throw new Error(`Invalid JSON response from AI. Raw response: ${content.substring(0, 200)}...`);
+          }
+        } else {
+          throw new Error(`No valid JSON found in AI response. Raw response: ${content.substring(0, 200)}...`);
+        }
+      }
+
       return {
-        categories: result.categories || [],
-        dishes: result.dishes || []
+        categories: Array.isArray(result.categories) ? result.categories : [],
+        dishes: Array.isArray(result.dishes) ? result.dishes : []
       };
     } catch (error) {
+      console.error("Photo analysis error:", error);
       throw new Error(`Failed to analyze photo: ${handleError(error)}`);
     }
   }
@@ -237,12 +287,37 @@ Return a JSON object with:
         max_tokens: 2000,
       });
 
-      const result = JSON.parse(response.choices[0].message.content || '{"categories": [], "dishes": []}');
+      const content = response.choices[0].message.content;
+      if (!content) {
+        throw new Error("No response content from AI");
+      }
+
+      let result;
+      try {
+        result = JSON.parse(content);
+      } catch (jsonError) {
+        console.error("AI Response JSON Parse Error (Text):", jsonError);
+        console.error("Raw AI Response:", content);
+        
+        // Try to extract JSON from response if it's wrapped in other text
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            result = JSON.parse(jsonMatch[0]);
+          } catch (secondJsonError) {
+            throw new Error(`Invalid JSON response from AI. Raw response: ${content.substring(0, 200)}...`);
+          }
+        } else {
+          throw new Error(`No valid JSON found in AI response. Raw response: ${content.substring(0, 200)}...`);
+        }
+      }
+
       return {
-        categories: result.categories || [],
-        dishes: result.dishes || []
+        categories: Array.isArray(result.categories) ? result.categories : [],
+        dishes: Array.isArray(result.dishes) ? result.dishes : []
       };
     } catch (error) {
+      console.error("Text analysis error:", error);
       throw new Error(`Failed to analyze text: ${handleError(error)}`);
     }
   }

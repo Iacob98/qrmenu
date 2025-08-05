@@ -519,10 +519,7 @@ const resources = {
       "photoUploadDesc": "Upload one or more photos of the menu — we'll extract all dishes and descriptions",
       "uploadingFiles": "Uploading files",
       "file": "File",
-      "error": "Error",
       "completed": "Completed",
-      "uploading": "Uploading",
-      "analyzing": "Analyzing",
       "uploadPhotos": "Upload photos (multiple allowed)",
 
       // Color themes
@@ -792,10 +789,7 @@ const resources = {
       "photoUploadDesc": "Laden Sie ein oder mehrere Fotos des Menüs hoch — wir extrahieren alle Gerichte und Beschreibungen",
       "uploadingFiles": "Dateien hochladen",
       "file": "Datei",
-      "error": "Fehler",
       "completed": "Abgeschlossen",
-      "uploading": "Hochladen",
-      "analyzing": "Analysieren",
       "uploadPhotos": "Fotos hochladen (mehrere erlaubt)",
 
       // Color themes
