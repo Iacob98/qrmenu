@@ -1,89 +1,6 @@
 # Overview
 
-This is a full-stack restaurant online menu management system built with React, Express, and PostgreSQL. The application allows restaurant owners to create, manage, and share digital menus via QR codes and public links. It features AI-powered menu generation capabilities and a comprehensive design customization system.
-
-## Recent Updates (August 1, 2025)
-- ✅ **Database Integration Complete**: Successfully migrated from in-memory storage to PostgreSQL with Drizzle ORM
-- ✅ **Authentication System Working**: Fixed session management and cookie handling for proper user authentication
-- ✅ **Restaurant Creation Fixed**: Added dedicated modal for creating restaurants with proper form validation
-- ✅ **API Endpoints Functional**: All CRUD operations working with PostgreSQL persistence
-- ✅ **Login System Complete**: Created proper login page to replace placeholder alerts
-- ✅ **Multi-AI Provider Support**: Added OpenRouter support alongside OpenAI with configurable models
-- ✅ **Dish Photo Generation**: Added AI-powered photo generation for dishes in creation forms
-- ✅ **Enhanced Settings**: Updated restaurant settings with AI provider selection and model configuration
-- ✅ **Banner Upload System**: Added logo and banner support with AI generation for restaurant branding
-- ✅ **File Upload System**: Added comprehensive file upload functionality with Sharp image processing and storage
-- ✅ **Dish Editing System**: Complete CRUD operations for dishes with modal interface and file upload support
-- ✅ **Category Editing System**: Complete CRUD operations for categories with modal interface and icon selection
-- ✅ **File Upload Interface**: Removed all URL input fields from file upload components for cleaner interface
-- ✅ **Public Menu Banner Display**: Fixed banner display in public menu with background overlay and proper styling
-- ✅ **Database Stability**: Resolved server crashes by cleaning up storage classes and maintaining PostgreSQL connection
-- ✅ **Dish Details Modal**: Added comprehensive dish details viewing in public menu with ingredients, nutrition, and tags
-- ✅ **OpenAI Token Validation**: Fixed API token validation with dedicated endpoint supporting OpenAI and OpenRouter
-- ✅ **Favorites & Visibility System**: Added ability to mark dishes as favorites and hide/show dishes from public menu
-- ✅ **Real-time Updates**: Implemented WebSocket system for instant menu updates in guest view when admin makes changes
-- ✅ **Professional Food Photography**: Enhanced AI image generation with professional photography prompts for realistic dish photos
-- ✅ **Favorites as First Category**: Redesigned favorites to appear as the first category tab, always visible even when empty
-- ✅ **Restaurant Creation Limit**: Added server-side validation limiting users to create maximum 1 restaurant per account
-- ✅ **AI Image Generation Fixed**: Resolved DALL-E API integration issues, now working with global OPENAI_API_KEY when restaurant doesn't have custom token
-- ✅ **Image Storage Fixed**: Fixed dish image saving to database - images now properly persist after AI generation and manual updates
-- ✅ **Multiple Photo Upload**: Added support for uploading multiple photos for AI menu analysis with duplicate detection
-- ✅ **Enhanced Photo Analysis**: Improved photo analysis workflow with progress tracking and error handling for batch processing
-- ✅ **AI Image Persistence Fixed**: Fixed DALL-E generated images by downloading and saving them locally instead of using temporary URLs
-- ✅ **Enhanced AI Image Prompts**: Improved DALL-E prompts to include full dish information (ingredients, tags, description) for more accurate food photography
-- ✅ **Maximum Quality AI Images**: Updated DALL-E 3 settings to use HD quality and enhanced prompts for professional food photography
-- ✅ **ComfyUI Integration**: Switched to ComfyUI workflow via Replicate for cost-effective, high-quality food photography generation
-- ✅ **Replicate-Only Image Generation**: Changed image generation to always use Replicate Imagen-4 for consistent high-quality food photography
-- ✅ **AI Dish Description Improvement**: Added AI-powered description enhancement with dedicated API endpoint and UI button
-- ✅ **Dynamic Google Fonts Loading**: Fixed font family not applying in public menu by implementing dynamic Google Fonts loading
-- ✅ **Logo Positioning Fixed**: Corrected logo positioning controls (left/right/top/hidden) in public menu header
-- ✅ **Sticky Category Navigation**: Added sticky navigation for categories that stays visible when scrolling, matching user design requirements
-- ✅ **Enhanced Category Tabs**: Updated category tabs with modern rounded pill design and smooth animations
-- ✅ **CSS Variables System**: Fixed CSS variables application for themes, colors, fonts, and customization in public menu
-- ✅ **Design Settings Integration**: Ensured all design customization settings (colors, fonts, spacing, radius) properly apply to public menu
-- ✅ **AI Banner Generation Removed**: Removed AI banner generation functionality per user request to simplify interface
-- ✅ **JSON Parsing Error Handling Fixed**: Enhanced AI photo/PDF/text analysis endpoints with robust JSON parsing that handles malformed responses, extracts JSON from wrapped text, and provides detailed error logging for debugging
-- ✅ **Progress Bar for Photo Upload**: Added comprehensive upload progress tracking with individual file progress indicators showing upload/analysis stages with visual feedback and error states
-- ✅ **Duplicate Translation Keys Removed**: Fixed all duplicate i18n keys ("error", "analyzing") that were causing build warnings and conflicts
-- ✅ **Null Price Error Fixed**: Resolved critical AI page crash by adding null-safe price handling with (dish.price || 0) fallbacks
-- ✅ **Full Internationalization (i18n) System**: Implemented comprehensive multilingual support using react-i18next:
-  - Created complete translation infrastructure with automatic browser language detection
-  - Added language selector component with flag icons for German, English, and Russian
-  - Translated all UI components including sidebar navigation, public menu interface, search functionality, and loading states
-  - Integrated language selector in both dashboard sidebar and public menu header
-  - Comprehensive translation keys covering navigation, authentication, restaurant management, AI features, and common UI elements
-  - Fallback language set to Russian with localStorage persistence for user language preferences
-- ✅ **Performance Optimization Complete**: Comprehensive performance improvements implemented:
-  - Added database indices for key lookups (userId, slug, restaurantId, categoryId, sortOrder, favorites, visibility)
-  - Optimized complex queries with JOIN operations to reduce database calls from N+1 to single queries
-  - Enhanced React Query caching with 5-minute staleTime and proper garbage collection
-  - Created memoized components (MemoCategoryTabs, MemoDishCard) with custom comparison functions
-  - Added useCallback to event handlers and useMemo to expensive computations
-  - Implemented WebSocket invalidation debouncing (100ms) to prevent excessive refetching
-  - Applied database migration with all performance indices successfully
-- ✅ **Mobile Dashboard Complete**: Implemented comprehensive responsive design for dashboard:
-  - Created adaptive sidebar with hamburger menu for mobile (hidden by default, slide-out drawer)
-  - Added responsive layouts for all dashboard pages (menu, settings, design, ai, qr)
-  - Implemented mobile-first approach with proper breakpoints (sm:, lg:)
-  - Added responsive padding, buttons, and form layouts throughout dashboard
-  - Ensured touch-friendly navigation with larger tap targets on mobile devices
-- ✅ **Complete Internationalization System (August 4, 2025)**: Achieved 100% internationalization coverage:
-  - Completed comprehensive EditDishModal translations including all form fields, AI generation features, photo upload, validation messages, and toast notifications
-  - Added complete translations for Design settings covering color schemes, font families, card styles, banner positioning, styling customization options, and font selection system
-  - Fixed duplicate translation keys and resolved all i18n system conflicts across the platform
-  - Replaced all remaining hardcoded Russian texts in EditDishModal, Design, EditCategory, and EditFavorites components with proper translation keys
-  - Added comprehensive translations for menu management, authentication forms, and dashboard components
-  - All components now properly use react-i18next with comprehensive translation coverage for German, English, and Russian languages
-  - Translation system is fully functional without errors across entire platform - all UI elements, forms, buttons, and messages properly internationalized
-  - Added over 50 additional translation keys covering menu management, authentication, error messages, and component-specific translations
-  - Internationalization system now covers 100% of the application interface with no remaining hardcoded texts
-  - **Final i18n Cleanup Complete**: Recreated clean i18n.ts file without duplicate keys, added all missing translation keys for Settings, AI, and QR pages, updated all components to use proper translation hooks
-- ⚠️ **Database Connectivity Issue (August 2, 2025)**: Currently experiencing DNS resolution problems with Neon database connections:
-  - Error: "getaddrinfo EAI_AGAIN" when connecting to Neon PostgreSQL hosts
-  - Affects both authentication (login/register) and all database operations
-  - Application architecture and code are functional - issue is network/DNS related
-  - Switched from Neon serverless to standard PostgreSQL client to troubleshoot
-  - Authentication endpoints are processing requests but timing out on database queries
+This is a full-stack restaurant online menu management system that enables restaurant owners to create, manage, and share digital menus via QR codes and public links. Its core purpose is to modernize menu management, offering features like AI-powered menu generation, comprehensive design customization, and multi-language support. The project aims to provide restaurants with a flexible, efficient, and visually appealing way to present their offerings to customers.
 
 # User Preferences
 
@@ -94,119 +11,46 @@ AI Image Generation: Always use specified Midjourney-style flags in DALL-E promp
 
 ## Frontend Architecture
 - **Framework**: React 18 with TypeScript
-- **Routing**: Wouter (lightweight React router)
-- **State Management**: TanStack Query (React Query) for server state
+- **Routing**: Wouter
+- **State Management**: TanStack Query for server state
 - **UI Components**: Radix UI primitives with shadcn/ui components
-- **Styling**: Tailwind CSS with CSS variables for theming
-- **Build Tool**: Vite with hot module replacement
+- **Styling**: Tailwind CSS with CSS variables for theming, enabling extensive design customization (color schemes, typography, layout, branding).
+- **Internationalization**: Full multilingual support using `react-i18next` for German, English, and Russian, with automatic browser language detection and language selector.
+- **Mobile Dashboard**: Comprehensive responsive design for all dashboard pages and components, implementing a mobile-first approach.
 
 ## Backend Architecture
 - **Framework**: Express.js with TypeScript
 - **Database**: PostgreSQL with Drizzle ORM
-- **Authentication**: Express sessions with bcrypt password hashing
-- **File Structure**: Monorepo with shared schemas between client and server
-- **API Design**: RESTful APIs with JSON responses
+- **Authentication**: Session-based using Express sessions with bcrypt password hashing.
+- **File Structure**: Monorepo with shared schemas between client and server.
+- **API Design**: RESTful APIs with JSON responses for all CRUD operations.
 
 ## Database Design
-- **ORM**: Drizzle with PostgreSQL dialect
-- **Schema Location**: `/shared/schema.ts` for type sharing
-- **Tables**: Users, Restaurants, Categories, Dishes with proper foreign key relationships
-- **Features**: UUID primary keys, timestamps, JSONB for flexible data (design settings, nutrition info)
+- **ORM**: Drizzle with PostgreSQL dialect.
+- **Schema Location**: `/shared/schema.ts` for type sharing.
+- **Tables**: Users, Restaurants, Categories, Dishes with UUID primary keys, timestamps, and JSONB for flexible data.
+- **Performance**: Utilizes database indices for key lookups and optimized queries with JOINs to reduce database calls.
 
-# Key Components
-
-## Authentication System
-- Session-based authentication using express-session
-- Password hashing with bcrypt
-- Auth guard components for route protection
-- User context provider for global auth state
-
-## Menu Management
-- Hierarchical structure: Restaurant → Categories → Dishes
-- Rich dish data including images, nutrition facts, tags, and pricing
-- Drag-and-drop reordering with sortOrder fields
-- Tag-based filtering system for dietary restrictions
-
-## AI Integration
-- OpenAI GPT-4o integration for menu generation
-- Multiple input methods: PDF upload, image analysis, text input
-- Structured JSON output for consistent dish data
-- Nutrition calculation and ingredient extraction
-
-## Design Customization
-- Live preview system for menu appearance
-- Color scheme management with CSS variables
-- Typography and layout customization
-- Logo and branding integration
-
-## Public Menu System
-- SEO-friendly public URLs with restaurant slugs
-- Category-based navigation with tab switching
-- Mobile-responsive design
-- Tag-based filtering for dietary preferences
-
-# Data Flow
-
-## User Registration & Setup
-1. User registers with email/password
-2. Creates restaurant profile with basic info
-3. Optionally adds AI token for enhanced features
-4. Sets up menu categories and dishes
-
-## Menu Generation Workflow
-1. User uploads PDF/image or enters text
-2. AI service processes content and extracts menu items
-3. Structured data returned with dishes, prices, descriptions
-4. User reviews and selects items to add to menu
-5. Items integrated into restaurant's category structure
-
-## Public Menu Access
-1. Customer scans QR code or visits public URL
-2. Menu loads with restaurant branding and design
-3. Categories displayed as tabs for easy navigation
-4. Dishes can be filtered by dietary tags
-5. Responsive design adapts to mobile devices
+## Key Features & Design Decisions
+- **Authentication System**: Session-based, with auth guard components for route protection and global user context.
+- **Menu Management**: Hierarchical structure (Restaurant → Categories → Dishes) with rich dish data (images, nutrition, tags, pricing) and drag-and-drop reordering. Includes real-time updates for public menus via WebSockets.
+- **AI Integration**: Integrates OpenAI and OpenRouter for AI-powered menu generation, dish description enhancement, and high-quality food photography using ComfyUI via Replicate. Supports various input methods (PDF, image analysis, text) and structured JSON output. Handles image persistence and enhances prompts for accuracy.
+- **Design Customization**: Live preview system for menu appearance, color scheme management, typography and layout customization, and logo/branding integration. All design settings are properly applied to the public menu.
+- **Public Menu System**: SEO-friendly public URLs with restaurant slugs, category-based navigation, mobile-responsive design, and tag-based filtering for dietary preferences. Includes sticky category navigation and enhanced category tabs.
 
 # External Dependencies
 
-## Core Dependencies
-- **@neondatabase/serverless**: PostgreSQL connection for Neon DB
+- **@neondatabase/serverless**: PostgreSQL connection (for Neon DB, though current issues noted in original file indicate troubleshooting with standard client)
 - **drizzle-orm**: Type-safe database operations
 - **@tanstack/react-query**: Server state management
-- **bcrypt**: Password hashing for security
+- **bcrypt**: Password hashing
 - **express-session**: User session management
-
-## UI Dependencies
-- **@radix-ui/***: Accessible component primitives
+- **@radix-ui/***: Accessible UI component primitives
 - **tailwindcss**: Utility-first CSS framework
 - **class-variance-authority**: Component variant management
 - **lucide-react**: Icon library
-
-## AI & External Services
-- **OpenAI API**: Menu generation from various inputs
-- **QR Code Generation**: Via external API or library
-- **Image Processing**: For menu photo analysis
-
-# Deployment Strategy
-
-## Build Process
-- Frontend: Vite builds optimized production bundle
-- Backend: esbuild compiles TypeScript to ESM format
-- Shared schemas enable type safety across frontend/backend
-
-## Environment Configuration
-- Database URL required for Drizzle connection
-- Session secrets for authentication security
-- AI tokens for OpenAI integration
-- Replit-specific configurations for development
-
-## Database Management
-- Drizzle migrations in `/migrations` directory
-- Schema changes tracked and versioned
-- Push command for development database updates
-
-## Production Considerations
-- Static file serving for frontend assets
-- Session store configuration for scaling
-- Database connection pooling
-- Error handling and logging middleware
+- **OpenAI API**: For AI-powered menu generation and description enhancement
+- **Replicate**: For high-quality AI food photography generation (ComfyUI workflow)
+- **QR Code Generation**: Via external API or library (details not specified)
+- **Sharp**: Image processing
+- **react-i18next**: Internationalization framework
