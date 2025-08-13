@@ -234,7 +234,6 @@ const resources = {
       "processingPhotos": "Обрабатываем фото",
       "analysisCompleted": "Анализ завершён",
       "foundCategories": "найдено категорий",
-      "foundDishes": "найдено блюд",
       "analysisError": "Ошибка анализа",
       "ingredients": "Ингредиенты",
       "nutrition": "БЖУ",
@@ -244,6 +243,7 @@ const resources = {
       "file": "Файл", 
       "completed": "Завершено",
       "uploadPhotos": "Загрузить фото (можно несколько)",
+      "categoriesAndDishes": "Категории и блюда",
 
       // Color themes
       "defaultTheme": "По умолчанию",
@@ -510,7 +510,6 @@ const resources = {
       "processingPhotos": "Processing Photos",
       "analysisCompleted": "Analysis Completed",
       "foundCategories": "categories found",
-      "foundDishes": "dishes found",
       "analysisError": "Analysis Error",
       "ingredients": "Ingredients",
       "nutrition": "Nutrition",
@@ -520,6 +519,7 @@ const resources = {
       "file": "File",
       "completed": "Completed",
       "uploadPhotos": "Upload photos (multiple allowed)",
+      "categoriesAndDishes": "Categories and Dishes",
 
       // Color themes
       "defaultTheme": "Default",
@@ -781,7 +781,6 @@ const resources = {
       "processingPhotos": "Fotos verarbeiten",
       "analysisCompleted": "Analyse abgeschlossen",
       "foundCategories": "Kategorien gefunden",
-      "foundDishes": "Gerichte gefunden",
       "analysisError": "Analyse-Fehler",
       "ingredients": "Zutaten",
       "nutrition": "Nährstoffe",
@@ -791,6 +790,7 @@ const resources = {
       "file": "Datei",
       "completed": "Abgeschlossen",
       "uploadPhotos": "Fotos hochladen (mehrere erlaubt)",
+      "categoriesAndDishes": "Kategorien und Gerichte",
 
       // Color themes
       "defaultTheme": "Standard",
