@@ -528,13 +528,13 @@ export default function Design() {
                   className="text-white p-6 text-center"
                   style={{ backgroundColor: designSettings.primaryColor }}
                 >
-                  <h1 className="text-xl font-bold">{restaurant.name}</h1>
-                  {restaurant.city && (
+                  <h1 className="text-xl font-bold">{restaurant?.name || 'Название ресторана'}</h1>
+                  {restaurant?.city && (
                     <p className="opacity-90">{restaurant.city}</p>
                   )}
                   <div className="flex justify-center space-x-4 mt-3 text-sm opacity-90">
-                    <span>🇷🇺 Русский</span>
-                    <span>💶 {restaurant.currency}</span>
+                    <span>🇷🇺 {restaurant?.language === 'en' ? 'English' : restaurant?.language === 'de' ? 'Deutsch' : 'Русский'}</span>
+                    <span>💶 {restaurant?.currency}</span>
                   </div>
                 </div>
 
@@ -596,7 +596,9 @@ export default function Design() {
                           className="font-bold ml-2"
                           style={{ color: designSettings.primaryColor }}
                         >
-                          €{dish.price}
+                          {restaurant?.currency === 'USD' ? '$' : 
+                           restaurant?.currency === 'PLN' ? 'zł' : 
+                           restaurant?.currency === 'MDL' ? 'L' : '€'}{dish.price}
                         </span>
                       </div>
                     </div>

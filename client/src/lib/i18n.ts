@@ -244,6 +244,12 @@ const resources = {
       "completed": "Завершено",
       "uploadPhotos": "Загрузить фото (можно несколько)",
       "categoriesAndDishes": "Категории и блюда",
+      "designTitle": "Дизайн",
+      "colorSchemeCard": "Цветовая схема",
+      "fontCard": "Шрифты",
+      "readyThemes": "Готовые темы",
+      "addDishesForPreview": "Добавьте блюда для предпросмотра",
+      "createdWithQRMenu": "Создано с помощью QRMenu",
 
       // Color themes
       "defaultTheme": "По умолчанию",
@@ -520,6 +526,12 @@ const resources = {
       "completed": "Completed",
       "uploadPhotos": "Upload photos (multiple allowed)",
       "categoriesAndDishes": "Categories and Dishes",
+      "designTitle": "Design",
+      "colorSchemeCard": "Color Scheme",
+      "fontCard": "Fonts",
+      "readyThemes": "Ready Themes",
+      "addDishesForPreview": "Add dishes for preview",
+      "createdWithQRMenu": "Created with QRMenu",
 
       // Color themes
       "defaultTheme": "Default",
@@ -790,7 +802,13 @@ const resources = {
       "file": "Datei",
       "completed": "Abgeschlossen",
       "uploadPhotos": "Fotos hochladen (mehrere erlaubt)",
-      "categoriesAndDishes": "Kategorien und Gerichte",
+      "categoriesAndDishes": "Kategorien und Gerichte", 
+      "designTitle": "Design",
+      "colorSchemeCard": "Farbschema",
+      "fontCard": "Schriftarten",
+      "readyThemes": "Fertige Designs", 
+      "addDishesForPreview": "Gerichte für Vorschau hinzufügen",
+      "createdWithQRMenu": "Erstellt mit QRMenu",
 
       // Color themes
       "defaultTheme": "Standard",
