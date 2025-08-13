@@ -261,7 +261,7 @@ export default function QRPage() {
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <QrCode className="mr-2" size={20} />
-                      QR-код
+{t('qrCode')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="text-center">
@@ -272,7 +272,7 @@ export default function QRPage() {
                       />
                     </div>
                     <p className="text-gray-600 mt-4 mb-6">
-                      Отсканируйте, чтобы открыть меню
+{t('scanToOpenMenu')}
                     </p>
                     
                     <div className="flex flex-col space-y-2">
@@ -296,7 +296,7 @@ export default function QRPage() {
                         onClick={generatePrintTemplate}
                         className="w-full"
                       >
-                        Скачать для печати (PDF)
+{t('downloadForPrintPDF')}
                       </Button>
                     </div>
                   </CardContent>

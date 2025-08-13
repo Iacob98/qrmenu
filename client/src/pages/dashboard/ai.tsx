@@ -402,11 +402,11 @@ export default function AIGeneration() {
                       </TabsTrigger>
                       <TabsTrigger value="photo" className="flex items-center gap-2">
                         <Camera size={16} />
-                        Фото
+                        {t('photo')}
                       </TabsTrigger>
                       <TabsTrigger value="text" className="flex items-center gap-2">
                         <PenTool size={16} />
-                        Текст
+                        {t('text')}
                       </TabsTrigger>
                     </TabsList>
                     
@@ -414,10 +414,10 @@ export default function AIGeneration() {
                       <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                         <FileText className="mx-auto text-4xl text-gray-400 mb-4" size={64} />
                         <h3 className="text-lg font-medium text-gray-900 mb-2">
-                          Загрузите PDF меню
+                          {t('uploadPDFMenu')}
                         </h3>
                         <p className="text-gray-600 mb-4">
-                          Загрузите меню, скан или таблицу — мы найдём названия блюд, состав и цены
+                          {t('uploadPDFMenuDesc')}
                         </p>
                         <Button onClick={() => handleFileUpload('pdf')}>
                           <Upload className="mr-2" size={16} />
@@ -483,7 +483,7 @@ export default function AIGeneration() {
                         <Textarea
                           value={textInput}
                           onChange={(e) => setTextInput(e.target.value)}
-                          placeholder="Вставьте список блюд, например:&#10;&#10;Борщ — 250мл. Сметана, мясо, свекла. 5.90€&#10;Цезарь — Курица, салат, сухарики. 8.50€"
+                          placeholder={t('textAnalysisPlaceholder')}
                           className="min-h-[200px]"
                         />
                         <Button 
@@ -494,10 +494,10 @@ export default function AIGeneration() {
                           {analyzeTextMutation.isPending ? (
                             <>
                               <Loader2 className="mr-2 animate-spin" size={16} />
-                              Анализируем...
+                              {t('analyzing')}...
                             </>
                           ) : (
-                            "Проанализировать"
+                            t('analyzeText')
                           )}
                         </Button>
                       </div>
