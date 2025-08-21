@@ -345,107 +345,218 @@ function PublicMenuContent() {
 
   return (
     <div 
-      className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4"
+      className="min-h-screen bg-gray-50 antialiased safe-area-inset"
       style={{ 
+        backgroundColor: 'var(--background, #f9fafb)',
         fontFamily: 'var(--font-family, "Inter", system-ui, -apple-system, sans-serif)',
+        fontSize: 'var(--font-size, 16px)',
+        color: 'var(--foreground, #111827)',
+        lineHeight: '1.5',
+        WebkitTextSizeAdjust: '100%',
+        textSizeAdjust: '100%'
       }}
     >
-      {/* Demo Phone Container */}
-      <div className="relative max-w-sm mx-auto">
-        {/* Phone Frame */}
-        <div className="bg-black rounded-[3rem] p-2 shadow-2xl">
-          <div className="bg-white rounded-[2.5rem] overflow-hidden">
-            {/* Phone Screen Content */}
-            <div className="w-80 h-[600px] overflow-auto bg-white relative">
-              
-              {/* Demo Header with gradient */}
-              <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-8 text-white text-center">
-                <h1 className="text-xl font-bold mb-1">Italienisches Restaurant</h1>
-                <p className="text-blue-100 text-sm">QR-Code für Menü scannen</p>
-              </div>
-
-              
-              {/* Demo Category Tabs */}
-              <div className="bg-gray-50 px-4 py-3">
-                <div className="flex space-x-6 text-sm">
-                  <button className="font-semibold text-gray-900 pb-2 border-b-2 border-purple-500">
-                    Suppen
-                  </button>
-                  <button className="text-gray-500 hover:text-gray-900">
-                    Warme Gerichte
-                  </button>
-                  <button className="text-gray-500 hover:text-gray-900">
-                    Desserts
-                  </button>
-                </div>
-              </div>
-
-              {/* Demo Dishes */}
-              <div className="p-4 space-y-4">
-                {/* Dish 1 */}
-                <div className="bg-white rounded-xl p-4 shadow-sm border">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-1">Ukrainischer Borschtsch</h3>
-                      <p className="text-sm text-gray-600 mb-2">Rote Bete, Fleisch, Sauerrahm</p>
-                      <div className="flex space-x-1">
-                        <span className="text-yellow-400">★</span>
-                        <span className="text-yellow-400">★</span>
-                        <span className="text-yellow-400">★</span>
-                        <span className="text-yellow-400">★</span>
-                        <span className="text-yellow-400">★</span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-lg font-bold text-gray-900">€5.90</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Dish 2 */}
-                <div className="bg-white rounded-xl p-4 shadow-sm border">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-1">Fleisch-Soljanka</h3>
-                      <p className="text-sm text-gray-600 mb-2">Geräucherte Wurst, Gurken, Zitrone</p>
-                      <div className="flex space-x-1">
-                        <span className="text-yellow-400">★</span>
-                        <span className="text-yellow-400">★</span>
-                        <span className="text-yellow-400">★</span>
-                        <span className="text-yellow-400">★</span>
-                        <span className="text-gray-300">★</span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-lg font-bold text-gray-900">€6.50</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+      {/* Mobile-First Layout with error boundary */}
+      <div className="max-w-lg mx-auto bg-white min-h-screen relative">
+        
+        {/* Compact Header */}
+        <div 
+          className="sticky top-0 z-50 bg-white border-b shadow-sm header-sticky"
+        >
+          <div 
+            className="flex items-center p-4 space-x-3"
+            style={{
+              flexDirection: menu?.restaurant?.design?.logoPosition === 'top' ? 'column' : 'row',
+              textAlign: menu?.restaurant?.design?.logoPosition === 'top' ? 'center' : 'left'
+            }}
+          >
+            {/* Language Selector */}
+            <div className="absolute top-4 right-4">
+              <LanguageSelector />
+            </div>
+            
+            {/* Logo with positioning */}
+            {menu?.restaurant?.logo && menu?.restaurant?.design?.logoPosition !== 'hidden' && (
+              <img 
+                src={menu.restaurant.logo} 
+                alt="Logo"
+                className={cn(
+                  "object-cover flex-shrink-0",
+                  menu?.restaurant?.design?.logoPosition === 'top' 
+                    ? "w-16 h-16 rounded-lg mb-2" 
+                    : "w-12 h-12 rounded-full",
+                  menu?.restaurant?.design?.logoPosition === 'right' && "order-2 ml-auto"
+                )}
+                style={{
+                  borderRadius: menu?.restaurant?.design?.logoPosition === 'top' ? '8px' : '50%'
+                }}
+              />
+            )}
+            
+            {/* Restaurant Info */}
+            <div 
+              className={cn(
+                "min-w-0 flex-1",
+                menu?.restaurant?.design?.logoPosition === 'top' && "flex-none",
+                menu?.restaurant?.design?.logoPosition === 'right' && "order-1"
+              )}
+            >
+              <h1 
+                className={cn(
+                  "font-bold truncate",
+                  menu?.restaurant?.design?.logoPosition === 'top' ? "text-xl" : "text-lg"
+                )}
+                style={{ color: 'var(--primary, #1f2937)' }}
+              >
+                {menu?.restaurant?.name}
+              </h1>
+              <p 
+                className={cn(
+                  "text-gray-500 truncate",
+                  menu?.restaurant?.design?.logoPosition === 'top' ? "text-base" : "text-sm"
+                )}
+              >
+                {menu?.restaurant?.city || 'Меню ресторана'}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Demo Caption below phone */}
-        <div className="text-center mt-6 max-w-md">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Innovative Platform in der offenen Beta-Phase
-          </h2>
-          <p className="text-gray-600 text-lg">
-            Seien Sie unter den Ersten, die den revolutionären Ansatz zur Erstellung digitaler Restaurantmenüs testen
-          </p>
+        {/* Banner (if exists) - Simplified */}
+        {menu?.restaurant?.banner && menu.restaurant.banner.trim() !== '' && (
+          <div 
+            className="h-24 bg-cover bg-center relative"
+            style={{
+              backgroundImage: `url(${menu.restaurant.banner})`,
+              backgroundPosition: `${menu?.restaurant?.design?.bannerPositionX || 50}% ${menu?.restaurant?.design?.bannerPositionY || 50}%`
+            }}
+          >
+            <div 
+              className="absolute inset-0"
+              style={{
+                backgroundColor: menu?.restaurant?.design?.bannerOverlayColor || 'transparent',
+                opacity: (menu?.restaurant?.design?.bannerOverlayOpacity || 0) / 100
+              }}
+            />
+          </div>
+        )}
+
+        {/* Simple Search */}
+        <div className="p-3 bg-gray-50">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Input
+              type="text"
+              placeholder={t('searchPlaceholder')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 h-10 text-base border-gray-300"
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-2 top-2 h-6 w-6 p-0"
+                onClick={() => setSearchQuery("")}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Category Tabs - Simple horizontal carousel */}
+        <div className="bg-white border-b border-gray-100">
+          <MemoCategoryTabs
+            categories={menuWithFavorites?.categories || []}
+            activeCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+          />
+        </div>
+
+        {/* Active Filters - Compact */}
+        {(activeTags.length > 0 || searchQuery) && (
+          <div className="p-3 bg-blue-50 border-b">
+            <div className="flex flex-wrap gap-1 text-xs">
+              {searchQuery && (
+                <Badge variant="secondary" className="text-xs px-2 py-1">
+                  🔍 {searchQuery}
+                  <X 
+                    className="ml-1 h-3 w-3 cursor-pointer" 
+                    onClick={() => setSearchQuery("")}
+                  />
+                </Badge>
+              )}
+              {activeTags.map((tag) => (
+                <Badge key={tag} variant="secondary" className="text-xs px-2 py-1">
+                  {getTagEmoji(tag)} {tag}
+                  <X 
+                    className="ml-1 h-3 w-3 cursor-pointer" 
+                    onClick={() => handleTagFilter(tag)}
+                  />
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Simple Dishes List */}
+        <div className="p-3 space-y-3">
+          {filteredDishes.length === 0 ? (
+            <div className="text-center py-12">
+              <Utensils className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+              <p className="text-gray-500 text-sm">
+                {searchQuery || activeTags.length > 0 
+                  ? t('noResults')
+                  : t('noDishes')
+                }
+              </p>
+              {(searchQuery || activeTags.length > 0) && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-3"
+                  onClick={clearFilters}
+                >
+                  {t('remove')}
+                </Button>
+              )}
+            </div>
+          ) : (
+            filteredDishes.map((dish) => (
+              <MemoDishCard
+                key={dish.id}
+                dish={dish}
+                currency={menu?.restaurant?.currency || 'EUR'}
+                onViewDetails={setSelectedDish}
+                isCompact={false}
+              />
+            ))
+          )}
+        </div>
+
+        
+        {/* Dish Details Modal */}
+        {selectedDish && (
+          <DishDetailsModal
+            dish={selectedDish}
+            currency={menu?.restaurant?.currency || 'EUR'}
+            onClose={() => setSelectedDish(null)}
+          />
+        )}
+
+        {/* Connection Status - Minimal */}
+        {!isConnected && (
+          <div className="fixed bottom-4 right-4 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-medium shadow-lg">
+            ⏳
+          </div>
+        )}
+        
+        {/* Language Selector at Bottom */}
+        <div className="p-4 border-t mt-4 flex justify-center">
+          <LanguageSelector />
         </div>
       </div>
-
-      {/* Dish Details Modal */}
-      {selectedDish && (
-        <DishDetailsModal
-          dish={selectedDish}
-          isOpen={!!selectedDish}
-          onClose={() => setSelectedDish(null)}
-          currencySymbol={getCurrencySymbol(menu?.restaurant?.currency || 'EUR')}
-        />
-      )}
     </div>
   );
 }
