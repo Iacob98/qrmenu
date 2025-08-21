@@ -361,21 +361,43 @@ export default function QRPage() {
               </div>
             )}
 
-            {/* Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('additionalSettings')}</CardTitle>
+            {/* Future Plans */}
+            <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+              <CardHeader className="text-center">
+                <CardTitle className="text-blue-900 dark:text-blue-100">{t('futurePlans')}</CardTitle>
+                <p className="text-blue-700 dark:text-blue-200">{t('futurePlansSubtitle')}</p>
               </CardHeader>
               <CardContent>
-                <div className="text-center">
-                  <p className="text-gray-600 mb-4">
-                    {t('additionalFunctions')}
-                  </p>
-                  <ul className="text-sm text-gray-500 space-y-1">
-                    <li>• {t('qrColorCustomization')}</li>
-                    <li>• {t('logoIntegration')}</li>
-                    <li>• {t('analytics')}</li>
-                  </ul>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-white/70 dark:bg-black/20 backdrop-blur rounded-lg p-4 border hover:shadow-lg transition-all">
+                    <h3 className="font-semibold mb-2">{t('qrStyleCustomization')}</h3>
+                    <p className="text-sm text-muted-foreground">{t('qrStyleDesc')}</p>
+                  </div>
+
+                  <div className="bg-white/70 dark:bg-black/20 backdrop-blur rounded-lg p-4 border hover:shadow-lg transition-all">
+                    <h3 className="font-semibold mb-2">{t('reviewSystem')}</h3>
+                    <p className="text-sm text-muted-foreground">{t('reviewSystemDesc')}</p>
+                  </div>
+
+                  <div className="bg-white/70 dark:bg-black/20 backdrop-blur rounded-lg p-4 border hover:shadow-lg transition-all">
+                    <h3 className="font-semibold mb-2">{t('analytics')}</h3>
+                    <p className="text-sm text-muted-foreground">{t('analyticsDesc')}</p>
+                  </div>
+
+                  <div className="bg-white/70 dark:bg-black/20 backdrop-blur rounded-lg p-4 border hover:shadow-lg transition-all">
+                    <h3 className="font-semibold mb-2">{t('multiLocation')}</h3>
+                    <p className="text-sm text-muted-foreground">{t('multiLocationDesc')}</p>
+                  </div>
+
+                  <div className="bg-white/70 dark:bg-black/20 backdrop-blur rounded-lg p-4 border hover:shadow-lg transition-all">
+                    <h3 className="font-semibold mb-2">{t('menuTranslation')}</h3>
+                    <p className="text-sm text-muted-foreground">{t('menuTranslationDesc')}</p>
+                  </div>
+
+                  <div className="bg-white/70 dark:bg-black/20 backdrop-blur rounded-lg p-4 border hover:shadow-lg transition-all">
+                    <h3 className="font-semibold mb-2">🚀 {t('moreComing')}</h3>
+                    <p className="text-sm text-muted-foreground">{t('moreComingDesc')}</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
