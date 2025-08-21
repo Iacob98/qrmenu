@@ -32,7 +32,7 @@ export default function Landing() {
             <div className="text-center">
               <div className="inline-flex items-center bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium mb-8">
                 <Zap className="w-4 h-4 mr-2" />
-                Открытая бета-версия - Присоединяйтесь первыми!
+                {t('betaBadge')}
               </div>
               
               <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
@@ -132,28 +132,28 @@ export default function Landing() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                Инновационная платформа в открытой бета-версии
+                {t('betaHeroTitle')}
               </h2>
               <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Будьте среди первых, кто попробует революционный подход к созданию цифровых меню с помощью ИИ
+                {t('betaHeroSubtitle')}
               </p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               <div className="space-y-2">
                 <div className="text-3xl md:text-4xl font-bold text-blue-600">∞</div>
-                <div className="text-gray-600">Неограниченные возможности</div>
+                <div className="text-gray-600">{t('betaStatsUnlimited')}</div>
               </div>
               <div className="space-y-2">
                 <div className="text-3xl md:text-4xl font-bold text-green-600">AI</div>
-                <div className="text-gray-600">Мощь искусственного интеллекта</div>
+                <div className="text-gray-600">{t('betaStatsAI')}</div>
               </div>
               <div className="space-y-2">
                 <div className="text-3xl md:text-4xl font-bold text-purple-600">24/7</div>
-                <div className="text-gray-600">Поддержка разработчиков</div>
+                <div className="text-gray-600">{t('betaStatsSupport')}</div>
               </div>
               <div className="space-y-2">
                 <div className="text-3xl md:text-4xl font-bold text-orange-600">FREE</div>
-                <div className="text-gray-600">Бесплатно в бета-версии</div>
+                <div className="text-gray-600">{t('betaStatsFree')}</div>
               </div>
             </div>
           </div>
@@ -164,10 +164,10 @@ export default function Landing() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Почему стоит попробовать QRMenu уже сегодня?
+                {t('betaWhyTitle')}
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Первая в своем роде платформа с полным циклом ИИ для ресторанного бизнеса
+                {t('betaWhySubtitle')}
               </p>
             </div>
             
@@ -298,10 +298,10 @@ export default function Landing() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Ранний доступ к инновациям
+                {t('earlyAccessTitle')}
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Присоединяйтесь к открытой бета-версии и помогите нам создать лучшую платформу
+                {t('earlyAccessSubtitle')}
               </p>
             </div>
             
@@ -311,14 +311,14 @@ export default function Landing() {
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
                     <Users className="text-white" size={32} />
                   </div>
-                  <h3 className="text-xl font-semibold mb-4 text-center">Сообщество бета-тестеров</h3>
+                  <h3 className="text-xl font-semibold mb-4 text-center">{t('betaCommunityTitle')}</h3>
                   <p className="text-gray-600 text-center mb-4">
-                    Станьте частью эксклюзивного сообщества рестораторов, тестирующих новые возможности первыми
+                    {t('betaCommunityDesc')}
                   </p>
                   <ul className="text-sm text-gray-600 space-y-2">
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Прямая связь с разработчиками</li>
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Влияние на развитие продукта</li>
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Ранний доступ к новинкам</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('betaDirectContactDev')}</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('betaInfluenceProduct')}</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('betaEarlyAccess')}</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -333,14 +333,14 @@ export default function Landing() {
                   <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
                     <Brain className="text-white" size={32} />
                   </div>
-                  <h3 className="text-xl font-semibold mb-4 text-center">Передовые ИИ-технологии</h3>
+                  <h3 className="text-xl font-semibold mb-4 text-center">{t('betaAiTechTitle')}</h3>
                   <p className="text-gray-600 text-center mb-4">
-                    Попробуйте самые современные алгоритмы анализа меню и генерации контента
+                    {t('betaAiTechDesc')}
                   </p>
                   <ul className="text-sm text-gray-600 space-y-2">
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />GPT-4 для анализа текста</li>
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />DALL-E для генерации изображений</li>
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Мультиязычный ИИ-переводчик</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('betaGPT4Text')}</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('betaDalleImages')}</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('betaMultilingualAI')}</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -350,14 +350,14 @@ export default function Landing() {
                   <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6">
                     <TrendingUp className="text-white" size={32} />
                   </div>
-                  <h3 className="text-xl font-semibold mb-4 text-center">Развитие вместе с вами</h3>
+                  <h3 className="text-xl font-semibold mb-4 text-center">{t('betaDevelopmentTitle')}</h3>
                   <p className="text-gray-600 text-center mb-4">
-                    Ваши отзывы и предложения напрямую влияют на roadmap разработки платформы
+                    {t('betaDevelopmentDesc')}
                   </p>
                   <ul className="text-sm text-gray-600 space-y-2">
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Персональная поддержка</li>
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Быстрая реализация идей</li>
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Привилегии для beta-пользователей</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('betaPersonalSupport')}</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('betaFastImplementation')}</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('betaUserPrivileges')}</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -370,10 +370,10 @@ export default function Landing() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Открытая бета-версия - Бесплатно для всех!
+                {t('betaPricingTitle')}
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Пользуйтесь всеми возможностями бесплатно во время бета-тестирования
+                {t('betaPricingSubtitle')}
               </p>
             </div>
             
@@ -382,65 +382,65 @@ export default function Landing() {
               <Card className="border-2 border-gradient-to-r from-blue-500 to-purple-600 shadow-2xl relative p-12 bg-gradient-to-b from-blue-50 via-white to-purple-50">
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                   <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg">
-                    🚀 Открытая Бета-версия
+                    {t('betaFooterStatus')}
                   </span>
                 </div>
                 <CardContent className="pt-8">
                   <div className="text-center">
-                    <h3 className="text-3xl font-bold mb-4">Полный доступ ко всем возможностям</h3>
+                    <h3 className="text-3xl font-bold mb-4">{t('betaPricingCardTitle')}</h3>
                     <div className="mb-8">
-                      <span className="text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">БЕСПЛАТНО</span>
-                      <div className="text-gray-600 text-lg mt-2">во время бета-тестирования</div>
+                      <span className="text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{t('betaPricingFree')}</span>
+                      <div className="text-gray-600 text-lg mt-2">{t('betaPricingFreeDuring')}</div>
                     </div>
                     <Button 
                       size="lg"
                       className="w-full max-w-md mb-8 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-lg py-6"
                       onClick={handleShowRegister}
                     >
-                      Присоединиться к бета-программе
+                      {t('betaJoinProgram')}
                     </Button>
                   </div>
                   
                   <div className="grid md:grid-cols-2 gap-8 mt-8">
                     <div>
-                      <h4 className="font-semibold text-lg mb-4 text-center">🤖 ИИ-возможности</h4>
+                      <h4 className="font-semibold text-lg mb-4 text-center">{t('betaAiFeaturesTitle')}</h4>
                       <ul className="space-y-3 text-sm">
                         <li className="flex items-start">
                           <CheckCircle className="w-4 h-4 text-green-500 mr-3 mt-0.5" />
-                          Анализ PDF и фото меню с помощью ИИ
+                          {t('betaAnalyzePDF')}
                         </li>
                         <li className="flex items-start">
                           <CheckCircle className="w-4 h-4 text-green-500 mr-3 mt-0.5" />
-                          Автоматическая генерация описаний блюд
+                          {t('betaGenerateDescriptions')}
                         </li>
                         <li className="flex items-start">
                           <CheckCircle className="w-4 h-4 text-green-500 mr-3 mt-0.5" />
-                          Создание фотографий блюд через DALL-E
+                          {t('betaCreatePhotos')}
                         </li>
                         <li className="flex items-start">
                           <CheckCircle className="w-4 h-4 text-green-500 mr-3 mt-0.5" />
-                          Улучшение описаний на разных языках
+                          {t('betaImproveDescriptions')}
                         </li>
                       </ul>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-lg mb-4 text-center">⚡ Основные функции</h4>
+                      <h4 className="font-semibold text-lg mb-4 text-center">{t('betaMainFeaturesTitle')}</h4>
                       <ul className="space-y-3 text-sm">
                         <li className="flex items-start">
                           <CheckCircle className="w-4 h-4 text-green-500 mr-3 mt-0.5" />
-                          Неограниченное количество ресторанов и блюд
+                          {t('betaUnlimitedRestaurants')}
                         </li>
                         <li className="flex items-start">
                           <CheckCircle className="w-4 h-4 text-green-500 mr-3 mt-0.5" />
-                          QR-коды и публичные ссылки на меню
+                          {t('betaQrAndLinks')}
                         </li>
                         <li className="flex items-start">
                           <CheckCircle className="w-4 h-4 text-green-500 mr-3 mt-0.5" />
-                          Полная кастомизация дизайна
+                          {t('betaDesignCustomization')}
                         </li>
                         <li className="flex items-start">
                           <CheckCircle className="w-4 h-4 text-green-500 mr-3 mt-0.5" />
-                          Многоязычная поддержка (RU/EN/DE)
+                          {t('betaMultilingual')}
                         </li>
                       </ul>
                     </div>
@@ -450,11 +450,11 @@ export default function Landing() {
             </div>
             
             <div className="text-center mt-12">
-              <p className="text-gray-600 mb-4">Бесплатный доступ ко всем функциям во время бета-тестирования</p>
+              <p className="text-gray-600 mb-4">{t('betaFreeAccessTitle')}</p>
               <div className="flex justify-center space-x-8 text-sm text-gray-500">
-                <span>✓ Регистрация за 30 секунд</span>
-                <span>✓ Никаких скрытых платежей</span>
-                <span>✓ Помогаем развивать продукт</span>
+                <span>✓ {t('betaRegistration30sec')}</span>
+                <span>✓ {t('betaNoHiddenFees')}</span>
+                <span>✓ {t('betaHelpDevelop')}</span>
               </div>
             </div>
           </div>
@@ -535,10 +535,10 @@ export default function Landing() {
           <div className="absolute inset-0 bg-black opacity-10"></div>
           <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative z-10">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              Готовы создать меню будущего?
+              {t('betaCtaTitle')}
             </h2>
             <p className="text-xl md:text-2xl mb-8 opacity-90">
-              Станьте одними из первых, кто попробует революционную платформу
+              {t('betaCtaSubtitle')}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
@@ -583,9 +583,9 @@ export default function Landing() {
                 <div className="text-sm text-gray-500">
                   <p className="mb-2">© 2024 QRMenu. Все права защищены.</p>
                   <div className="flex space-x-4">
-                    <span>🚀 Открытая бета-версия</span>
-                    <span>🤖 Powered by AI</span>
-                    <span>⚡ Made with ❤️</span>
+                    <span>{t('betaFooterStatus')}</span>
+                    <span>{t('betaFooterPowered')}</span>
+                    <span>{t('betaFooterMade')}</span>
                   </div>
                 </div>
               </div>
