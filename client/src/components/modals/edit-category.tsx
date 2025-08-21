@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useTranslation } from "react-i18next";
 import type { Category } from "@shared/schema";
 
 interface EditCategoryModalProps {
@@ -32,6 +33,7 @@ export function EditCategoryModal({
   category,
   restaurantId
 }: EditCategoryModalProps) {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
