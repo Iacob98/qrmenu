@@ -38,7 +38,7 @@ export function EditFavoritesTitleModal({
 
   const updateTitleMutation = useMutation({
     mutationFn: async (favoritesTitle: string) => {
-      return await apiRequest(`/api/restaurants/${restaurantId}/favorites-title`, "PATCH", { favoritesTitle });
+      return await apiRequest("PATCH", `/api/restaurants/${restaurantId}/favorites-title`, { favoritesTitle });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/restaurants", restaurantId] });
