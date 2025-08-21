@@ -577,11 +577,10 @@ export default function Landing() {
                   <span className="font-bold text-2xl">QRMenu</span>
                 </div>
                 <p className="text-gray-400 mb-6 max-w-md">
-                  Современная платформа для создания цифровых меню с искусственным интеллектом. 
-                  Помогаем ресторанам по всему миру создавать красивые и функциональные меню за минуты.
+                  {t('footerDescription')}
                 </p>
                 <div className="text-sm text-gray-500">
-                  <p className="mb-2">© 2024 QRMenu. Все права защищены.</p>
+                  <p className="mb-2">{t('copyright')}</p>
                   <div className="flex space-x-4">
                     <span>{t('betaFooterStatus')}</span>
                     <span>{t('betaFooterPowered')}</span>
@@ -591,31 +590,31 @@ export default function Landing() {
               </div>
               
               <div>
-                <h3 className="font-semibold mb-4">Продукт</h3>
+                <h3 className="font-semibold mb-4">{t('product')}</h3>
                 <ul className="space-y-3 text-gray-400">
-                  <li><a href="#" className="hover:text-white transition-colors">Возможности</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Цены</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">API</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Интеграции</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">{t('features')}</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">{t('pricing')}</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">{t('api')}</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">{t('integrations')}</a></li>
                 </ul>
                 
-                <h3 className="font-semibold mb-4 mt-8">Поддержка</h3>
+                <h3 className="font-semibold mb-4 mt-8">{t('support')}</h3>
                 <ul className="space-y-3 text-gray-400">
-                  <li><a href="#" className="hover:text-white transition-colors">Центр помощи</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Связаться с нами</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Статус системы</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">{t('helpCenter')}</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">{t('contactUs')}</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">{t('systemStatus')}</a></li>
                 </ul>
               </div>
               
               <div>
-                <h3 className="font-semibold mb-4">Настройки</h3>
+                <h3 className="font-semibold mb-4">{t('settingsFooter')}</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Язык</label>
+                    <label className="block text-sm font-medium mb-2">{t('language')}</label>
                     <LanguageSelector />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Валюта</label>
+                    <label className="block text-sm font-medium mb-2">{t('currency')}</label>
                     <select className="bg-gray-800 text-white rounded px-3 py-2 border border-gray-700 w-full">
                       <option>💶 EUR - Euro</option>
                       <option>💵 USD - Dollar</option>
@@ -626,11 +625,11 @@ export default function Landing() {
                 </div>
                 
                 <div className="mt-8 pt-6 border-t border-gray-800">
-                  <p className="text-sm text-gray-400 mb-2">Юридическая информация</p>
+                  <p className="text-sm text-gray-400 mb-2">{t('legalInfo')}</p>
                   <div className="space-y-2 text-sm">
-                    <a href="#" className="block text-gray-400 hover:text-white transition-colors">Политика конфиденциальности</a>
-                    <a href="#" className="block text-gray-400 hover:text-white transition-colors">Условия использования</a>
-                    <a href="#" className="block text-gray-400 hover:text-white transition-colors">Cookie-файлы</a>
+                    <a href="#" className="block text-gray-400 hover:text-white transition-colors">{t('privacyPolicy')}</a>
+                    <a href="#" className="block text-gray-400 hover:text-white transition-colors">{t('termsOfUse')}</a>
+                    <a href="#" className="block text-gray-400 hover:text-white transition-colors">{t('cookieFiles')}</a>
                   </div>
                 </div>
               </div>
