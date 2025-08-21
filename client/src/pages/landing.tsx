@@ -48,7 +48,7 @@ export default function Landing() {
                   className="text-lg px-8 py-4"
                   onClick={handleShowRegister}
                 >
-                  {t('createMenu')} - Бесплатно
+                  {t('createMenuFree')}
                 </Button>
                 <Button 
                   size="lg" 
@@ -56,7 +56,7 @@ export default function Landing() {
                   className="text-lg px-8 py-4"
                   onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
                 >
-                  Посмотреть демо
+                  {t('viewDemo')}
                 </Button>
               </div>
 
@@ -64,15 +64,15 @@ export default function Landing() {
               <div className="flex justify-center items-center space-x-8 text-sm text-gray-600 mb-12">
                 <div className="flex items-center">
                   <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
-                  Создание за 5 минут
+                  {t('setup5min')}
                 </div>
                 <div className="flex items-center">
                   <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
-                  Бесплатный план
+                  {t('freePlan')}
                 </div>
                 <div className="flex items-center">
                   <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
-                  Без обязательств
+                  {t('noCommitments')}
                 </div>
               </div>
             </div>
@@ -82,20 +82,20 @@ export default function Landing() {
               <div className="relative w-80 h-96 bg-gray-900 rounded-3xl p-2 shadow-2xl transform hover:scale-105 transition-transform duration-300">
                 <div className="w-full h-full bg-white rounded-2xl overflow-hidden">
                   <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 text-center">
-                    <h3 className="font-semibold">Итальянский Ресторан</h3>
-                    <p className="text-xs opacity-90">Просканируйте QR код для меню</p>
+                    <h3 className="font-semibold">{t('italianRestaurant')}</h3>
+                    <p className="text-xs opacity-90">{t('scanQrForMenu')}</p>
                   </div>
                   <div className="p-4 space-y-3">
                     <div className="flex space-x-2">
-                      <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm">Супы</span>
-                      <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm">Горячее</span>
-                      <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm">Десерты</span>
+                      <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm">{t('soups')}</span>
+                      <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm">{t('hotDishes')}</span>
+                      <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm">{t('desserts')}</span>
                     </div>
                     <div className="border rounded-lg p-3 hover:bg-gray-50 transition-colors">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h4 className="font-semibold text-sm">Борщ украинский</h4>
-                          <p className="text-gray-600 text-xs">Свекла, мясо, сметана</p>
+                          <h4 className="font-semibold text-sm">{t('ukrainianBorscht')}</h4>
+                          <p className="text-gray-600 text-xs">{t('beetMeatSourCream')}</p>
                           <div className="flex mt-1">
                             {[1,2,3,4,5].map(i => (
                               <Star key={i} className="w-3 h-3 text-yellow-400 fill-current" />
@@ -108,8 +108,8 @@ export default function Landing() {
                     <div className="border rounded-lg p-3 hover:bg-gray-50 transition-colors">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h4 className="font-semibold text-sm">Солянка мясная</h4>
-                          <p className="text-gray-600 text-xs">Копчености, огурцы, лимон</p>
+                          <h4 className="font-semibold text-sm">{t('meatSolyanka')}</h4>
+                          <p className="text-gray-600 text-xs">{t('smokedMeatPicklesLemon')}</p>
                           <div className="flex mt-1">
                             {[1,2,3,4].map(i => (
                               <Star key={i} className="w-3 h-3 text-yellow-400 fill-current" />
@@ -180,9 +180,9 @@ export default function Landing() {
                   <h3 className="text-xl font-semibold mb-4">{t('aiFeatureTitle')}</h3>
                   <p className="text-gray-600 mb-4">{t('aiFeatureDesc')}</p>
                   <ul className="text-sm text-gray-600 text-left space-y-2">
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Анализ PDF и фотографий меню</li>
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Автоматическое создание описаний</li>
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Профессиональные фото блюд</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('analyzePdfPhotos')}</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('automaticDescriptions')}</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('professionalDishPhotos')}</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -195,9 +195,9 @@ export default function Landing() {
                   <h3 className="text-xl font-semibold mb-4">{t('convenientTitle')}</h3>
                   <p className="text-gray-600 mb-4">{t('convenientDesc')}</p>
                   <ul className="text-sm text-gray-600 text-left space-y-2">
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Адаптивный дизайн</li>
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Быстрая загрузка</li>
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Удобная навигация</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('adaptiveDesign')}</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('fastLoading')}</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('convenientNavigation')}</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -210,9 +210,9 @@ export default function Landing() {
                   <h3 className="text-xl font-semibold mb-4">{t('multilingualTitle')}</h3>
                   <p className="text-gray-600 mb-4">{t('multilingualDesc')}</p>
                   <ul className="text-sm text-gray-600 text-left space-y-2">
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Русский, английский, немецкий</li>
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Автоматическое определение</li>
-                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Легкое переключение</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('russianEnglishGerman')}</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('automaticDetection')}</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />{t('easySwitching')}</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -225,7 +225,7 @@ export default function Landing() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Полный набор инструментов для современного ресторана
+                {t('fullToolkitTitle')}
               </h2>
             </div>
             
@@ -235,8 +235,8 @@ export default function Landing() {
                   <QrCode className="text-blue-600" size={24} />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">QR-коды и ссылки</h3>
-                  <p className="text-gray-600 text-sm">Создавайте стильные QR-коды и публичные ссылки для мгновенного доступа к меню</p>
+                  <h3 className="font-semibold text-lg mb-2">{t('qrCodesLinks')}</h3>
+                  <p className="text-gray-600 text-sm">{t('qrCodesLinksDesc')}</p>
                 </div>
               </div>
               
@@ -245,8 +245,8 @@ export default function Landing() {
                   <Zap className="text-green-600" size={24} />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Мгновенные обновления</h3>
-                  <p className="text-gray-600 text-sm">Изменения в меню отображаются у гостей в реальном времени без перепечатки</p>
+                  <h3 className="font-semibold text-lg mb-2">{t('instantUpdates')}</h3>
+                  <p className="text-gray-600 text-sm">{t('instantUpdatesDesc')}</p>
                 </div>
               </div>
               
@@ -255,8 +255,8 @@ export default function Landing() {
                   <BarChart3 className="text-purple-600" size={24} />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Аналитика и отчеты</h3>
-                  <p className="text-gray-600 text-sm">Отслеживайте популярные блюда, время просмотра и другие важные метрики</p>
+                  <h3 className="font-semibold text-lg mb-2">{t('analyticsReports')}</h3>
+                  <p className="text-gray-600 text-sm">{t('analyticsReportsDesc')}</p>
                 </div>
               </div>
               
@@ -265,8 +265,8 @@ export default function Landing() {
                   <Users className="text-orange-600" size={24} />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Командная работа</h3>
-                  <p className="text-gray-600 text-sm">Приглашайте сотрудников для совместного управления меню и заказами</p>
+                  <h3 className="font-semibold text-lg mb-2">{t('teamwork')}</h3>
+                  <p className="text-gray-600 text-sm">{t('teamworkDesc')}</p>
                 </div>
               </div>
               
@@ -465,64 +465,64 @@ export default function Landing() {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Часто задаваемые вопросы
+                {t('faqTitle')}
               </h2>
               <p className="text-xl text-gray-600">
-                Ответы на самые популярные вопросы о QRMenu
+                {t('faqSubtitle')}
               </p>
             </div>
             
             <div className="space-y-6">
               <Card className="p-6">
                 <CardContent className="pt-0">
-                  <h3 className="font-semibold text-lg mb-3">Как быстро я могу создать меню?</h3>
+                  <h3 className="font-semibold text-lg mb-3">{t('faqHowFast')}</h3>
                   <p className="text-gray-600">
-                    С QRMenu вы можете создать полноценное цифровое меню за 5-10 минут. Загрузите PDF или фотографии существующего меню, и наш ИИ автоматически извлечет всю информацию о блюдах, ценах и описаниях.
+                    {t('faqHowFastAnswer')}
                   </p>
                 </CardContent>
               </Card>
 
               <Card className="p-6">
                 <CardContent className="pt-0">
-                  <h3 className="font-semibold text-lg mb-3">Нужно ли устанавливать приложение?</h3>
+                  <h3 className="font-semibold text-lg mb-3">{t('faqNeedApp')}</h3>
                   <p className="text-gray-600">
-                    Нет! QRMenu работает через обычный веб-браузер. Ваши гости просто сканируют QR-код и мгновенно видят меню на своих телефонах без установки каких-либо приложений.
+                    {t('faqNeedAppAnswer')}
                   </p>
                 </CardContent>
               </Card>
 
               <Card className="p-6">
                 <CardContent className="pt-0">
-                  <h3 className="font-semibold text-lg mb-3">Можно ли изменить дизайн меню?</h3>
+                  <h3 className="font-semibold text-lg mb-3">{t('faqCustomizeDesign')}</h3>
                   <p className="text-gray-600">
-                    Да! У нас есть множество готовых тем и возможность полной кастомизации цветов, шрифтов и макета. Вы также можете добавить логотип вашего ресторана и фоновые изображения.
+                    {t('faqCustomizeDesignAnswer')}
                   </p>
                 </CardContent>
               </Card>
 
               <Card className="p-6">
                 <CardContent className="pt-0">
-                  <h3 className="font-semibold text-lg mb-3">Есть ли ограничения в бесплатном плане?</h3>
+                  <h3 className="font-semibold text-lg mb-3">{t('faqFreeLimits')}</h3>
                   <p className="text-gray-600">
-                    Бесплатный план включает 1 ресторан и до 50 блюд. Этого достаточно для небольших заведений. При необходимости всегда можно перейти на платный план с расширенными возможностями.
+                    {t('faqFreeLimitsAnswer')}
                   </p>
                 </CardContent>
               </Card>
 
               <Card className="p-6">
                 <CardContent className="pt-0">
-                  <h3 className="font-semibold text-lg mb-3">Какие языки поддерживает платформа?</h3>
+                  <h3 className="font-semibold text-lg mb-3">{t('faqLanguages')}</h3>
                   <p className="text-gray-600">
-                    QRMenu поддерживает русский, английский и немецкий языки. Интерфейс автоматически определяет язык браузера посетителя, а вы можете создать меню на любом из поддерживаемых языков.
+                    {t('faqLanguagesAnswer')}
                   </p>
                 </CardContent>
               </Card>
               
               <Card className="p-6">
                 <CardContent className="pt-0">
-                  <h3 className="font-semibold text-lg mb-3">Безопасны ли мои данные?</h3>
+                  <h3 className="font-semibold text-lg mb-3">{t('faqDataSecurity')}</h3>
                   <p className="text-gray-600">
-                    Абсолютно! Все данные шифруются и хранятся на защищенных серверах. Мы регулярно создаем резервные копии и соблюдаем все стандарты безопасности. Ваша информация никогда не передается третьим лицам.
+                    {t('faqDataSecurityAnswer')}
                   </p>
                 </CardContent>
               </Card>
@@ -547,7 +547,7 @@ export default function Landing() {
                 className="text-lg px-8 py-4 bg-white text-blue-600 hover:bg-gray-100"
                 onClick={handleShowRegister}
               >
-                Создать меню бесплатно
+                {t('createMenuFree')}
               </Button>
               <Button 
                 size="lg" 
@@ -555,12 +555,12 @@ export default function Landing() {
                 className="text-lg px-8 py-4 border-white text-white hover:bg-white hover:text-blue-600"
                 onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
               >
-                Посмотреть демо
+                {t('viewDemo')}
               </Button>
             </div>
             
             <div className="text-sm opacity-75">
-              ✓ Настройка за 5 минут • ✓ Без долгосрочных обязательств • ✓ Поддержка 24/7
+              ✓ {t('setup5minCommit')} • ✓ {t('noLongTermCommitments')} • ✓ {t('support24_7')}
             </div>
           </div>
         </section>
