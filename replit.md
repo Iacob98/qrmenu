@@ -1,11 +1,12 @@
 # Overview
 
-This is a full-stack restaurant online menu management system that enables restaurant owners to create, manage, and share digital menus via QR codes and public links. Its core purpose is to modernize menu management, offering features like AI-powered menu generation, comprehensive design customization, and multi-language support. The project aims to provide restaurants with a flexible, efficient, and visually appealing way to present their offerings to customers.
+This is a full-stack restaurant online menu management system in **open beta phase** that enables restaurant owners to create, manage, and share digital menus via QR codes and public links. Its core purpose is to modernize menu management, offering features like AI-powered menu generation, comprehensive design customization, and multi-language support. The project is currently being developed and tested with early adopters, with all features available free during the beta period. The platform aims to provide restaurants with a flexible, efficient, and visually appealing way to present their offerings to customers.
 
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
 AI Image Generation: Always use specified Midjourney-style flags in DALL-E prompts as requested by user.
+Project Status: Open beta version with no real clients yet - all marketing content should be honest about beta status and avoid fake statistics or testimonials.
 
 # System Architecture
 

@@ -30,9 +30,9 @@ export default function Landing() {
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 z-0"></div>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center">
-              <div className="inline-flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-8">
-                <Star className="w-4 h-4 mr-2" />
-                Более 10,000 ресторанов уже используют QRMenu
+              <div className="inline-flex items-center bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium mb-8">
+                <Zap className="w-4 h-4 mr-2" />
+                Открытая бета-версия - Присоединяйтесь первыми!
               </div>
               
               <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
@@ -127,25 +127,33 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Stats Section */}
+        {/* Beta Features Section */}
         <section className="py-16 bg-white border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+                Инновационная платформа в открытой бета-версии
+              </h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Будьте среди первых, кто попробует революционный подход к созданию цифровых меню с помощью ИИ
+              </p>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               <div className="space-y-2">
-                <div className="text-3xl md:text-4xl font-bold text-gray-900">10,000+</div>
-                <div className="text-gray-600">Активных ресторанов</div>
+                <div className="text-3xl md:text-4xl font-bold text-blue-600">∞</div>
+                <div className="text-gray-600">Неограниченные возможности</div>
               </div>
               <div className="space-y-2">
-                <div className="text-3xl md:text-4xl font-bold text-gray-900">2M+</div>
-                <div className="text-gray-600">QR-кодов сканировано</div>
+                <div className="text-3xl md:text-4xl font-bold text-green-600">AI</div>
+                <div className="text-gray-600">Мощь искусственного интеллекта</div>
               </div>
               <div className="space-y-2">
-                <div className="text-3xl md:text-4xl font-bold text-gray-900">150+</div>
-                <div className="text-gray-600">Стран по всему миру</div>
+                <div className="text-3xl md:text-4xl font-bold text-purple-600">24/7</div>
+                <div className="text-gray-600">Поддержка разработчиков</div>
               </div>
               <div className="space-y-2">
-                <div className="text-3xl md:text-4xl font-bold text-gray-900">99.9%</div>
-                <div className="text-gray-600">Время работы</div>
+                <div className="text-3xl md:text-4xl font-bold text-orange-600">FREE</div>
+                <div className="text-gray-600">Бесплатно в бета-версии</div>
               </div>
             </div>
           </div>
@@ -156,10 +164,10 @@ export default function Landing() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Почему более 10,000 ресторанов выбирают QRMenu?
+                Почему стоит попробовать QRMenu уже сегодня?
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Современное решение для создания цифровых меню с мощными возможностями ИИ
+                Первая в своем роде платформа с полным циклом ИИ для ресторанного бизнеса
               </p>
             </div>
             
@@ -285,82 +293,72 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Testimonials Section */}
+        {/* Early Access Section */}
         <section className="py-20 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Что говорят наши клиенты
+                Ранний доступ к инновациям
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Более 10,000 ресторанов по всему миру доверяют QRMenu
+                Присоединяйтесь к открытой бета-версии и помогите нам создать лучшую платформу
               </p>
             </div>
             
             <div className="grid md:grid-cols-3 gap-8">
               <Card className="p-8 border-0 shadow-lg">
                 <CardContent className="pt-6">
-                  <div className="flex mb-4">
-                    {[1,2,3,4,5].map(i => (
-                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                    ))}
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Users className="text-white" size={32} />
                   </div>
-                  <p className="text-gray-600 mb-6 italic">
-                    "QRMenu полностью изменил наш подход к обслуживанию. Клиенты теперь могут просматривать меню на своих телефонах, а мы экономим время на печати новых меню."
+                  <h3 className="text-xl font-semibold mb-4 text-center">Сообщество бета-тестеров</h3>
+                  <p className="text-gray-600 text-center mb-4">
+                    Станьте частью эксклюзивного сообщества рестораторов, тестирующих новые возможности первыми
                   </p>
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold mr-4">
-                      АМ
-                    </div>
-                    <div>
-                      <div className="font-semibold">Анна Михайлова</div>
-                      <div className="text-gray-600 text-sm">Владелец "Pasta Italia"</div>
-                    </div>
+                  <ul className="text-sm text-gray-600 space-y-2">
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Прямая связь с разработчиками</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Влияние на развитие продукта</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Ранний доступ к новинкам</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card className="p-8 border-0 shadow-lg border-2 border-blue-500 relative">
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                  <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                    Бета-программа
+                  </span>
+                </div>
+                <CardContent className="pt-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Brain className="text-white" size={32} />
                   </div>
+                  <h3 className="text-xl font-semibold mb-4 text-center">Передовые ИИ-технологии</h3>
+                  <p className="text-gray-600 text-center mb-4">
+                    Попробуйте самые современные алгоритмы анализа меню и генерации контента
+                  </p>
+                  <ul className="text-sm text-gray-600 space-y-2">
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />GPT-4 для анализа текста</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />DALL-E для генерации изображений</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Мультиязычный ИИ-переводчик</li>
+                  </ul>
                 </CardContent>
               </Card>
 
               <Card className="p-8 border-0 shadow-lg">
                 <CardContent className="pt-6">
-                  <div className="flex mb-4">
-                    {[1,2,3,4,5].map(i => (
-                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                    ))}
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <TrendingUp className="text-white" size={32} />
                   </div>
-                  <p className="text-gray-600 mb-6 italic">
-                    "ИИ анализ меню сэкономил нам часы работы. Загрузили старое PDF меню, и через 5 минут получили красивое цифровое меню с фотографиями!"
+                  <h3 className="text-xl font-semibold mb-4 text-center">Развитие вместе с вами</h3>
+                  <p className="text-gray-600 text-center mb-4">
+                    Ваши отзывы и предложения напрямую влияют на roadmap разработки платформы
                   </p>
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-4">
-                      СК
-                    </div>
-                    <div>
-                      <div className="font-semibold">Сергей Козлов</div>
-                      <div className="text-gray-600 text-sm">Управляющий сети "Borsch & Co"</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="p-8 border-0 shadow-lg">
-                <CardContent className="pt-6">
-                  <div className="flex mb-4">
-                    {[1,2,3,4,5].map(i => (
-                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-gray-600 mb-6 italic">
-                    "Многоязычный интерфейс помог нам обслуживать туристов. Теперь каждый гость может читать меню на удобном языке."
-                  </p>
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold mr-4">
-                      МР
-                    </div>
-                    <div>
-                      <div className="font-semibold">Мария Розова</div>
-                      <div className="text-gray-600 text-sm">Шеф-повар "Gourmet Garden"</div>
-                    </div>
-                  </div>
+                  <ul className="text-sm text-gray-600 space-y-2">
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Персональная поддержка</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Быстрая реализация идей</li>
+                    <li className="flex items-start"><CheckCircle className="w-4 h-4 text-green-500 mr-2 mt-0.5" />Привилегии для beta-пользователей</li>
+                  </ul>
                 </CardContent>
               </Card>
             </div>
@@ -372,159 +370,91 @@ export default function Landing() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Прозрачные цены для любого бизнеса
+                Открытая бета-версия - Бесплатно для всех!
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Начните бесплатно и масштабируйтесь по мере роста
+                Пользуйтесь всеми возможностями бесплатно во время бета-тестирования
               </p>
             </div>
             
-            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {/* Free Plan */}
-              <Card className="border-2 border-gray-200 hover:border-gray-300 transition-all p-8">
-                <CardContent className="pt-6">
-                  <div className="text-center">
-                    <h3 className="text-2xl font-bold mb-2">Стартовый</h3>
-                    <div className="mb-6">
-                      <span className="text-4xl font-bold">€0</span>
-                      <span className="text-gray-600">/месяц</span>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      className="w-full mb-8"
-                      onClick={handleShowRegister}
-                    >
-                      Начать бесплатно
-                    </Button>
-                  </div>
-                  <ul className="space-y-4 text-sm">
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                      1 ресторан
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                      До 50 блюд
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                      QR-код меню
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                      Базовая аналитика
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                      Поддержка по email
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              {/* Pro Plan */}
-              <Card className="border-2 border-blue-500 shadow-2xl relative p-8 bg-gradient-to-b from-blue-50 to-white">
+            <div className="max-w-4xl mx-auto">
+              {/* Beta Plan - Single centered card */}
+              <Card className="border-2 border-gradient-to-r from-blue-500 to-purple-600 shadow-2xl relative p-12 bg-gradient-to-b from-blue-50 via-white to-purple-50">
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium">
-                    Популярный
+                  <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg">
+                    🚀 Открытая Бета-версия
                   </span>
                 </div>
-                <CardContent className="pt-6">
+                <CardContent className="pt-8">
                   <div className="text-center">
-                    <h3 className="text-2xl font-bold mb-2">Профессионал</h3>
-                    <div className="mb-6">
-                      <span className="text-4xl font-bold">€19</span>
-                      <span className="text-gray-600">/месяц</span>
+                    <h3 className="text-3xl font-bold mb-4">Полный доступ ко всем возможностям</h3>
+                    <div className="mb-8">
+                      <span className="text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">БЕСПЛАТНО</span>
+                      <div className="text-gray-600 text-lg mt-2">во время бета-тестирования</div>
                     </div>
                     <Button 
-                      className="w-full mb-8"
+                      size="lg"
+                      className="w-full max-w-md mb-8 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-lg py-6"
                       onClick={handleShowRegister}
                     >
-                      Выбрать план
+                      Присоединиться к бета-программе
                     </Button>
                   </div>
-                  <ul className="space-y-4 text-sm">
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                      5 ресторанов
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                      Неограниченно блюд
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                      ИИ-анализ меню
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                      Генерация фото блюд
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                      Расширенная аналитика
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                      Приоритетная поддержка
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              {/* Enterprise Plan */}
-              <Card className="border-2 border-gray-200 hover:border-gray-300 transition-all p-8">
-                <CardContent className="pt-6">
-                  <div className="text-center">
-                    <h3 className="text-2xl font-bold mb-2">Корпоративный</h3>
-                    <div className="mb-6">
-                      <span className="text-4xl font-bold">€99</span>
-                      <span className="text-gray-600">/месяц</span>
+                  
+                  <div className="grid md:grid-cols-2 gap-8 mt-8">
+                    <div>
+                      <h4 className="font-semibold text-lg mb-4 text-center">🤖 ИИ-возможности</h4>
+                      <ul className="space-y-3 text-sm">
+                        <li className="flex items-start">
+                          <CheckCircle className="w-4 h-4 text-green-500 mr-3 mt-0.5" />
+                          Анализ PDF и фото меню с помощью ИИ
+                        </li>
+                        <li className="flex items-start">
+                          <CheckCircle className="w-4 h-4 text-green-500 mr-3 mt-0.5" />
+                          Автоматическая генерация описаний блюд
+                        </li>
+                        <li className="flex items-start">
+                          <CheckCircle className="w-4 h-4 text-green-500 mr-3 mt-0.5" />
+                          Создание фотографий блюд через DALL-E
+                        </li>
+                        <li className="flex items-start">
+                          <CheckCircle className="w-4 h-4 text-green-500 mr-3 mt-0.5" />
+                          Улучшение описаний на разных языках
+                        </li>
+                      </ul>
                     </div>
-                    <Button 
-                      variant="outline" 
-                      className="w-full mb-8"
-                      onClick={handleShowRegister}
-                    >
-                      Связаться с нами
-                    </Button>
+                    <div>
+                      <h4 className="font-semibold text-lg mb-4 text-center">⚡ Основные функции</h4>
+                      <ul className="space-y-3 text-sm">
+                        <li className="flex items-start">
+                          <CheckCircle className="w-4 h-4 text-green-500 mr-3 mt-0.5" />
+                          Неограниченное количество ресторанов и блюд
+                        </li>
+                        <li className="flex items-start">
+                          <CheckCircle className="w-4 h-4 text-green-500 mr-3 mt-0.5" />
+                          QR-коды и публичные ссылки на меню
+                        </li>
+                        <li className="flex items-start">
+                          <CheckCircle className="w-4 h-4 text-green-500 mr-3 mt-0.5" />
+                          Полная кастомизация дизайна
+                        </li>
+                        <li className="flex items-start">
+                          <CheckCircle className="w-4 h-4 text-green-500 mr-3 mt-0.5" />
+                          Многоязычная поддержка (RU/EN/DE)
+                        </li>
+                      </ul>
+                    </div>
                   </div>
-                  <ul className="space-y-4 text-sm">
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                      Неограниченно ресторанов
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                      Белый label
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                      API доступ
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                      Персональный менеджер
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                      SLA гарантии
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                      Телефонная поддержка 24/7
-                    </li>
-                  </ul>
                 </CardContent>
               </Card>
             </div>
             
             <div className="text-center mt-12">
-              <p className="text-gray-600 mb-4">Все планы включают 30-дневную гарантию возврата денег</p>
+              <p className="text-gray-600 mb-4">Бесплатный доступ ко всем функциям во время бета-тестирования</p>
               <div className="flex justify-center space-x-8 text-sm text-gray-500">
-                <span>✓ Без долгосрочных обязательств</span>
-                <span>✓ Отмена в любое время</span>
-                <span>✓ Миграция данных бесплатно</span>
+                <span>✓ Регистрация за 30 секунд</span>
+                <span>✓ Никаких скрытых платежей</span>
+                <span>✓ Помогаем развивать продукт</span>
               </div>
             </div>
           </div>
@@ -608,7 +538,7 @@ export default function Landing() {
               Готовы создать меню будущего?
             </h2>
             <p className="text-xl md:text-2xl mb-8 opacity-90">
-              Присоединяйтесь к 10,000+ ресторанов, которые уже доверяют QRMenu
+              Станьте одними из первых, кто попробует революционную платформу
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
@@ -653,9 +583,9 @@ export default function Landing() {
                 <div className="text-sm text-gray-500">
                   <p className="mb-2">© 2024 QRMenu. Все права защищены.</p>
                   <div className="flex space-x-4">
-                    <span>🏆 Более 10,000 ресторанов</span>
-                    <span>🌍 150+ стран</span>
-                    <span>⭐ 4.9/5 рейтинг</span>
+                    <span>🚀 Открытая бета-версия</span>
+                    <span>🤖 Powered by AI</span>
+                    <span>⚡ Made with ❤️</span>
                   </div>
                 </div>
               </div>
