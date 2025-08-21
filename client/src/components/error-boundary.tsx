@@ -47,21 +47,21 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
         <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
           <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
             <h2 className="text-lg font-semibold text-gray-900 mb-2">
-              Что-то пошло не так
+              Something went wrong
             </h2>
             <p className="text-gray-600 mb-4">
-              Произошла ошибка при загрузке меню. Попробуйте обновить страницу.
+              An error occurred while loading the menu. Please refresh the page.
             </p>
             <button
               onClick={() => window.location.reload()}
               className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
             >
-              Обновить страницу
+              Refresh page
             </button>
             {this.state.error && (
               <details className="mt-4 text-left">
                 <summary className="text-sm text-gray-500 cursor-pointer">
-                  Техническая информация
+                  Technical details
                 </summary>
                 <pre className="text-xs text-gray-400 mt-2 overflow-x-auto">
                   {this.state.error.message}
@@ -83,16 +83,16 @@ export function ErrorFallback({ error }: { error?: Error }) {
     <div className="min-h-screen flex items-center justify-center bg-white p-4">
       <div className="text-center">
         <h1 className="text-xl font-bold text-gray-900 mb-4">
-          Меню временно недоступно
+          Menu temporarily unavailable
         </h1>
         <p className="text-gray-600 mb-4">
-          Попробуйте обновить страницу или вернуться позже
+          Try refreshing the page or come back later
         </p>
         <button
           onClick={() => window.location.reload()}
           className="bg-green-600 text-white px-6 py-2 rounded-lg"
         >
-          Обновить
+          Refresh
         </button>
       </div>
     </div>

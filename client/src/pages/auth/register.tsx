@@ -28,7 +28,7 @@ export default function Register() {
     city: "",
     phone: "",
     currency: "EUR",
-    language: "ru",
+    language: "en",
     aiToken: "",
   });
 

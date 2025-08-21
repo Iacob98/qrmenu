@@ -23,7 +23,7 @@ export default function Settings() {
     city: "",
     phone: "",
     currency: "EUR",
-    language: "ru",
+    language: "en",
     aiProvider: "openai",
     aiToken: "",
     aiModel: "",
@@ -61,7 +61,7 @@ export default function Settings() {
         city: restaurant.city || "",
         phone: restaurant.phone || "",
         currency: restaurant.currency || "EUR",
-        language: restaurant.language || "ru",
+        language: restaurant.language || "en",
         aiProvider: restaurant.aiProvider || "openai",
         aiToken: restaurant.aiToken || "",
         aiModel: restaurant.aiModel || "",
@@ -95,13 +95,13 @@ export default function Settings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/restaurants", selectedRestaurant] });
       toast({
-        title: "Успешно обновлено",
-        description: "Настройки ресторана сохранены",
+        title: "Successfully updated",
+        description: "Restaurant settings saved",
       });
     },
     onError: (error) => {
       toast({
-        title: "Ошибка",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -116,14 +116,14 @@ export default function Settings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/restaurants"] });
       toast({
-        title: "Ресторан удалён",
-        description: "Ресторан и все его данные удалены",
+        title: "Restaurant deleted",
+        description: "Restaurant and all its data have been deleted",
       });
       setSelectedRestaurant("");
     },
     onError: (error) => {
       toast({
-        title: "Ошибка",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -140,8 +140,8 @@ export default function Settings() {
     e.preventDefault();
     // TODO: Implement profile update API
     toast({
-      title: "Функция в разработке",
-      description: "Обновление профиля будет доступно в следующей версии",
+      title: "Feature in development",
+      description: "Profile update will be available in the next version",
     });
   };
 
@@ -153,8 +153,8 @@ export default function Settings() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
     toast({
-      title: "Ссылка скопирована",
-      description: "Публичная ссылка на меню скопирована в буфер обмена",
+      title: "Link copied",
+      description: "Public menu link copied to clipboard",
     });
   };
 
@@ -175,21 +175,21 @@ export default function Settings() {
       
       setAiTokenStatus('valid');
       toast({
-        title: "Токен действителен",
-        description: `${result.provider} API работает корректно (модель: ${result.model})`,
+        title: "Token valid",
+        description: `${result.provider} API working correctly (model: ${result.model})`,
       });
     } catch (error) {
       setAiTokenStatus('invalid');
       toast({
-        title: "Токен недействителен", 
-        description: "Проверьте правильность токена и настройки провайдера",
+        title: "Token invalid", 
+        description: "Check token validity and provider settings",
         variant: "destructive",
       });
     }
   };
 
   const handleDeleteRestaurant = () => {
-    if (!confirm("Вы уверены, что хотите удалить ресторан? Это действие нельзя отменить.")) {
+    if (!confirm("Are you sure you want to delete the restaurant? This action cannot be undone.")) {
       return;
     }
     deleteRestaurantMutation.mutate();
@@ -369,7 +369,6 @@ export default function Settings() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="ru">🇷🇺 Русский</SelectItem>
                               <SelectItem value="en">🇺🇸 English</SelectItem>
                               <SelectItem value="de">🇩🇪 Deutsch</SelectItem>
                             </SelectContent>

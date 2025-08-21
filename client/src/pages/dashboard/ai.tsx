@@ -82,13 +82,13 @@ export default function AIGeneration() {
       setGeneratedDishes(data.dishes || []);
       setGeneratedCategories(data.categories || []);
       toast({
-        title: "Анализ завершён",
-        description: `Найдено ${data.dishes?.length || 0} блюд и ${data.categories?.length || 0} категорий`,
+        title: "Analysis completed",
+        description: `Found ${data.dishes?.length || 0} dishes and ${data.categories?.length || 0} categories`,
       });
     },
     onError: (error) => {
       toast({
-        title: "Ошибка анализа",
+        title: "Analysis error",
         description: error.message,
         variant: "destructive",
       });
@@ -134,7 +134,7 @@ export default function AIGeneration() {
           // Fallback to first existing category
           categoryId = restaurantData.categories[0].id;
         } else {
-          throw new Error("Нет доступных категорий для добавления блюд");
+          throw new Error("No available categories to add dishes");
         }
         
         return apiRequest("POST", `/api/categories/${categoryId}/dishes`, {
@@ -152,8 +152,8 @@ export default function AIGeneration() {
     onSuccess: (results) => {
       queryClient.invalidateQueries({ queryKey: ["/api/restaurants", selectedRestaurant] });
       toast({
-        title: "Успешно добавлено",
-        description: `${results.length} блюд добавлено в меню`,
+        title: "Successfully added",
+        description: `${results.length} dishes added to menu`,
       });
       setGeneratedDishes([]);
       setGeneratedCategories([]);
@@ -161,7 +161,7 @@ export default function AIGeneration() {
     },
     onError: (error) => {
       toast({
-        title: "Ошибка добавления",
+        title: "Adding error",
         description: error.message,
         variant: "destructive",
       });
@@ -199,12 +199,12 @@ export default function AIGeneration() {
             setGeneratedDishes(data.dishes || []);
             setGeneratedCategories(data.categories || []);
             toast({
-              title: "Анализ PDF завершён",
-              description: `Найдено ${data.dishes?.length || 0} блюд и ${data.categories?.length || 0} категорий`,
+              title: "PDF analysis completed",
+              description: `Found ${data.dishes?.length || 0} dishes and ${data.categories?.length || 0} categories`,
             });
           } catch (error: any) {
             toast({
-              title: "Ошибка анализа PDF",
+              title: "PDF analysis error",
               description: error.message,
               variant: "destructive",
             });

@@ -56,13 +56,13 @@ export function FileUpload({
     onSuccess: (data) => {
       onChange(data.url);
       toast({
-        title: "Файл загружен",
-        description: "Изображение успешно загружено",
+        title: "File uploaded",
+        description: "Image uploaded successfully",
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Ошибка загрузки",
+        title: "Upload error",
         description: error.message,
         variant: "destructive",
       });
@@ -73,8 +73,8 @@ export function FileUpload({
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
-        title: "Неверный тип файла",
-        description: "Пожалуйста, выберите изображение",
+        title: "Invalid file type",
+        description: "Please select an image",
         variant: "destructive",
       });
       return;
@@ -83,8 +83,8 @@ export function FileUpload({
     // Validate file size
     if (file.size > maxSize * 1024 * 1024) {
       toast({
-        title: "Файл слишком большой",
-        description: `Максимальный размер: ${maxSize}MB`,
+        title: "File too large",
+        description: `Maximum size: ${maxSize}MB`,
         variant: "destructive",
       });
       return;
@@ -158,7 +158,7 @@ export function FileUpload({
           {uploadMutation.isPending ? (
             <div className="flex flex-col items-center justify-center h-full">
               <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
-              <p className="text-sm text-gray-600">Загрузка...</p>
+              <p className="text-sm text-gray-600">Uploading...</p>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-full">

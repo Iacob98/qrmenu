@@ -11,11 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 
 const createRestaurantSchema = z.object({
-  name: z.string().min(1, "Введите название ресторана"),
+  name: z.string().min(1, "Enter restaurant name"),
   city: z.string().optional(),
   phone: z.string().optional(),
   currency: z.string().default("EUR"),
-  language: z.string().default("ru"),
+  language: z.string().default("en"),
   aiProvider: z.string().default("openai"),
   aiToken: z.string().optional(),
   aiModel: z.string().optional(),
@@ -39,7 +39,7 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
       city: "",
       phone: "",
       currency: "EUR",
-      language: "ru",
+      language: "en",
       aiProvider: "openai",
       aiToken: "",
       aiModel: "",
@@ -66,8 +66,8 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
     },
     onSuccess: () => {
       toast({
-        title: "Успешно!",
-        description: "Ресторан создан",
+        title: "Success!",
+        description: "Restaurant created",
       });
       
       // Invalidate restaurants query to refetch the list
@@ -79,8 +79,8 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
     },
     onError: (error: any) => {
       toast({
-        title: "Ошибка",
-        description: error.message || "Не удалось создать ресторан",
+        title: "Error",
+        description: error.message || "Failed to create restaurant",
         variant: "destructive",
       });
     },
@@ -94,9 +94,9 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Создать ресторан</DialogTitle>
+          <DialogTitle>Create Restaurant</DialogTitle>
           <DialogDescription>
-            Добавьте новый ресторан для управления меню
+            Add a new restaurant to manage menus
           </DialogDescription>
         </DialogHeader>
 
@@ -107,9 +107,9 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Название ресторана</FormLabel>
+                  <FormLabel>Restaurant Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Мой ресторан" {...field} />
+                    <Input placeholder="My Restaurant" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -121,9 +121,9 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
               name="city"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Город (необязательно)</FormLabel>
+                  <FormLabel>City (optional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="Москва" {...field} />
+                    <Input placeholder="New York" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -135,9 +135,9 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Телефон (необязательно)</FormLabel>
+                  <FormLabel>Phone (optional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="+7 (xxx) xxx-xx-xx" {...field} />
+                    <Input placeholder="+1 (xxx) xxx-xxxx" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -150,11 +150,11 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
                 name="currency"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Валюта</FormLabel>
+                    <FormLabel>Currency</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Выберите валюту" />
+                          <SelectValue placeholder="Select currency" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -174,18 +174,16 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
                 name="language"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Язык</FormLabel>
+                    <FormLabel>Language</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Выберите язык" />
+                          <SelectValue placeholder="Select language" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="ru">Русский</SelectItem>
                         <SelectItem value="en">English</SelectItem>
-                        <SelectItem value="ro">Română</SelectItem>
-                        <SelectItem value="pl">Polski</SelectItem>
+                        <SelectItem value="de">Deutsch</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -199,11 +197,11 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
               name="aiProvider"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>AI провайдер</FormLabel>
+                  <FormLabel>AI Provider</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Выберите провайдера" />
+                        <SelectValue placeholder="Select provider" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -222,7 +220,7 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
               name="aiToken"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>AI токен (необязательно)</FormLabel>
+                  <FormLabel>AI Token (optional)</FormLabel>
                   <FormControl>
                     <Input 
                       type="password"
@@ -232,14 +230,14 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
                   </FormControl>
                   <p className="text-sm text-gray-500">
                     {form.watch("aiProvider") === "openrouter" 
-                      ? "Токен OpenRouter для генерации меню" 
+                      ? "OpenRouter token for menu generation" 
                       : form.watch("aiProvider") === "replicate"
-                      ? "Токен Replicate для всех функций ИИ"
-                      : "Токен OpenAI для генерации меню из фото и текста"
+                      ? "Replicate token for all AI functions"
+                      : "OpenAI token for menu generation from photo and text"
                     }
                   </p>
                   <p className="text-xs text-blue-600 mt-1">
-                    💡 Генерация изображений всегда использует Replicate Imagen-4
+                    💡 Image generation always uses Replicate Imagen-4
                   </p>
                   <FormMessage />
                 </FormItem>
@@ -252,7 +250,7 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
                 name="aiModel"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Модель AI (необязательно)</FormLabel>
+                    <FormLabel>AI Model (optional)</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="gpt-4o, claude-3-sonnet, etc." 
@@ -260,7 +258,7 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
                       />
                     </FormControl>
                     <p className="text-sm text-gray-500">
-                      Укажите конкретную модель для OpenRouter
+                      Specify a specific model for OpenRouter
                     </p>
                     <FormMessage />
                   </FormItem>
@@ -274,13 +272,13 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                Отмена
+                Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={createRestaurantMutation.isPending}
               >
-                {createRestaurantMutation.isPending ? "Создание..." : "Создать"}
+                {createRestaurantMutation.isPending ? "Creating..." : "Create"}
               </Button>
             </div>
           </form>

@@ -527,12 +527,12 @@ export default function Design() {
                   className="text-white p-6 text-center"
                   style={{ backgroundColor: designSettings.primaryColor }}
                 >
-                  <h1 className="text-xl font-bold">{restaurant?.name || 'Название ресторана'}</h1>
+                  <h1 className="text-xl font-bold">{restaurant?.name || 'Restaurant Name'}</h1>
                   {restaurant?.city && (
                     <p className="opacity-90">{restaurant.city}</p>
                   )}
                   <div className="flex justify-center space-x-4 mt-3 text-sm opacity-90">
-                    <span>🇷🇺 {restaurant?.language === 'en' ? 'English' : restaurant?.language === 'de' ? 'Deutsch' : 'Русский'}</span>
+                    <span>{restaurant?.language === 'en' ? '🇺🇸 English' : restaurant?.language === 'de' ? '🇩🇪 Deutsch' : '🇺🇸 English'}</span>
                     <span>💶 {restaurant?.currency}</span>
                   </div>
                 </div>

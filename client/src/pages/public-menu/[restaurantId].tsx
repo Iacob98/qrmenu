@@ -416,7 +416,7 @@ function PublicMenuContent() {
                   menu?.restaurant?.design?.logoPosition === 'top' ? "text-base" : "text-sm"
                 )}
               >
-                {menu?.restaurant?.city || 'Меню ресторана'}
+                {menu?.restaurant?.city || 'Restaurant Menu'}
               </p>
             </div>
           </div>

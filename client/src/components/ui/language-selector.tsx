@@ -12,13 +12,12 @@ import { Globe } from 'lucide-react';
 const languages = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
   { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-  { code: 'ru', name: 'Русский', flag: '🇷🇺' },
 ];
 
 export function LanguageSelector() {
   const { i18n, t } = useTranslation();
 
-  const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[2];
+  const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
 
   const handleLanguageChange = (languageCode: string) => {
     i18n.changeLanguage(languageCode);

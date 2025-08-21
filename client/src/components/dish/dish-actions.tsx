@@ -23,13 +23,13 @@ export function DishActions({ dish, restaurantId }: DishActionsProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/restaurants", restaurantId] });
       toast({
-        title: dish.isFavorite ? "Убрано из избранного" : "Добавлено в избранное",
-        description: `${dish.name} ${dish.isFavorite ? "убрано из" : "добавлено в"} избранное`,
+        title: dish.isFavorite ? "Removed from favorites" : "Added to favorites",
+        description: `${dish.name} ${dish.isFavorite ? "removed from" : "added to"} favorites`,
       });
     },
     onError: (error) => {
       toast({
-        title: "Ошибка",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -44,13 +44,13 @@ export function DishActions({ dish, restaurantId }: DishActionsProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/restaurants", restaurantId] });
       toast({
-        title: dish.isHidden ? "Блюдо показано" : "Блюдо скрыто",
-        description: `${dish.name} ${dish.isHidden ? "теперь видно" : "скрыто"} в публичном меню`,
+        title: dish.isHidden ? "Dish shown" : "Dish hidden",
+        description: `${dish.name} ${dish.isHidden ? "is now visible" : "is hidden"} in public menu`,
       });
     },
     onError: (error) => {
       toast({
-        title: "Ошибка",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
