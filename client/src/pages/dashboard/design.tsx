@@ -428,7 +428,6 @@ export default function Design() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="left">{t('left')}</SelectItem>
-                        <SelectItem value="center">{t('center')}</SelectItem>
                         <SelectItem value="hidden">{t('hidden')}</SelectItem>
                       </SelectContent>
                     </Select>

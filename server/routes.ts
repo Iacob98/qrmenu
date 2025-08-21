@@ -817,7 +817,7 @@ Schreibe eine neue Beschreibung auf Deutsch. Die Beschreibung sollte:
 Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
       };
       
-      const prompt = prompts[language] || prompts.ru;
+      const prompt = prompts[language as keyof typeof prompts] || prompts.ru;
       const improvedDescription = await aiService.improveText(prompt);
       
       console.log(`[AI Description] Improved successfully`);
