@@ -160,7 +160,7 @@ export default function Landing() {
         </section>
 
         {/* Benefits Section */}
-        <section className="py-20 bg-gray-50">
+        <section id="how-it-works" className="py-20 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -221,7 +221,7 @@ export default function Landing() {
         </section>
 
         {/* Features Grid */}
-        <section className="py-20 bg-white">
+        <section id="examples" className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -460,8 +460,84 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* Future Plans Section */}
+        <section id="future-plans" className="py-20 bg-blue-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Future Plans
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Coming features that will make your restaurant menu even better
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <Card className="p-6 border-0 shadow-lg">
+                <CardContent className="pt-0">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                    <QrCode className="text-purple-600" size={24} />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">QR Style Customization</h3>
+                  <p className="text-gray-600 text-sm">Customize your QR codes with colors, logos, and different styles to match your brand</p>
+                </CardContent>
+              </Card>
+
+              <Card className="p-6 border-0 shadow-lg">
+                <CardContent className="pt-0">
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                    <Star className="text-green-600" size={24} />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">Review System</h3>
+                  <p className="text-gray-600 text-sm">Let customers leave reviews and ratings for dishes directly through your menu</p>
+                </CardContent>
+              </Card>
+
+              <Card className="p-6 border-0 shadow-lg">
+                <CardContent className="pt-0">
+                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                    <BarChart3 className="text-orange-600" size={24} />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">Analytics</h3>
+                  <p className="text-gray-600 text-sm">Track which dishes are most popular and get insights about customer preferences</p>
+                </CardContent>
+              </Card>
+
+              <Card className="p-6 border-0 shadow-lg">
+                <CardContent className="pt-0">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                    <Globe className="text-blue-600" size={24} />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">Multi-Location</h3>
+                  <p className="text-gray-600 text-sm">Manage multiple restaurant locations from one dashboard with unified branding</p>
+                </CardContent>
+              </Card>
+
+              <Card className="p-6 border-0 shadow-lg">
+                <CardContent className="pt-0">
+                  <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                    <Globe className="text-indigo-600" size={24} />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">Menu Translation</h3>
+                  <p className="text-gray-600 text-sm">Automatic translation of your menu into multiple languages for international customers</p>
+                </CardContent>
+              </Card>
+
+              <Card className="p-6 border-0 shadow-lg">
+                <CardContent className="pt-0">
+                  <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                    <TrendingUp className="text-red-600" size={24} />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">🚀 More Coming</h3>
+                  <p className="text-gray-600 text-sm">We're constantly developing new features based on user feedback and industry trends</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
         {/* FAQ Section */}
-        <section className="py-20 bg-gray-50">
+        <section id="support" className="py-20 bg-gray-50">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -553,7 +629,7 @@ export default function Landing() {
                 size="lg" 
                 variant="outline"
                 className="text-lg px-8 py-4 border-white text-white hover:bg-white hover:text-blue-600"
-                onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => window.open('/menu/тестовое-кафе-0hnxsd', '_blank')}
               >
                 {t('viewDemo')}
               </Button>

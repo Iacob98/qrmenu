@@ -24,15 +24,30 @@ export function Header({ onShowRegister, onShowLogin }: HeaderProps) {
           </div>
           
           <nav className="hidden md:flex space-x-8">
-            <a href="#how-it-works" className="text-gray-600 hover:text-primary-600 transition-colors">
+            <button 
+              onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+              className="text-gray-600 hover:text-primary-600 transition-colors"
+            >
               {t('howItWorks')}
-            </a>
-            <a href="#examples" className="text-gray-600 hover:text-primary-600 transition-colors">
+            </button>
+            <button 
+              onClick={() => document.getElementById('examples')?.scrollIntoView({ behavior: 'smooth' })}
+              className="text-gray-600 hover:text-primary-600 transition-colors"
+            >
               {t('examples')}
-            </a>
-            <a href="#support" className="text-gray-600 hover:text-primary-600 transition-colors">
+            </button>
+            <button 
+              onClick={() => document.getElementById('future-plans')?.scrollIntoView({ behavior: 'smooth' })}
+              className="text-gray-600 hover:text-primary-600 transition-colors"
+            >
+              Future Plans
+            </button>
+            <button 
+              onClick={() => document.getElementById('support')?.scrollIntoView({ behavior: 'smooth' })}
+              className="text-gray-600 hover:text-primary-600 transition-colors"
+            >
               {t('support')}
-            </a>
+            </button>
           </nav>
           
           <div className="flex items-center space-x-4">
