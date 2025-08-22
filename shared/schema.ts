@@ -8,9 +8,13 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
   name: text("name"),
+  emailVerified: boolean("email_verified").default(false),
+  emailVerificationToken: text("email_verification_token"),
+  emailVerificationExpires: timestamp("email_verification_expires"),
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => ({
   emailIdx: index("users_email_idx").on(table.email),
+  emailVerificationTokenIdx: index("users_email_verification_token_idx").on(table.emailVerificationToken),
 }));
 
 export const restaurants = pgTable("restaurants", {

@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { EmailVerificationBanner } from "@/components/auth/email-verification-banner";
 import type { RestaurantWithCategories, Dish, Category } from "@shared/schema";
 
 export default function MenuManagement() {
@@ -189,6 +190,7 @@ export default function MenuManagement() {
 
         {/* Main Content */}
         <div className="p-4 lg:p-6">
+          <EmailVerificationBanner />
           <div className="mb-6">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <h2 className="text-lg lg:text-xl font-semibold text-gray-900">{t('categoriesAndDishes')}</h2>
