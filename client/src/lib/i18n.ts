@@ -355,6 +355,28 @@ const resources = {
       "setup5minCommit": "5-minute setup",
       "noLongTermCommitments": "No long-term commitments",
       "support24_7": "24/7 Support",
+      
+      // Missing features section translations
+      "fullToolkitTitle": "Complete Digital Menu Toolkit",
+      "qrCodesLinks": "QR Codes & Links",
+      "qrCodesLinksDesc": "Generate QR codes and public links to share your menu with customers",
+      "instantUpdates": "Instant Updates",
+      "instantUpdatesDesc": "Changes to your menu appear instantly on all customer devices",
+      "analyticsReports": "Analytics & Reports",
+      "analyticsReportsDesc": "Track menu performance and customer preferences",
+      "teamwork": "Team Collaboration",
+      "teamworkDesc": "Work together with your team to manage menus efficiently",
+      
+      // CTA section
+      "betaCtaTitle": "Ready to Transform Your Menu?",
+      "betaCtaSubtitle": "Join the future of restaurant technology",
+      
+      // Footer missing translations
+      "footerDescription": "QRMenu helps restaurants create beautiful digital menus with AI-powered features. Join thousands of restaurants worldwide.",
+      "copyright": "© 2024 QRMenu. All rights reserved.",
+      "betaFooterStatus": "🚀 Open Beta Version",
+      "betaFooterPowered": "🤖 Powered by AI",
+      "betaFooterMade": "⚡ Made with ❤️",
     }
   },
   de: {
@@ -709,6 +731,28 @@ const resources = {
       "setup5minCommit": "5-Minuten-Setup",
       "noLongTermCommitments": "Keine langfristigen Verpflichtungen",
       "support24_7": "24/7 Support",
+      
+      // Missing features section translations (German)
+      "fullToolkitTitle": "Komplettes Digital-Menü Toolkit",
+      "qrCodesLinks": "QR-Codes & Links",
+      "qrCodesLinksDesc": "QR-Codes und öffentliche Links generieren, um Ihr Menü mit Kunden zu teilen",
+      "instantUpdates": "Sofortige Updates",
+      "instantUpdatesDesc": "Änderungen am Menü erscheinen sofort auf allen Kundengeräten",
+      "analyticsReports": "Analysen & Berichte",
+      "analyticsReportsDesc": "Menü-Performance und Kundenpräferenzen verfolgen",
+      "teamwork": "Team-Zusammenarbeit",
+      "teamworkDesc": "Arbeiten Sie effizient mit Ihrem Team zusammen, um Menüs zu verwalten",
+      
+      // CTA section (German)
+      "betaCtaTitle": "Bereit, Ihr Menü zu transformieren?",
+      "betaCtaSubtitle": "Werden Sie Teil der Zukunft der Restauranttechnologie",
+      
+      // Footer missing translations (German)
+      "footerDescription": "QRMenu hilft Restaurants, schöne digitale Menüs mit KI-gestützten Funktionen zu erstellen. Schließen Sie sich Tausenden von Restaurants weltweit an.",
+      "copyright": "© 2024 QRMenu. Alle Rechte vorbehalten.",
+      "betaFooterStatus": "🚀 Offene Beta-Version",
+      "betaFooterPowered": "🤖 Angetrieben von KI",
+      "betaFooterMade": "⚡ Mit ❤️ erstellt",
     }
   }
 };
