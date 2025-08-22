@@ -268,6 +268,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test email route
+  app.post("/api/auth/send-test-email", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      // Generate a test verification token
+      const testToken = generateVerificationToken();
+      
+      // Send test verification email
+      await emailService.sendVerificationEmail(email, testToken);
+
+      res.json({ 
+        message: "Test email sent successfully!",
+        details: "Check console logs for email content since this is a mock service"
+      });
+    } catch (error) {
+      res.status(500).json({ message: handleError(error) });
+    }
+  });
+
   // Restaurant routes
   app.get("/api/restaurants", requireAuth, async (req, res) => {
     try {
