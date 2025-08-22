@@ -483,29 +483,7 @@ export default function Settings() {
                     </CardContent>
                   </Card>
 
-                  {/* Danger Zone */}
-                  <Card className="border-red-200">
-                    <CardHeader>
-                      <CardTitle className="text-red-600">{t('dangerZone')}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">{t('deleteRestaurant')}</p>
-                          <p className="text-sm text-gray-500">
-                            {t('deleteRestaurantDesc')}
-                          </p>
-                        </div>
-                        <Button
-                          variant="destructive"
-                          onClick={handleDeleteRestaurant}
-                          disabled={deleteRestaurantMutation.isPending}
-                        >
-                          {deleteRestaurantMutation.isPending ? t('deleting') : t('deleteRestaurant')}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+
                 </>
               )}
             </TabsContent>
