@@ -24,9 +24,9 @@ export default function Settings() {
     phone: "",
     currency: "EUR",
     language: "en",
-    aiProvider: "openai",
+    aiProvider: "openrouter",
     aiToken: "",
-    aiModel: "",
+    aiModel: "anthropic/claude-3.5-sonnet",
     logo: "",
     banner: "",
   });
@@ -62,9 +62,9 @@ export default function Settings() {
         phone: restaurant.phone || "",
         currency: restaurant.currency || "EUR",
         language: restaurant.language || "en",
-        aiProvider: restaurant.aiProvider || "openai",
+        aiProvider: "openrouter", // Fixed to OpenRouter
         aiToken: restaurant.aiToken || "",
-        aiModel: restaurant.aiModel || "",
+        aiModel: restaurant.aiModel || "anthropic/claude-3.5-sonnet", // Default Claude model
         logo: restaurant.logo || "",
         banner: restaurant.banner || "",
       });
@@ -167,8 +167,8 @@ export default function Settings() {
     try {
       const response = await apiRequest("POST", "/api/ai/test-token", {
         token: restaurantForm.aiToken,
-        provider: restaurantForm.aiProvider,
-        model: restaurantForm.aiModel
+        provider: "openrouter",
+        model: "anthropic/claude-3.5-sonnet"
       });
       
       const result = await response.json();
@@ -397,23 +397,6 @@ export default function Settings() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div>
-                        <Label htmlFor="aiProvider">🤖 {t('aiProvider')}</Label>
-                        <Select
-                          value={restaurantForm.aiProvider}
-                          onValueChange={(value) => setRestaurantForm(prev => ({ ...prev, aiProvider: value }))}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder={t('selectProvider')} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="openai">OpenAI</SelectItem>
-                            <SelectItem value="openrouter">OpenRouter</SelectItem>
-                            <SelectItem value="replicate">Replicate (Imagen-4)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div>
                         <Label htmlFor="aiToken">🔐 {t('apiToken')}</Label>
                         <div className="flex items-center space-x-2 mt-1">
                           <Input
@@ -421,7 +404,7 @@ export default function Settings() {
                             type="password"
                             value={restaurantForm.aiToken}
                             onChange={(e) => setRestaurantForm(prev => ({ ...prev, aiToken: e.target.value }))}
-                            placeholder="sk-..."
+                            placeholder="sk-or-..."
                           />
                           <Button
                             type="button"
@@ -445,32 +428,12 @@ export default function Settings() {
                           </p>
                         )}
                         <p className="text-sm text-gray-500 mt-1">
-                          {restaurantForm.aiProvider === "openrouter" 
-                            ? t('openrouterToken') 
-                            : restaurantForm.aiProvider === "replicate"
-                            ? t('replicateToken')
-                            : t('aiProviderDesc')
-                          }
+                          {t('openrouterToken')}
                         </p>
                         <p className="text-xs text-blue-600 mt-1">
                           💡 {t('imageGenerationInfo')}
                         </p>
                       </div>
-
-                      {restaurantForm.aiProvider === "openrouter" && (
-                        <div>
-                          <Label htmlFor="aiModel">🎯 {t('aiModel')}</Label>
-                          <Input
-                            id="aiModel"
-                            value={restaurantForm.aiModel}
-                            onChange={(e) => setRestaurantForm(prev => ({ ...prev, aiModel: e.target.value }))}
-                            placeholder="gpt-4o, claude-3-sonnet, etc."
-                          />
-                          <p className="text-sm text-gray-500 mt-1">
-                            {t('specifyModel')}
-                          </p>
-                        </div>
-                      )}
                       
                       <Button 
                         type="button"

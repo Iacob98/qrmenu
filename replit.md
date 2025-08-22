@@ -35,7 +35,7 @@ Project Status: Open beta version with no real clients yet - all marketing conte
 ## Key Features & Design Decisions
 - **Authentication System**: Session-based, with auth guard components for route protection and global user context.
 - **Menu Management**: Hierarchical structure (Restaurant → Categories → Dishes) with rich dish data (images, nutrition, tags, pricing) and drag-and-drop reordering. Includes real-time updates for public menus via WebSockets.
-- **AI Integration**: Integrates OpenAI and OpenRouter for AI-powered menu generation, dish description enhancement, and high-quality food photography using ComfyUI via Replicate. Supports various input methods (PDF, image analysis, text) and structured JSON output. Handles image persistence and enhances prompts for accuracy.
+- **AI Integration**: Fixed to use OpenRouter with Claude 3.5 Sonnet by default. Provides AI-powered menu generation, dish description enhancement, and high-quality food photography using Replicate. Supports various input methods (PDF, image analysis, text) and structured JSON output. Handles image persistence and enhances prompts for accuracy.
 - **Design Customization**: Live preview system for menu appearance, color scheme management, typography and layout customization, and logo/branding integration. All design settings are properly applied to the public menu.
 - **Public Menu System**: SEO-friendly public URLs with restaurant slugs, category-based navigation, mobile-responsive design, and tag-based filtering for dietary preferences. Includes sticky category navigation and enhanced category tabs.
 
@@ -50,7 +50,7 @@ Project Status: Open beta version with no real clients yet - all marketing conte
 - **tailwindcss**: Utility-first CSS framework
 - **class-variance-authority**: Component variant management
 - **lucide-react**: Icon library
-- **OpenAI API**: For AI-powered menu generation and description enhancement
+- **OpenRouter API**: Fixed provider for AI-powered menu generation and description enhancement using Claude 3.5 Sonnet
 - **Replicate**: For high-quality AI food photography generation (ComfyUI workflow)
 - **QR Code Generation**: Via external API or library (details not specified)
 - **Sharp**: Image processing
