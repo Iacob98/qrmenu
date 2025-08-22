@@ -275,8 +275,8 @@ export default function Landing() {
                   <Shield className="text-red-600" size={24} />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Безопасность данных</h3>
-                  <p className="text-gray-600 text-sm">Все данные защищены шифрованием и регулярно резервируются</p>
+                  <h3 className="font-semibold text-lg mb-2">Data Security</h3>
+                  <p className="text-gray-600 text-sm">All data is protected with encryption and regularly backed up</p>
                 </div>
               </div>
               
@@ -285,8 +285,8 @@ export default function Landing() {
                   <Clock className="text-indigo-600" size={24} />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">24/7 Поддержка</h3>
-                  <p className="text-gray-600 text-sm">Наша команда всегда готова помочь вам в настройке и использовании</p>
+                  <h3 className="font-semibold text-lg mb-2">24/7 Support</h3>
+                  <p className="text-gray-600 text-sm">Our team is always ready to help you with setup and usage</p>
                 </div>
               </div>
             </div>
@@ -326,7 +326,7 @@ export default function Landing() {
               <Card className="p-8 border-0 shadow-lg border-2 border-blue-500 relative">
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                   <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                    Бета-программа
+                    Beta Program
                   </span>
                 </div>
                 <CardContent className="pt-6">
