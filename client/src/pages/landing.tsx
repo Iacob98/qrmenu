@@ -54,7 +54,7 @@ export default function Landing() {
                   size="lg" 
                   variant="outline"
                   className="text-lg px-8 py-4"
-                  onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() => window.open('/menu/тестовое-кафе-0hnxsd', '_blank')}
                 >
                   {t('viewDemo')}
                 </Button>
