@@ -12,12 +12,15 @@ import { EditCategoryModal } from "@/components/modals/edit-category";
 import { CreateRestaurantModal } from "@/components/restaurant/create-restaurant-modal";
 import { EditFavoritesTitleModal } from "@/components/modals/edit-favorites-title";
 import { DishCard } from "@/components/menu/dish-card";
-import { Plus, ExternalLink, User, Edit, Trash2 } from "lucide-react";
+import { Plus, ExternalLink, User, Edit, Trash2, Settings, LogOut, ChevronDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { EmailVerificationBanner } from "@/components/auth/email-verification-banner";
+import { useAuth } from "@/lib/auth";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { useLocation } from "wouter";
 import type { RestaurantWithCategories, Dish, Category } from "@shared/schema";
 
 export default function MenuManagement() {
@@ -34,6 +37,8 @@ export default function MenuManagement() {
   const { toast } = useToast();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { user, logout } = useAuth();
+  const [, navigate] = useLocation();
 
   // Get user restaurants
   const { data: restaurants, isLoading: restaurantsLoading } = useQuery({
@@ -178,9 +183,26 @@ export default function MenuManagement() {
                   </Button>
                   
                   <div className="relative">
-                    <Button variant="outline" size="icon" className="w-full sm:w-auto">
-                      <User size={20} />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="w-full sm:w-auto">
+                          <User size={16} className="mr-2" />
+                          <span className="hidden sm:inline">{user?.name || user?.email || 'User'}</span>
+                          <ChevronDown size={16} className="ml-1" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
+                          <Settings size={16} className="mr-2" />
+                          {t('settings')}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={logout}>
+                          <LogOut size={16} className="mr-2" />
+                          {t('logOut')}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               </div>
