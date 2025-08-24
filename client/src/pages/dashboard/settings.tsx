@@ -390,61 +390,7 @@ export default function Settings() {
                     </CardContent>
                   </Card>
 
-                  {/* AI Configuration */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>{t('aiSettings')}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <Label htmlFor="aiToken">🔐 {t('apiToken')}</Label>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <Input
-                            id="aiToken"
-                            type="password"
-                            value={restaurantForm.aiToken}
-                            onChange={(e) => setRestaurantForm(prev => ({ ...prev, aiToken: e.target.value }))}
-                            placeholder="sk-or-..."
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={checkAiToken}
-                            disabled={!restaurantForm.aiToken.trim() || aiTokenStatus === 'checking'}
-                          >
-                            {aiTokenStatus === 'checking' ? t('checking') : t('checkToken')}
-                          </Button>
-                        </div>
-                        {aiTokenStatus === 'valid' && (
-                          <p className="text-sm text-green-600 mt-1 flex items-center">
-                            <Check size={16} className="mr-1" />
-                            {t('active')}
-                          </p>
-                        )}
-                        {aiTokenStatus === 'invalid' && (
-                          <p className="text-sm text-red-600 mt-1 flex items-center">
-                            <AlertTriangle size={16} className="mr-1" />
-                            {t('error')}
-                          </p>
-                        )}
-                        <p className="text-sm text-gray-500 mt-1">
-                          {t('openrouterToken')}
-                        </p>
-                        <p className="text-xs text-blue-600 mt-1">
-                          💡 {t('imageGenerationInfo')}
-                        </p>
-                      </div>
-                      
-                      <Button 
-                        type="button"
-                        onClick={() => updateRestaurantMutation.mutate(restaurantForm)}
-                        disabled={updateRestaurantMutation.isPending}
-                        className="w-full mt-4"
-                      >
-                        {updateRestaurantMutation.isPending ? t('saving') : t('saveChanges')}
-                      </Button>
-                    </CardContent>
-                  </Card>
+
 
 
                 </>
