@@ -7,7 +7,7 @@ import { insertUserSchema, insertRestaurantSchema, insertCategorySchema, insertD
 import { createAIService } from "./services/ai";
 import { qrService } from "./services/qr";
 import { upload, saveUploadedImage, deleteUploadedFile, saveImageFromURL } from "./middleware/upload";
-import { emailService, generateVerificationToken, generateTokenExpiry } from "./services/email";
+// Email service imports removed - using auto-verification for now
 import bcrypt from "bcrypt";
 import session from "express-session";
 import MemoryStore from "memorystore";
@@ -75,27 +75,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
       
-      // Generate email verification token
-      const verificationToken = generateVerificationToken();
-      const verificationExpiry = generateTokenExpiry();
-      
-      // Create user with verification token
+      // Create user (email verification disabled)
       const user = await storage.createUser({
         email,
         password: hashedPassword,
         name,
-        emailVerified: false,
-        emailVerificationToken: verificationToken,
-        emailVerificationExpires: verificationExpiry,
+        emailVerified: true, // Auto-verify emails for now
+        emailVerificationToken: null,
+        emailVerificationExpires: null,
       });
-
-      // Send verification email
-      try {
-        await emailService.sendVerificationEmail(email, verificationToken);
-      } catch (emailError) {
-        console.error('Failed to send verification email:', emailError);
-        // Continue with registration even if email fails
-      }
 
       // Set session (user can use app while unverified)
       req.session.userId = user.id;
@@ -113,7 +101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             name: user.name,
             emailVerified: user.emailVerified 
           },
-          message: "Registration successful. Please check your email to verify your account."
+          message: "Registration successful! You can now access all features."
         });
       });
     } catch (error) {
@@ -203,94 +191,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Email verification routes
-  app.get("/api/auth/verify-email", async (req, res) => {
-    try {
-      const { token } = req.query;
-      
-      if (!token || typeof token !== 'string') {
-        return res.status(400).json({ message: "Invalid verification token" });
-      }
+  // Email verification routes removed - using auto-verification for now
 
-      // Find user by verification token
-      const user = await storage.getUserByVerificationToken(token);
-      
-      if (!user) {
-        return res.status(400).json({ message: "Invalid or expired verification token" });
-      }
-
-      // Check if token has expired
-      if (user.emailVerificationExpires && new Date() > user.emailVerificationExpires) {
-        return res.status(400).json({ message: "Verification token has expired" });
-      }
-
-      // Update user as verified
-      await storage.updateUser(user.id, {
-        emailVerified: true,
-        emailVerificationToken: null,
-        emailVerificationExpires: null,
-      });
-
-      res.json({ message: "Email verified successfully!" });
-    } catch (error) {
-      res.status(500).json({ message: handleError(error) });
-    }
-  });
-
-  app.post("/api/auth/resend-verification", requireAuth, async (req, res) => {
-    try {
-      const user = await storage.getUser(req.session.userId!);
-      
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      if (user.emailVerified) {
-        return res.status(400).json({ message: "Email is already verified" });
-      }
-
-      // Generate new verification token
-      const verificationToken = generateVerificationToken();
-      const verificationExpiry = generateTokenExpiry();
-
-      // Update user with new token
-      await storage.updateUser(user.id, {
-        emailVerificationToken: verificationToken,
-        emailVerificationExpires: verificationExpiry,
-      });
-
-      // Send new verification email
-      await emailService.sendVerificationEmail(user.email, verificationToken);
-
-      res.json({ message: "Verification email sent!" });
-    } catch (error) {
-      res.status(500).json({ message: handleError(error) });
-    }
-  });
-
-  // Test email route
-  app.post("/api/auth/send-test-email", async (req, res) => {
-    try {
-      const { email } = req.body;
-      
-      if (!email) {
-        return res.status(400).json({ message: "Email is required" });
-      }
-
-      // Generate a test verification token
-      const testToken = generateVerificationToken();
-      
-      // Send test verification email
-      await emailService.sendVerificationEmail(email, testToken);
-
-      res.json({ 
-        message: "Test email sent successfully!",
-        details: "Check console logs for email content since this is a mock service"
-      });
-    } catch (error) {
-      res.status(500).json({ message: handleError(error) });
-    }
-  });
+  // Test email route removed - using auto-verification for now
 
   // Restaurant routes
   app.get("/api/restaurants", requireAuth, async (req, res) => {
