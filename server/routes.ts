@@ -875,15 +875,31 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
 
   app.post("/api/ai/generate-image", requireAuth, async (req, res) => {
     try {
-      const { restaurantId, dishName, description, ingredients, tags, imagePrompt } = req.body;
+      const { restaurantId, dishName, description, ingredients, tags, imagePrompt, dishId } = req.body;
       
-      if (!restaurantId || !dishName) {
-        return res.status(400).json({ message: "Missing required fields: restaurantId, dishName" });
+      if (!restaurantId || !dishName || !dishId) {
+        return res.status(400).json({ message: "Missing required fields: restaurantId, dishName, dishId" });
       }
       
       const restaurant = await storage.getRestaurant(restaurantId);
       if (!restaurant || restaurant.userId !== req.session.userId) {
         return res.status(404).json({ message: "Restaurant not found" });
+      }
+
+      // Check dish generation limit
+      const dish = await storage.getDish(dishId);
+      if (!dish || dish.categoryId !== req.body.categoryId) {
+        return res.status(404).json({ message: "Dish not found" });
+      }
+
+      const generationsCount = dish.imageGenerationsCount || 0;
+      const MAX_GENERATIONS = 5;
+
+      if (generationsCount >= MAX_GENERATIONS) {
+        return res.status(400).json({ 
+          message: `Достигнут лимит генераций (${MAX_GENERATIONS}) для этого блюда`,
+          remainingGenerations: 0
+        });
       }
 
       // For image generation, always use any valid token (Replicate will be used regardless)
@@ -914,7 +930,18 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
       });
       
       console.log(`[AI Image] Saved locally: ${localImageUrl}`);
-      res.json({ imageUrl: localImageUrl });
+      
+      // Increment generation count
+      await storage.incrementDishImageGenerations(dishId);
+      const updatedGenerationsCount = generationsCount + 1;
+      const remainingGenerations = MAX_GENERATIONS - updatedGenerationsCount;
+      
+      console.log(`[AI Image] Generation count incremented. Used: ${updatedGenerationsCount}/${MAX_GENERATIONS}`);
+      res.json({ 
+        imageUrl: localImageUrl,
+        remainingGenerations,
+        totalGenerations: updatedGenerationsCount
+      });
     } catch (error) {
       console.error('[AI Image] Error:', error);
       res.status(500).json({ message: handleError(error) });

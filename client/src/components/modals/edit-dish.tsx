@@ -105,8 +105,11 @@ export function EditDishModal({
       tags?: string[];
       imagePrompt?: string;
     }) => {
+      if (!dish?.id) throw new Error("Dish ID is required for image generation");
       const response = await apiRequest("POST", `/api/ai/generate-image`, { 
         restaurantId, 
+        dishId: dish.id,
+        categoryId: dish.categoryId,
         dishName, 
         description,
         ingredients,
@@ -118,10 +121,18 @@ export function EditDishModal({
     onSuccess: (response: any) => {
       console.log('[Generated Image] Response:', response);
       const imageUrl = response?.imageUrl;
+      const remainingGenerations = response?.remainingGenerations;
+      
       if (imageUrl) {
         // Update the form data with the generated image
         setFormData(prev => ({ ...prev, image: imageUrl }));
-        toast({ title: t('photoGenerated') });
+        
+        let toastMessage = t('photoGenerated');
+        if (typeof remainingGenerations === 'number') {
+          toastMessage += ` (осталось генераций: ${remainingGenerations}/5)`;
+        }
+        
+        toast({ title: toastMessage });
         console.log('[Generated Image] URL:', imageUrl);
       } else {
         toast({
@@ -414,12 +425,20 @@ export function EditDishModal({
                 type="button"
                 variant="outline"
                 onClick={handleGenerateImage}
-                disabled={generateImageMutation.isPending || !formData.name.trim()}
+                disabled={generateImageMutation.isPending || !formData.name.trim() || !dish}
                 className="w-full"
               >
                 <Wand2 className="mr-2 h-4 w-4" />
                 {generateImageMutation.isPending ? t('generating') : t('generateAIPhoto')}
               </Button>
+              {dish && dish.imageGenerationsCount !== undefined && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Использовано генераций: {dish.imageGenerationsCount || 0}/5
+                  {dish.imageGenerationsCount && dish.imageGenerationsCount >= 5 && (
+                    <span className="text-red-600 ml-2">⚠️ Лимит достигнут</span>
+                  )}
+                </p>
+              )}
             </div>
             {formData.image && (
               <div className="mt-2 text-sm text-muted-foreground">

@@ -65,6 +65,7 @@ export const dishes = pgTable("dishes", {
   isFavorite: boolean("is_favorite").default(false),
   isHidden: boolean("is_hidden").default(false),
   sortOrder: integer("sort_order").default(0),
+  imageGenerationsCount: integer("image_generations_count").default(0), // Track image generation count
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => ({
   categoryIdIdx: index("dishes_category_id_idx").on(table.categoryId),

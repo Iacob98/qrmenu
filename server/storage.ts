@@ -1,7 +1,7 @@
 import { type User, type InsertUser, type Restaurant, type InsertRestaurant, type Category, type InsertCategory, type Dish, type InsertDish, type RestaurantWithCategories, type PublicMenu, users, restaurants, categories, dishes } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
-import { eq, and, or, ilike, asc } from "drizzle-orm";
+import { eq, and, or, ilike, asc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -32,6 +32,7 @@ export interface IStorage {
   createDish(dish: InsertDish): Promise<Dish>;
   updateDish(id: string, dish: Partial<Dish>): Promise<Dish>;
   deleteDish(id: string): Promise<void>;
+  incrementDishImageGenerations(id: string): Promise<void>;
 
   // Complex queries
   getRestaurantWithCategories(restaurantId: string): Promise<RestaurantWithCategories | undefined>;
@@ -193,6 +194,13 @@ export class DatabaseStorage implements IStorage {
 
   async deleteDish(id: string): Promise<void> {
     await db.delete(dishes).where(eq(dishes.id, id));
+  }
+
+  async incrementDishImageGenerations(id: string): Promise<void> {
+    await db
+      .update(dishes)
+      .set({ imageGenerationsCount: sql`COALESCE(image_generations_count, 0) + 1` })
+      .where(eq(dishes.id, id));
   }
 
   // Complex queries - Optimized with JOIN to reduce DB calls
