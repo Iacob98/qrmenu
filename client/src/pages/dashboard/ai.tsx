@@ -48,6 +48,8 @@ export default function AIGeneration() {
   const [selectedDishes, setSelectedDishes] = useState<Set<number>>(new Set());
   const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
   const [isUploading, setIsUploading] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
@@ -79,16 +81,22 @@ export default function AIGeneration() {
       return response.json();
     },
     onSuccess: (data: AIMenuResult) => {
+      // Replace existing data instead of adding to it
       setGeneratedDishes(data.dishes || []);
       setGeneratedCategories(data.categories || []);
+      setSelectedDishes(new Set()); // Reset selection
+      setIsAnalyzing(false);
+      setAnalysisProgress(100);
       toast({
-        title: "Analysis completed",
-        description: `Found ${data.dishes?.length || 0} dishes and ${data.categories?.length || 0} categories`,
+        title: "Анализ завершён",
+        description: `Найдено ${data.dishes?.length || 0} блюд в ${data.categories?.length || 0} категориях`,
       });
     },
     onError: (error) => {
+      setIsAnalyzing(false);
+      setAnalysisProgress(0);
       toast({
-        title: "Analysis error",
+        title: "Ошибка анализа",
         description: error.message,
         variant: "destructive",
       });
@@ -170,6 +178,8 @@ export default function AIGeneration() {
 
   const handleAnalyzeText = () => {
     if (!textInput.trim() || !selectedRestaurant) return;
+    setIsAnalyzing(true);
+    setAnalysisProgress(20);
     analyzeTextMutation.mutate(textInput);
   };
 
@@ -186,25 +196,39 @@ export default function AIGeneration() {
       // For PDF, process single file
       if (type === 'pdf') {
         const file = files[0];
+        setIsAnalyzing(true);
+        setAnalysisProgress(10);
+        
         const reader = new FileReader();
         reader.onload = async () => {
           try {
+            setAnalysisProgress(30);
             const base64 = (reader.result as string).split(',')[1];
+            setAnalysisProgress(50);
+            
             const response = await apiRequest("POST", '/api/ai/analyze-pdf', {
               restaurantId: selectedRestaurant,
               base64Data: base64,
             });
+            setAnalysisProgress(80);
             const data: AIMenuResult = await response.json();
             
+            // Replace existing data instead of adding to it
             setGeneratedDishes(data.dishes || []);
             setGeneratedCategories(data.categories || []);
+            setSelectedDishes(new Set()); // Reset selection
+            setAnalysisProgress(100);
+            setIsAnalyzing(false);
+            
             toast({
-              title: "PDF analysis completed",
-              description: `Found ${data.dishes?.length || 0} dishes and ${data.categories?.length || 0} categories`,
+              title: "PDF анализ завершён",
+              description: `Найдено ${data.dishes?.length || 0} блюд в ${data.categories?.length || 0} категориях`,
             });
           } catch (error: any) {
+            setIsAnalyzing(false);
+            setAnalysisProgress(0);
             toast({
-              title: "PDF analysis error",
+              title: "Ошибка анализа PDF",
               description: error.message,
               variant: "destructive",
             });
@@ -220,7 +244,9 @@ export default function AIGeneration() {
       let processedCount = 0;
       
       setIsUploading(true);
+      setIsAnalyzing(true);
       setUploadProgress({});
+      setAnalysisProgress(10);
       
       toast({
         title: t('analysisStarted'),
@@ -266,14 +292,18 @@ export default function AIGeneration() {
                   index === self.findIndex(c => c.name === cat.name)
                 );
                 
+                // Replace existing data instead of adding to it
                 setGeneratedDishes(uniqueDishes);
                 setGeneratedCategories(uniqueCategories);
+                setSelectedDishes(new Set()); // Reset selection
                 setIsUploading(false);
+                setIsAnalyzing(false);
+                setAnalysisProgress(100);
                 setUploadProgress({});
                 
                 toast({
-                  title: t('analysisCompleted'),
-                  description: `${t('foundDishes')}: ${uniqueDishes.length}, ${t('foundCategories')}: ${uniqueCategories.length}`,
+                  title: "Анализ фото завершён",
+                  description: `Найдено ${uniqueDishes.length} блюд в ${uniqueCategories.length} категориях`,
                 });
               }
               resolve();
@@ -296,8 +326,10 @@ export default function AIGeneration() {
         await Promise.all(files.map((file, index) => processFile(file, index)));
       } catch (error: any) {
         setIsUploading(false);
+        setIsAnalyzing(false);
+        setAnalysisProgress(0);
         toast({
-          title: t('analysisError'),
+          title: "Ошибка анализа фото",
           description: error.message,
           variant: "destructive", 
         });
@@ -420,9 +452,35 @@ export default function AIGeneration() {
                         <p className="text-gray-600 mb-4">
                           {t('uploadPDFMenuDesc')}
                         </p>
-                        <Button onClick={() => handleFileUpload('pdf')}>
-                          <Upload className="mr-2" size={16} />
-                          {t('chooseFile')}
+                        
+                        {/* Progress bar for PDF analysis */}
+                        {isAnalyzing && activeTab === 'pdf' && (
+                          <div className="mb-4 space-y-2">
+                            <div className="text-sm text-gray-600">Анализ PDF...</div>
+                            <Progress value={analysisProgress} className="h-2" />
+                            <div className="text-xs text-gray-500">
+                              {analysisProgress < 30 ? 'Чтение файла...' :
+                               analysisProgress < 60 ? 'Извлечение текста...' :
+                               analysisProgress < 90 ? 'Анализ AI...' : 'Завершение...'}
+                            </div>
+                          </div>
+                        )}
+                        
+                        <Button 
+                          onClick={() => handleFileUpload('pdf')}
+                          disabled={isAnalyzing}
+                        >
+                          {isAnalyzing ? (
+                            <>
+                              <Loader2 className="mr-2 animate-spin" size={16} />
+                              Анализ...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="mr-2" size={16} />
+                              {t('chooseFile')}
+                            </>
+                          )}
                         </Button>
                       </div>
                     </TabsContent>
@@ -434,7 +492,7 @@ export default function AIGeneration() {
                           {t('photoUploadTitle')}
                         </h3>
                         <p className="text-gray-600 mb-4">
-                          {t('photoUploadDesc')}
+                          📸 Загрузите несколько фото меню одновременно
                         </p>
                         
                         {/* Progress indicators */}
@@ -487,18 +545,33 @@ export default function AIGeneration() {
                           placeholder={t('textAnalysisPlaceholder')}
                           className="min-h-[200px]"
                         />
+                        
+                        {/* Progress bar for text analysis */}
+                        {isAnalyzing && activeTab === 'text' && (
+                          <div className="space-y-2">
+                            <div className="text-sm text-gray-600">Анализ текста...</div>
+                            <Progress value={analysisProgress} className="h-2" />
+                            <div className="text-xs text-gray-500">
+                              {analysisProgress < 50 ? 'Обработка...' : 'Анализ AI...'}
+                            </div>
+                          </div>
+                        )}
+                        
                         <Button 
                           onClick={handleAnalyzeText}
-                          disabled={!textInput.trim() || analyzeTextMutation.isPending}
+                          disabled={!textInput.trim() || isAnalyzing}
                           className="w-full"
                         >
-                          {analyzeTextMutation.isPending ? (
+                          {isAnalyzing ? (
                             <>
                               <Loader2 className="mr-2 animate-spin" size={16} />
-                              {t('analyzing')}...
+                              Анализ...
                             </>
                           ) : (
-                            t('analyzeText')
+                            <>
+                              <PenTool className="mr-2" size={16} />
+                              {t('analyzeText')}
+                            </>
                           )}
                         </Button>
                       </div>
