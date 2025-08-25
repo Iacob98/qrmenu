@@ -10,6 +10,7 @@ import { AddDishModal } from "@/components/modals/add-dish";
 import { EditDishModal } from "@/components/modals/edit-dish";
 import { EditCategoryModal } from "@/components/modals/edit-category";
 import { CreateRestaurantModal } from "@/components/restaurant/create-restaurant-modal";
+import { TestModal } from "@/components/test-modal";
 import { EditFavoritesTitleModal } from "@/components/modals/edit-favorites-title";
 import { DishCard } from "@/components/menu/dish-card";
 import { Plus, ExternalLink, User, Edit, Trash2, Settings, LogOut, ChevronDown } from "lucide-react";
@@ -32,7 +33,7 @@ export default function MenuManagement() {
   const [createRestaurantOpen, setCreateRestaurantOpen] = useState(false);
   const [editFavoritesTitleOpen, setEditFavoritesTitleOpen] = useState(false);
   
-  console.log('MenuManagement render - createRestaurantOpen:', createRestaurantOpen);
+  // Debug: console.log('MenuManagement render - createRestaurantOpen:', createRestaurantOpen);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -423,10 +424,18 @@ export default function MenuManagement() {
         </>
       )}
 
-      {/* Create Restaurant Modal */}
-      {console.log('About to render CreateRestaurantModal with open:', createRestaurantOpen)}
-      <CreateRestaurantModal
+      {/* Test Modal */}
+      <TestModal
         open={createRestaurantOpen}
+        onOpenChange={(open) => {
+          console.log('Modal onOpenChange called with:', open);
+          setCreateRestaurantOpen(open);
+        }}
+      />
+      
+      {/* Create Restaurant Modal */}
+      <CreateRestaurantModal
+        open={false}
         onOpenChange={(open) => {
           console.log('Modal onOpenChange called with:', open);
           setCreateRestaurantOpen(open);
