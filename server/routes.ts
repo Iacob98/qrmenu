@@ -875,7 +875,7 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
 
   app.post("/api/ai/generate-image", requireAuth, async (req, res) => {
     try {
-      const { restaurantId, dishName, description, ingredients, tags } = req.body;
+      const { restaurantId, dishName, description, ingredients, tags, imagePrompt } = req.body;
       
       if (!restaurantId || !dishName) {
         return res.status(400).json({ message: "Missing required fields: restaurantId, dishName" });
@@ -900,7 +900,8 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
         dishName, 
         description || "", 
         ingredients || [], 
-        tags || []
+        tags || [],
+        imagePrompt || ""
       );
       
       console.log(`[AI Image] Generated successfully, downloading: ${temporaryImageUrl}`);

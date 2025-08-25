@@ -59,6 +59,7 @@ export function EditDishModal({
     ingredients: "",
     tags: [] as string[],
     image: "",
+    imagePrompt: "",
   });
 
   // Update form data when dish changes
@@ -72,6 +73,7 @@ export function EditDishModal({
         ingredients: dish.ingredients?.join(", ") || "",
         tags: dish.tags || [],
         image: dish.image || "",
+        imagePrompt: "",
       });
     }
   }, [dish, open]);
@@ -96,18 +98,20 @@ export function EditDishModal({
   });
 
   const generateImageMutation = useMutation({
-    mutationFn: async ({ dishName, description, ingredients, tags }: { 
+    mutationFn: async ({ dishName, description, ingredients, tags, imagePrompt }: { 
       dishName: string; 
       description: string;
       ingredients?: string[];
       tags?: string[];
+      imagePrompt?: string;
     }) => {
       const response = await apiRequest("POST", `/api/ai/generate-image`, { 
         restaurantId, 
         dishName, 
         description,
         ingredients,
-        tags
+        tags,
+        imagePrompt
       });
       return await response.json();
     },
@@ -192,6 +196,7 @@ export function EditDishModal({
       description: formData.description,
       ingredients: ingredients.length > 0 ? ingredients : undefined,
       tags: formData.tags.length > 0 ? formData.tags : undefined,
+      imagePrompt: formData.imagePrompt.trim() || undefined,
     });
   };
 
@@ -393,7 +398,18 @@ export function EditDishModal({
               maxSize={8}
               hideUrlInput={true}
             />
-            <div className="mt-2">
+            <div className="mt-2 space-y-2">
+              <div>
+                <Label htmlFor="imagePrompt">🎨 Уточнения для генерации фото</Label>
+                <Textarea
+                  id="imagePrompt"
+                  value={formData.imagePrompt}
+                  onChange={(e) => setFormData(prev => ({ ...prev, imagePrompt: e.target.value }))}
+                  placeholder="Дополнительные детали: стиль подачи, фон, освещение, презентация... (необязательно)"
+                  rows={2}
+                  className="text-sm"
+                />
+              </div>
               <Button
                 type="button"
                 variant="outline"

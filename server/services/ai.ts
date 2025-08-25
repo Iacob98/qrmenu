@@ -382,7 +382,7 @@ Return a JSON object with:
     }
   }
 
-  async generateDishImage(dishName: string, description: string, ingredients?: string[], tags?: string[]): Promise<string> {
+  async generateDishImage(dishName: string, description: string, ingredients?: string[], tags?: string[], imagePrompt?: string): Promise<string> {
       // Build comprehensive dish information
       let dishInfo = dishName;
       
@@ -403,9 +403,16 @@ Return a JSON object with:
         }
       }
       
-      const prompt = `A highly realistic, professionally styled food photo of ${dishInfo}. The dish is served on a clean ceramic plate, placed on a neutral white background. The lighting is soft and natural, coming from the top left at a ~45° angle, creating gentle shadows and highlighting textures.
+      let basePrompt = `A highly realistic, professionally styled food photo of ${dishInfo}. The dish is served on a clean ceramic plate, placed on a neutral white background. The lighting is soft and natural, coming from the top left at a ~45° angle, creating gentle shadows and highlighting textures.
 
-The composition is minimal and elegant, focused on the food, with no distracting elements or background props. The image should be centered, with sharp details, realistic portion size, and natural color tones. High-quality photo style (not illustration, not AI-looking, no watercolor). No watermark. No text.
+The composition is minimal and elegant, focused on the food, with no distracting elements or background props. The image should be centered, with sharp details, realistic portion size, and natural color tones. High-quality photo style (not illustration, not AI-looking, no watercolor). No watermark. No text.`;
+
+      // Add user-provided image prompt if specified
+      if (imagePrompt && imagePrompt.trim()) {
+        basePrompt += `\n\nAdditional details: ${imagePrompt.trim()}`;
+      }
+
+      const prompt = `${basePrompt}
 
 --style photo
 --v 6
