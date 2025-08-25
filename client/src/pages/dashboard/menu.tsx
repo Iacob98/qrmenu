@@ -144,7 +144,13 @@ export default function MenuManagement() {
           <div className="text-center">
             <h2 className="text-xl lg:text-2xl font-bold mb-4">{t('heroTitle')}</h2>
             <p className="text-gray-600 mb-6">{t('noRestaurantDesc')}</p>
-            <Button onClick={() => setCreateRestaurantOpen(true)}>
+            <Button 
+              onClick={() => {
+                console.log('Create Restaurant button clicked');
+                setCreateRestaurantOpen(true);
+              }}
+              data-testid="button-create-restaurant"
+            >
               {t('createRestaurant')}
             </Button>
           </div>

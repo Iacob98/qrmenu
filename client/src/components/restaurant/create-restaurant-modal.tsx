@@ -16,9 +16,6 @@ const createRestaurantSchema = z.object({
   phone: z.string().optional(),
   currency: z.string().default("EUR"),
   language: z.string().default("en"),
-  aiProvider: z.string().default("openai"),
-  aiToken: z.string().optional(),
-  aiModel: z.string().optional(),
 });
 
 type CreateRestaurantForm = z.infer<typeof createRestaurantSchema>;
@@ -29,6 +26,7 @@ interface CreateRestaurantModalProps {
 }
 
 export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantModalProps) {
+  console.log('CreateRestaurantModal render - open:', open);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -40,9 +38,6 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
       phone: "",
       currency: "EUR",
       language: "en",
-      aiProvider: "openai",
-      aiToken: "",
-      aiModel: "",
     },
   });
 
@@ -87,6 +82,7 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
   });
 
   const onSubmit = (data: CreateRestaurantForm) => {
+    console.log('Restaurant form submitted:', data);
     createRestaurantMutation.mutate(data);
   };
 
@@ -192,80 +188,6 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="aiProvider"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>AI Provider</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select provider" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="openai">OpenAI</SelectItem>
-                      <SelectItem value="openrouter">OpenRouter</SelectItem>
-                      <SelectItem value="replicate">Replicate (Imagen-4)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="aiToken"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>AI Token (optional)</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="password"
-                      placeholder="sk-..." 
-                      {...field} 
-                    />
-                  </FormControl>
-                  <p className="text-sm text-gray-500">
-                    {form.watch("aiProvider") === "openrouter" 
-                      ? "OpenRouter token for menu generation" 
-                      : form.watch("aiProvider") === "replicate"
-                      ? "Replicate token for all AI functions"
-                      : "OpenAI token for menu generation from photo and text"
-                    }
-                  </p>
-                  <p className="text-xs text-blue-600 mt-1">
-                    💡 Image generation always uses Replicate Imagen-4
-                  </p>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {form.watch("aiProvider") === "openrouter" && (
-              <FormField
-                control={form.control}
-                name="aiModel"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>AI Model (optional)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="gpt-4o, claude-3-sonnet, etc." 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <p className="text-sm text-gray-500">
-                      Specify a specific model for OpenRouter
-                    </p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
             <div className="flex justify-end space-x-2">
               <Button
                 type="button"
@@ -277,6 +199,7 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
               <Button
                 type="submit"
                 disabled={createRestaurantMutation.isPending}
+                data-testid="button-submit-restaurant"
               >
                 {createRestaurantMutation.isPending ? "Creating..." : "Create"}
               </Button>
