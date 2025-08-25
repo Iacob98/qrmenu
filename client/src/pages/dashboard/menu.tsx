@@ -425,14 +425,66 @@ export default function MenuManagement() {
         </>
       )}
 
-      {/* Simple Create Restaurant Modal */}
-      <SimpleCreateRestaurantModal
-        open={createRestaurantOpen}
-        onOpenChange={(open) => {
-          console.log('Modal onOpenChange called with:', open);
-          setCreateRestaurantOpen(open);
-        }}
-      />
+      {/* Inline Modal */}
+      {createRestaurantOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          onClick={() => setCreateRestaurantOpen(false)}
+        >
+          <div 
+            className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-xl font-bold mb-4">Create Restaurant</h2>
+            <p className="mb-4">Modal is working! State: {createRestaurantOpen.toString()}</p>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target as HTMLFormElement);
+              const name = formData.get('name') as string;
+              if (!name) return;
+              
+              fetch('/api/restaurants', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ name, currency: 'EUR', language: 'en' })
+              })
+              .then(res => res.json())
+              .then(() => {
+                toast({ title: 'Success', description: 'Restaurant created!' });
+                queryClient.invalidateQueries({ queryKey: ["/api/restaurants"] });
+                setCreateRestaurantOpen(false);
+              })
+              .catch(err => {
+                toast({ title: 'Error', description: err.message, variant: 'destructive' });
+              });
+            }}>
+              <input
+                name="name"
+                type="text"
+                placeholder="Restaurant name"
+                className="w-full p-2 border rounded mb-4"
+                required
+              />
+              <div className="flex justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setCreateRestaurantOpen(false)}
+                  className="px-4 py-2 border rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                  Create
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
