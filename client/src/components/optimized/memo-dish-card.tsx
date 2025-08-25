@@ -2,6 +2,7 @@ import React, { memo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Heart, Eye } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 import { cn } from "@/lib/utils";
 import type { Dish } from "@shared/schema";
 
@@ -19,6 +20,7 @@ export const MemoDishCard = memo(function DishCard({
   onViewDetails,
   isCompact = false,
 }: DishCardProps) {
+  const { t } = useTranslation();
   console.log('DishCard rendering:', dish.name);
   
   const getCurrencySymbol = (currency: string) => {
@@ -159,7 +161,7 @@ export const MemoDishCard = memo(function DishCard({
                 )}
               >
                 <Eye className={cn(isCompact ? "h-3 w-3" : "h-4 w-4")} />
-                {isCompact ? "Инфо" : "Подробнее"}
+                {isCompact ? t('info') : t('moreDetails')}
               </Button>
             </div>
           </div>

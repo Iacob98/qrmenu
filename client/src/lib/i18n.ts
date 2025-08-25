@@ -164,6 +164,11 @@ const resources = {
       "features": "Features",
       "temporarilyUnavailable": "Temporarily unavailable",
       "inStock": "Available",
+      
+      // Public menu
+      "searchPlaceholder": "Search dishes...",
+      "moreDetails": "More details",
+      "info": "Info",
 
       // Design page
       "designSettings": "Design Settings",
@@ -257,9 +262,9 @@ const resources = {
       "analysisStarted": "Analysis started",
       "processingPhotos": "Processing photos",
       "analysisCompleted": "Analysis completed",
-      "foundCategories": "categories found",
+      "foundCategories": "categories found", 
       "analysisError": "Analysis error",
-      "ingredients": "Ingredients",
+      "aiIngredients": "Ingredients",
       "nutrition": "Nutrition",
       "photoUploadTitle": "Photograph the menu",
       "photoUploadDesc": "Upload one or multiple menu photos — we'll extract all dishes and their descriptions",
@@ -392,7 +397,7 @@ const resources = {
       "companyDescription": "Modern platform for creating digital menus with artificial intelligence. We help restaurants worldwide create beautiful and functional menus in minutes.",
       "allRightsReserved": "All rights reserved.",
       "product": "Product",
-      "features": "Features",
+      "footerFeatures": "Features",
       "pricing": "Pricing",
       "api": "API",
       "integrations": "Integrations",
@@ -586,6 +591,11 @@ const resources = {
       "features": "Eigenschaften",
       "temporarilyUnavailable": "Vorübergehend nicht verfügbar",
       "inStock": "Verfügbar",
+      
+      // Public menu  
+      "searchPlaceholder": "Gerichte suchen...",
+      "moreDetails": "Weitere Details",
+      "info": "Info",
 
       // Design page
       "designSettings": "Design-Einstellungen",
@@ -681,7 +691,7 @@ const resources = {
       "analysisCompleted": "Analyse abgeschlossen",
       "foundCategories": "Kategorien gefunden",
       "analysisError": "Analyse-Fehler",
-      "ingredients": "Zutaten",
+      "aiIngredients": "Zutaten", 
       "nutrition": "Nährwerte",
       "photoUploadTitle": "Menü fotografieren",
       "photoUploadDesc": "Ein oder mehrere Menü-Fotos hochladen — wir extrahieren alle Gerichte und ihre Beschreibungen",
@@ -814,7 +824,7 @@ const resources = {
       "companyDescription": "Moderne Plattform für die Erstellung digitaler Menüs mit künstlicher Intelligenz. Wir helfen Restaurants weltweit, schöne und funktionale Menüs in wenigen Minuten zu erstellen.",
       "allRightsReserved": "Alle Rechte vorbehalten.",
       "product": "Produkt",
-      "features": "Funktionen",
+      "footerFeatures": "Funktionen",
       "pricing": "Preise",
       "api": "API",
       "integrations": "Integrationen",
