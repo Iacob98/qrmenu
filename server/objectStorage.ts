@@ -92,11 +92,16 @@ export class ObjectStorageService {
     try {
       // Get file metadata
       const [metadata] = await file.getMetadata();
+      // Get the ACL policy for the object.
+      const aclPolicy = await getObjectAclPolicy(file);
+      const isPublic = aclPolicy?.visibility === "public";
       // Set appropriate headers
       res.set({
         "Content-Type": metadata.contentType || "application/octet-stream",
         "Content-Length": metadata.size,
-        "Cache-Control": `public, max-age=${cacheTtlSec}`,
+        "Cache-Control": `${
+          isPublic ? "public" : "private"
+        }, max-age=${cacheTtlSec}`,
       });
 
       // Stream the file to the response
@@ -130,6 +135,32 @@ export class ObjectStorageService {
 
     const objectId = randomUUID();
     const fullPath = `${privateObjectDir}/uploads/${objectId}`;
+
+    const { bucketName, objectName } = parseObjectPath(fullPath);
+
+    // Sign URL for PUT method with TTL
+    return signObjectURL({
+      bucketName,
+      objectName,
+      method: "PUT",
+      ttlSec: 900,
+    });
+  }
+
+  // Gets the upload URL for a public feedback photo.
+  async getPublicFeedbackUploadURL(): Promise<string> {
+    const publicSearchPaths = this.getPublicObjectSearchPaths();
+    if (!publicSearchPaths || publicSearchPaths.length === 0) {
+      throw new Error(
+        "PUBLIC_OBJECT_SEARCH_PATHS not set. Create a bucket in 'Object Storage' " +
+          "tool and set PUBLIC_OBJECT_SEARCH_PATHS env var."
+      );
+    }
+
+    // Use the first public path for feedback uploads
+    const publicPath = publicSearchPaths[0];
+    const objectId = randomUUID();
+    const fullPath = `${publicPath}/feedback/${objectId}`;
 
     const { bucketName, objectName } = parseObjectPath(fullPath);
 

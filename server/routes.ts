@@ -1012,6 +1012,18 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
     }
   });
 
+  // Public feedback photo upload URL
+  app.post("/api/feedback/upload", requireAuth, async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getPublicFeedbackUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error getting feedback upload URL:", error);
+      res.status(500).json({ error: "Failed to get feedback upload URL" });
+    }
+  });
+
   // Feedback routes
   app.post("/api/feedback", requireAuth, async (req, res) => {
     try {

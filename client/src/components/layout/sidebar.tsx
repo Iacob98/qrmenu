@@ -76,10 +76,11 @@ export function Sidebar() {
         
         <nav className="p-4">
           <ul className="space-y-2">
-            {navigation.map((item) => {
+            {navigation.map((item, index) => {
               const isActive = location === item.href || (item.href !== "/dashboard" && location.startsWith(item.href));
+              const displayName = item.nameKey ? t(`sidebar.${item.nameKey}`) : item.name;
               return (
-                <li key={item.nameKey}>
+                <li key={item.nameKey || `nav-${index}`}>
                   <a
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)} // Close mobile menu on navigation
@@ -91,7 +92,7 @@ export function Sidebar() {
                     )}
                   >
                     <item.icon className="mr-3" size={20} />
-                    {t(item.nameKey)}
+                    {displayName}
                   </a>
                 </li>
               );

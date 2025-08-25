@@ -96,7 +96,7 @@ export default function FeedbackPage() {
     try {
       const uploadPromises = filesToUpload.map(async (file) => {
         // Get upload URL
-        const response = await fetch("/api/objects/upload", {
+        const response = await fetch("/api/feedback/upload", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
         });
