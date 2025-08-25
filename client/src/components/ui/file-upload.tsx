@@ -164,10 +164,10 @@ export function FileUpload({
             <div className="flex flex-col items-center justify-center h-full">
               <Upload className="h-8 w-8 text-gray-400 mb-2" />
               <p className="text-sm text-gray-600 mb-1">
-                Перетащите изображение или нажмите для выбора
+                Drag image or click to select
               </p>
               <p className="text-xs text-gray-500">
-                Максимум {maxSize}MB
+                Maximum {maxSize}MB
               </p>
             </div>
           )}
@@ -186,7 +186,7 @@ export function FileUpload({
         <div className="mt-2">
           <Input
             type="url"
-            placeholder="Или введите URL изображения"
+            placeholder="Or enter image URL"
             value={value}
             onChange={(e) => onChange(e.target.value)}
             disabled={uploadMutation.isPending}
