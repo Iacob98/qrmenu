@@ -465,10 +465,10 @@ export default function Landing() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Future Plans
+                {t('futurePlans')}
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Coming features that will make your restaurant menu even better
+                {t('futurePlansSubtitle')}
               </p>
             </div>
             
@@ -478,8 +478,8 @@ export default function Landing() {
                   <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
                     <QrCode className="text-purple-600" size={24} />
                   </div>
-                  <h3 className="font-semibold text-lg mb-2">QR Style Customization</h3>
-                  <p className="text-gray-600 text-sm">Customize your QR codes with colors, logos, and different styles to match your brand</p>
+                  <h3 className="font-semibold text-lg mb-2">{t('qrStyleCustomization')}</h3>
+                  <p className="text-gray-600 text-sm">{t('qrStyleDesc')}</p>
                 </CardContent>
               </Card>
 
@@ -488,8 +488,8 @@ export default function Landing() {
                   <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
                     <Star className="text-green-600" size={24} />
                   </div>
-                  <h3 className="font-semibold text-lg mb-2">Review System</h3>
-                  <p className="text-gray-600 text-sm">Let customers leave reviews and ratings for dishes directly through your menu</p>
+                  <h3 className="font-semibold text-lg mb-2">{t('reviewSystem')}</h3>
+                  <p className="text-gray-600 text-sm">{t('reviewSystemDesc')}</p>
                 </CardContent>
               </Card>
 
@@ -498,8 +498,8 @@ export default function Landing() {
                   <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
                     <BarChart3 className="text-orange-600" size={24} />
                   </div>
-                  <h3 className="font-semibold text-lg mb-2">Analytics</h3>
-                  <p className="text-gray-600 text-sm">Track which dishes are most popular and get insights about customer preferences</p>
+                  <h3 className="font-semibold text-lg mb-2">{t('analytics')}</h3>
+                  <p className="text-gray-600 text-sm">{t('analyticsDesc')}</p>
                 </CardContent>
               </Card>
 
@@ -508,8 +508,8 @@ export default function Landing() {
                   <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                     <Globe className="text-blue-600" size={24} />
                   </div>
-                  <h3 className="font-semibold text-lg mb-2">Multi-Location</h3>
-                  <p className="text-gray-600 text-sm">Manage multiple restaurant locations from one dashboard with unified branding</p>
+                  <h3 className="font-semibold text-lg mb-2">{t('multiLocation')}</h3>
+                  <p className="text-gray-600 text-sm">{t('multiLocationDesc')}</p>
                 </CardContent>
               </Card>
 
@@ -518,8 +518,8 @@ export default function Landing() {
                   <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
                     <Globe className="text-indigo-600" size={24} />
                   </div>
-                  <h3 className="font-semibold text-lg mb-2">Menu Translation</h3>
-                  <p className="text-gray-600 text-sm">Automatic translation of your menu into multiple languages for international customers</p>
+                  <h3 className="font-semibold text-lg mb-2">{t('menuTranslation')}</h3>
+                  <p className="text-gray-600 text-sm">{t('menuTranslationDesc')}</p>
                 </CardContent>
               </Card>
 
@@ -528,8 +528,8 @@ export default function Landing() {
                   <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
                     <TrendingUp className="text-red-600" size={24} />
                   </div>
-                  <h3 className="font-semibold text-lg mb-2">🚀 More Coming</h3>
-                  <p className="text-gray-600 text-sm">We're constantly developing new features based on user feedback and industry trends</p>
+                  <h3 className="font-semibold text-lg mb-2">🚀 {t('moreComing')}</h3>
+                  <p className="text-gray-600 text-sm">{t('moreComingDesc')}</p>
                 </CardContent>
               </Card>
             </div>
