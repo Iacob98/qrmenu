@@ -117,7 +117,7 @@ export default function FeedbackPage() {
         
         // Convert to public URL format
         const publicUrl = uploadURL.split('?')[0].replace(
-          /https:\/\/storage\.googleapis\.com\/([^\/]+)\/(.+)/,
+          /https:\/\/storage\.googleapis\.com\/([^\/]+)\/public\/(.+)/,
           '/public-objects/$2'
         );
         
