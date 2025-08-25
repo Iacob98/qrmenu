@@ -91,23 +91,27 @@ export function useRealTimeMenu(restaurantSlug: string) {
             }
             
             // Throttle invalidations to avoid excessive refetching
-            const invalidateMenu = () => {
-              if (data.type === 'restaurant_update') {
-                console.log('🏢 Restaurant data updated, forcing refresh:', data);
-                queryClient.removeQueries({ 
+            const invalidateMenu = async () => {
+              try {
+                if (data.type === 'restaurant_update') {
+                  console.log('🏢 Restaurant data updated, forcing refresh:', data);
+                  queryClient.removeQueries({ 
+                    queryKey: ["/api/public/menu", restaurantSlug] 
+                  });
+                }
+                
+                await queryClient.invalidateQueries({ 
                   queryKey: ["/api/public/menu", restaurantSlug] 
                 });
-              }
-              
-              queryClient.invalidateQueries({ 
-                queryKey: ["/api/public/menu", restaurantSlug] 
-              });
-              
-              // Only invalidate admin dashboard for relevant updates
-              if (data.type === 'restaurant_update' || data.type === 'design_update') {
-                queryClient.invalidateQueries({ 
-                  queryKey: ["/api/restaurants"] 
-                });
+                
+                // Only invalidate admin dashboard for relevant updates
+                if (data.type === 'restaurant_update' || data.type === 'design_update') {
+                  await queryClient.invalidateQueries({ 
+                    queryKey: ["/api/restaurants"] 
+                  });
+                }
+              } catch (error) {
+                console.error('Error invalidating queries:', error);
               }
             };
             
@@ -130,6 +134,7 @@ export function useRealTimeMenu(restaurantSlug: string) {
 
     websocket.onerror = (error) => {
       console.error('🚨 WebSocket error:', error);
+      setWs(null);
     };
 
     return () => {
