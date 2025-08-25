@@ -24,9 +24,6 @@ export default function Settings() {
     phone: "",
     currency: "EUR",
     language: "en",
-    aiProvider: "openrouter",
-    aiToken: "",
-    aiModel: "anthropic/claude-3.5-sonnet",
     logo: "",
     banner: "",
   });
@@ -35,7 +32,6 @@ export default function Settings() {
     email: "",
   });
   const [copied, setCopied] = useState(false);
-  const [aiTokenStatus, setAiTokenStatus] = useState<'checking' | 'valid' | 'invalid' | null>(null);
   
   const { toast } = useToast();
   const { user, logout } = useAuth();
@@ -62,9 +58,6 @@ export default function Settings() {
         phone: restaurant.phone || "",
         currency: restaurant.currency || "EUR",
         language: restaurant.language || "en",
-        aiProvider: "openrouter", // Fixed to OpenRouter
-        aiToken: restaurant.aiToken || "",
-        aiModel: restaurant.aiModel || "anthropic/claude-3.5-sonnet", // Default Claude model
         logo: restaurant.logo || "",
         banner: restaurant.banner || "",
       });
@@ -160,29 +153,6 @@ export default function Settings() {
 
 
 
-  const checkAiToken = async () => {
-    setAiTokenStatus('checking');
-    try {
-      const response = await apiRequest("POST", "/api/ai/test-global-token", {
-        model: restaurantForm.aiModel || "anthropic/claude-3.5-sonnet"
-      });
-      
-      const result = await response.json();
-      
-      setAiTokenStatus('valid');
-      toast({
-        title: "AI работает",
-        description: `OpenRouter API активен (модель: ${result.model})`,
-      });
-    } catch (error) {
-      setAiTokenStatus('invalid');
-      toast({
-        title: "AI недоступен", 
-        description: "Проблема с глобальными токенами",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleDeleteRestaurant = () => {
     if (!confirm("Are you sure you want to delete the restaurant? This action cannot be undone.")) {
@@ -330,67 +300,6 @@ export default function Settings() {
                     </CardContent>
                   </Card>
 
-                  {/* AI Settings */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>🤖 AI {t('settings')}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
-                        <span className="text-green-600 text-xl">✅</span>
-                        <div>
-                          <p className="text-green-700 font-medium">AI токен активен</p>
-                          <p className="text-sm text-green-600">Используется глобальный токен OpenRouter/Claude 3.5 Sonnet</p>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="aiModel">🧠 AI Model</Label>
-                        <Select
-                          value={restaurantForm.aiModel}
-                          onValueChange={(value) => setRestaurantForm(prev => ({ ...prev, aiModel: value }))}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet (Default)</SelectItem>
-                            <SelectItem value="anthropic/claude-3-haiku">Claude 3 Haiku (Fast)</SelectItem>
-                            <SelectItem value="openai/gpt-4">GPT-4</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <Button 
-                        type="button"
-                        onClick={checkAiToken}
-                        variant="outline"
-                        disabled={aiTokenStatus === 'checking'}
-                        className="w-full"
-                      >
-                        {aiTokenStatus === 'checking' ? (
-                          <>
-                            <Loader2 className="mr-2 animate-spin" size={16} />
-                            Проверка токена...
-                          </>
-                        ) : (
-                          <>
-                            <Check className="mr-2" size={16} />
-                            Тестировать AI
-                          </>
-                        )}
-                      </Button>
-                      
-                      <Button 
-                        type="button"
-                        onClick={() => updateRestaurantMutation.mutate(restaurantForm)}
-                        disabled={updateRestaurantMutation.isPending}
-                        className="w-full"
-                      >
-                        {updateRestaurantMutation.isPending ? t('saving') : t('saveChanges')}
-                      </Button>
-                    </CardContent>
-                  </Card>
 
                   {/* Currency and Language */}
                   <Card>
