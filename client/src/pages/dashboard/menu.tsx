@@ -10,8 +10,6 @@ import { AddDishModal } from "@/components/modals/add-dish";
 import { EditDishModal } from "@/components/modals/edit-dish";
 import { EditCategoryModal } from "@/components/modals/edit-category";
 import { CreateRestaurantModal } from "@/components/restaurant/create-restaurant-modal";
-import { TestModal } from "@/components/test-modal";
-import { SimpleCreateRestaurantModal } from "@/components/simple-create-restaurant-modal";
 import { EditFavoritesTitleModal } from "@/components/modals/edit-favorites-title";
 import { DishCard } from "@/components/menu/dish-card";
 import { Plus, ExternalLink, User, Edit, Trash2, Settings, LogOut, ChevronDown } from "lucide-react";
@@ -34,7 +32,6 @@ export default function MenuManagement() {
   const [createRestaurantOpen, setCreateRestaurantOpen] = useState(false);
   const [editFavoritesTitleOpen, setEditFavoritesTitleOpen] = useState(false);
   
-  // Debug: console.log('MenuManagement render - createRestaurantOpen:', createRestaurantOpen);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -148,85 +145,20 @@ export default function MenuManagement() {
           <div className="text-center">
             <h2 className="text-xl lg:text-2xl font-bold mb-4">{t('heroTitle')}</h2>
             <p className="text-gray-600 mb-6">{t('noRestaurantDesc')}</p>
-            <div>
-              <Button 
-                onClick={() => {
-                  console.log('Create Restaurant button clicked');
-                  console.log('Before state change:', createRestaurantOpen);
-                  setCreateRestaurantOpen(true);
-                  console.log('After state change called');
-                }}
-                data-testid="button-create-restaurant"
-              >
-                {t('createRestaurant')}
-              </Button>
-              <div className="mt-2 text-sm text-red-600 font-bold">
-                Debug: Modal State = {createRestaurantOpen.toString()}
-              </div>
-            </div>
+            <Button 
+              onClick={() => setCreateRestaurantOpen(true)}
+              data-testid="button-create-restaurant"
+            >
+              {t('createRestaurant')}
+            </Button>
           </div>
         </div>
         
-        {/* Modal for no restaurants page */}
-        {createRestaurantOpen && (
-          <div 
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-            onClick={() => setCreateRestaurantOpen(false)}
-          >
-            <div 
-              className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2 className="text-xl font-bold mb-4">Create Restaurant</h2>
-              <p className="mb-4">Modal is working! State: {createRestaurantOpen.toString()}</p>
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.target as HTMLFormElement);
-                const name = formData.get('name') as string;
-                if (!name) return;
-                
-                fetch('/api/restaurants', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  credentials: 'include',
-                  body: JSON.stringify({ name, currency: 'EUR', language: 'en' })
-                })
-                .then(res => res.json())
-                .then(() => {
-                  toast({ title: 'Success', description: 'Restaurant created!' });
-                  queryClient.invalidateQueries({ queryKey: ["/api/restaurants"] });
-                  setCreateRestaurantOpen(false);
-                })
-                .catch(err => {
-                  toast({ title: 'Error', description: err.message, variant: 'destructive' });
-                });
-              }}>
-                <input
-                  name="name"
-                  type="text"
-                  placeholder="Restaurant name"
-                  className="w-full p-2 border rounded mb-4"
-                  required
-                />
-                <div className="flex justify-end space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => setCreateRestaurantOpen(false)}
-                    className="px-4 py-2 border rounded"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-500 text-white rounded"
-                  >
-                    Create
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+        {/* Create Restaurant Modal */}
+        <CreateRestaurantModal
+          open={createRestaurantOpen}
+          onOpenChange={setCreateRestaurantOpen}
+        />
       </div>
     );
   }
@@ -491,68 +423,11 @@ export default function MenuManagement() {
         </>
       )}
 
-      {/* Debug: createRestaurantOpen = {createRestaurantOpen.toString()} */}
-      
-      {/* Inline Modal */}
-      {createRestaurantOpen && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-          onClick={() => setCreateRestaurantOpen(false)}
-        >
-          <div 
-            className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-xl font-bold mb-4">Create Restaurant</h2>
-            <p className="mb-4">Modal is working! State: {createRestaurantOpen.toString()}</p>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.target as HTMLFormElement);
-              const name = formData.get('name') as string;
-              if (!name) return;
-              
-              fetch('/api/restaurants', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ name, currency: 'EUR', language: 'en' })
-              })
-              .then(res => res.json())
-              .then(() => {
-                toast({ title: 'Success', description: 'Restaurant created!' });
-                queryClient.invalidateQueries({ queryKey: ["/api/restaurants"] });
-                setCreateRestaurantOpen(false);
-              })
-              .catch(err => {
-                toast({ title: 'Error', description: err.message, variant: 'destructive' });
-              });
-            }}>
-              <input
-                name="name"
-                type="text"
-                placeholder="Restaurant name"
-                className="w-full p-2 border rounded mb-4"
-                required
-              />
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setCreateRestaurantOpen(false)}
-                  className="px-4 py-2 border rounded"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded"
-                >
-                  Create
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Create Restaurant Modal */}
+      <CreateRestaurantModal
+        open={createRestaurantOpen}
+        onOpenChange={setCreateRestaurantOpen}
+      />
     </div>
   );
 }

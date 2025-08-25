@@ -26,7 +26,6 @@ interface CreateRestaurantModalProps {
 }
 
 export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantModalProps) {
-  console.log('CreateRestaurantModal render - open:', open);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -82,7 +81,6 @@ export function CreateRestaurantModal({ open, onOpenChange }: CreateRestaurantMo
   });
 
   const onSubmit = (data: CreateRestaurantForm) => {
-    console.log('Restaurant form submitted:', data);
     createRestaurantMutation.mutate(data);
   };
 
