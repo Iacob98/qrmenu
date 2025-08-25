@@ -23,7 +23,7 @@ class SendGridEmailService implements EmailService {
 
     const msg = {
       to: email,
-      from: 'test@example.com', // Using SendGrid test sender
+      from: process.env.SENDGRID_FROM_EMAIL || 'noreply@qrmenu.com', // Use verified sender
       subject: 'Подтвердите ваш email адрес - DEMO Restaurant',
       html: `
         <!DOCTYPE html>
@@ -102,7 +102,7 @@ class SendGridEmailService implements EmailService {
 
     const msg = {
       to: email,
-      from: 'test@example.com',
+      from: process.env.SENDGRID_FROM_EMAIL || 'noreply@qrmenu.com',
       subject: 'Сброс пароля - DEMO Restaurant',
       html: `
         <!DOCTYPE html>
