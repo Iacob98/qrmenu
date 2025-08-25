@@ -60,11 +60,6 @@ function Router() {
           <Feedback />
         </AuthGuard>
       </Route>
-      <Route path="/dashboard/telegram-test">
-        <AuthGuard>
-          <TelegramTest />
-        </AuthGuard>
-      </Route>
       <Route path="/menu/:slug" component={PublicMenu} />
       <Route component={NotFound} />
     </Switch>

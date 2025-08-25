@@ -13,7 +13,6 @@ const navigation = [
   { nameKey: "ai", href: "/dashboard/ai", icon: Bot },
   { nameKey: "qr", href: "/dashboard/qr", icon: QrCode },
   { nameKey: "feedback", href: "/dashboard/feedback", icon: MessageSquare },
-  { name: "Test Telegram", href: "/dashboard/telegram-test", icon: MessageSquare },
 ];
 
 export function Sidebar() {
@@ -78,7 +77,7 @@ export function Sidebar() {
           <ul className="space-y-2">
             {navigation.map((item, index) => {
               const isActive = location === item.href || (item.href !== "/dashboard" && location.startsWith(item.href));
-              const displayName = item.nameKey ? t(`sidebar.${item.nameKey}`) : item.name;
+              const displayName = item.nameKey ? t(item.nameKey) : item.name;
               return (
                 <li key={item.nameKey || `nav-${index}`}>
                   <a
