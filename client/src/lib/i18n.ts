@@ -149,6 +149,21 @@ const resources = {
       "menuTranslationDesc": "Automatic translation of your menu into multiple languages for international customers",
       "moreComing": "More Coming",
       "moreComingDesc": "We're constantly developing new features based on user feedback and industry trends",
+      
+      // Dish details modal
+      "dishDetailsTitle": "Detailed information about dish",
+      "description": "Description",
+      "ingredients": "Ingredients", 
+      "nutritionInfo": "Nutritional Value",
+      "calories": "Calories",
+      "kcal": "kcal",
+      "protein": "Protein", 
+      "carbs": "Carbs",
+      "fat": "Fat",
+      "grams": "g",
+      "features": "Features",
+      "temporarilyUnavailable": "Temporarily unavailable",
+      "inStock": "Available",
 
       // Design page
       "designSettings": "Design Settings",
@@ -554,8 +569,23 @@ const resources = {
       "multiLocationDesc": "Verwalten Sie mehrere Restaurant-Standorte von einem Dashboard aus mit einheitlichem Branding",
       "menuTranslation": "Menü-Übersetzung",
       "menuTranslationDesc": "Automatische Übersetzung Ihres Menüs in mehrere Sprachen für internationale Kunden",
-      "moreComing": "Mehr kommt",
+      "moreComing": "Mehr kommt", 
       "moreComingDesc": "Wir entwickeln ständig neue Features basierend auf Nutzerfeedback und Branchentrends",
+      
+      // Dish details modal
+      "dishDetailsTitle": "Detaillierte Informationen über das Gericht",
+      "description": "Beschreibung",
+      "ingredients": "Zutaten",
+      "nutritionInfo": "Nährwerte",
+      "calories": "Kalorien",
+      "kcal": "kcal",
+      "protein": "Eiweiß",
+      "carbs": "Kohlenhydrate", 
+      "fat": "Fett",
+      "grams": "g",
+      "features": "Eigenschaften",
+      "temporarilyUnavailable": "Vorübergehend nicht verfügbar",
+      "inStock": "Verfügbar",
 
       // Design page
       "designSettings": "Design-Einstellungen",

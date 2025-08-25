@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Utensils } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 import type { Dish } from "@shared/schema";
 
 interface DishDetailsModalProps {
@@ -16,6 +17,7 @@ interface DishDetailsModalProps {
 }
 
 export function DishDetailsModal({ dish, currency, onClose }: DishDetailsModalProps) {
+  const { t } = useTranslation();
   if (!dish) return null;
 
   const getCurrencySymbol = (currency: string) => {
@@ -59,7 +61,7 @@ export function DishDetailsModal({ dish, currency, onClose }: DishDetailsModalPr
         <DialogHeader>
           <DialogTitle className="text-lg sm:text-xl text-left">{dish.name}</DialogTitle>
           <DialogDescription className="sr-only">
-            Подробная информация о блюде {dish.name}
+            {t('dishDetailsTitle')} {dish.name}
           </DialogDescription>
         </DialogHeader>
         
@@ -89,7 +91,7 @@ export function DishDetailsModal({ dish, currency, onClose }: DishDetailsModalPr
           {/* Description */}
           {dish.description && (
             <div>
-              <h4 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Описание</h4>
+              <h4 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">{t('description')}</h4>
               <p className="text-gray-600 text-sm sm:text-base">{dish.description}</p>
             </div>
           )}
@@ -97,7 +99,7 @@ export function DishDetailsModal({ dish, currency, onClose }: DishDetailsModalPr
           {/* Ingredients */}
           {dish.ingredients && dish.ingredients.length > 0 && (
             <div>
-              <h4 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Ингредиенты</h4>
+              <h4 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">{t('ingredients')}</h4>
               <p className="text-gray-600 text-sm sm:text-base">{dish.ingredients.join(", ")}</p>
             </div>
           )}
@@ -105,19 +107,19 @@ export function DishDetailsModal({ dish, currency, onClose }: DishDetailsModalPr
           {/* Nutrition Info */}
           {dish.nutrition && typeof dish.nutrition === 'object' && (
             <div>
-              <h4 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Пищевая ценность</h4>
+              <h4 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">{t('nutritionInfo')}</h4>
               <div className="grid grid-cols-2 gap-1 sm:gap-2 text-xs sm:text-sm text-gray-600">
                 {(dish.nutrition as any).calories && (
-                  <div className="bg-gray-50 p-1 sm:p-2 rounded">Калории: {(dish.nutrition as any).calories} ккал</div>
+                  <div className="bg-gray-50 p-1 sm:p-2 rounded">{t('calories')}: {(dish.nutrition as any).calories} {t('kcal')}</div>
                 )}
                 {(dish.nutrition as any).protein && (
-                  <div className="bg-gray-50 p-1 sm:p-2 rounded">Белки: {(dish.nutrition as any).protein}г</div>
+                  <div className="bg-gray-50 p-1 sm:p-2 rounded">{t('protein')}: {(dish.nutrition as any).protein}{t('grams')}</div>
                 )}
                 {(dish.nutrition as any).carbs && (
-                  <div className="bg-gray-50 p-1 sm:p-2 rounded">Углеводы: {(dish.nutrition as any).carbs}г</div>
+                  <div className="bg-gray-50 p-1 sm:p-2 rounded">{t('carbs')}: {(dish.nutrition as any).carbs}{t('grams')}</div>
                 )}
                 {(dish.nutrition as any).fat && (
-                  <div className="bg-gray-50 p-1 sm:p-2 rounded">Жиры: {(dish.nutrition as any).fat}г</div>
+                  <div className="bg-gray-50 p-1 sm:p-2 rounded">{t('fat')}: {(dish.nutrition as any).fat}{t('grams')}</div>
                 )}
               </div>
             </div>
@@ -126,7 +128,7 @@ export function DishDetailsModal({ dish, currency, onClose }: DishDetailsModalPr
           {/* Tags */}
           {dish.tags && dish.tags.length > 0 && (
             <div>
-              <h4 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Особенности</h4>
+              <h4 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">{t('features')}</h4>
               <div className="flex flex-wrap gap-1 sm:gap-2">
                 {dish.tags.map((tag) => (
                   <Badge
@@ -145,11 +147,11 @@ export function DishDetailsModal({ dish, currency, onClose }: DishDetailsModalPr
           <div className="text-center pt-1 sm:pt-2">
             {dish.available === false ? (
               <Badge variant="secondary" className="bg-red-100 text-red-700 text-xs">
-                Временно недоступно
+                {t('temporarilyUnavailable')}
               </Badge>
             ) : (
               <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
-                В наличии
+                {t('inStock')}
               </Badge>
             )}
           </div>
