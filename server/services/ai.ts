@@ -56,11 +56,119 @@ export class AIService {
 
   async analyzePDF(base64Data: string): Promise<AIGeneratedMenuResult> {
     try {
-      // PDF parsing is temporarily unavailable due to technical limitations
-      // Provide a helpful error message directing users to alternatives
-      throw new Error("PDF анализ временно недоступен. Пожалуйста, конвертируйте PDF в изображение (JPG/PNG) и используйте анализ фото, или скопируйте текст из PDF и используйте текстовый анализ.");
+      if (!this.openai) {
+        throw new Error("OpenAI client not initialized for PDF analysis");
+      }
+
+      console.log(`[AI] Analyzing PDF with ${this.model}`);
+      
+      // Try to use GPT-4 Vision to analyze PDF directly
+      // Some PDFs might work as "images" with Vision models
+      const response = await this.openai.chat.completions.create({
+        model: "gpt-4o", // Force use of Vision-capable model
+        messages: [
+          {
+            role: "system",
+            content: `You are an intelligent assistant embedded in an online restaurant menu builder.
+
+Your task is to analyze PDF menu documents and extract all meaningful and structured information, automatically organizing dishes into logical categories.
+
+STEP 1: Identify Categories
+First, identify all menu categories/sections from the document (e.g., "Appetizers", "Main Dishes", "Desserts", "Beverages", "Salads", etc.)
+
+STEP 2: Extract Dishes
+For every dish you detect, extract the following fields:
+1. **name** – preserve the original name in the source language, no translation
+2. **description** – generate a short, engaging description of the dish (1–2 sentences) in the same language as the original menu
+3. **price** – if listed, include the price as a number (without currency symbol)
+4. **ingredients** – extract or infer a list of 3–10 primary ingredients
+5. **nutrition** – provide realistic estimates per portion (calories, protein, fat, carbs)
+6. **tags** – auto-detect relevant dietary labels: "vegetarian", "vegan", "spicy", "gluten-free", "dairy-free", "meat", "seafood", "nuts", "healthy", "popular"
+7. **category** – assign each dish to one of the identified categories
+
+Return a JSON object with:
+- "categories" array: list of category objects with "name" and optional "icon" (use emoji or simple text like "🍽️", "🥗", "🍰")
+- "dishes" array: all extracted dishes, each with their assigned category name
+
+Example response structure:
+{
+  "categories": [
+    {"name": "Закуски", "icon": "🥗"},
+    {"name": "Основные блюда", "icon": "🍽️"},
+    {"name": "Десерты", "icon": "🍰"}
+  ],
+  "dishes": [
+    {
+      "name": "Салат Цезарь",
+      "category": "Закуски",
+      "description": "Хрустящий салат с курицей, сыром пармезан и соусом Цезарь",
+      "price": 8.5,
+      "ingredients": ["салат романо", "куриная грудка", "сыр пармезан", "соус цезарь"],
+      "nutrition": {"calories": 450, "protein": 25, "fat": 35, "carbs": 12},
+      "tags": ["meat", "popular"]
+    }
+  ]
+}`
+          },
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: "Analyze this menu document (PDF) and extract all dishes with their information. Return as JSON object."
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:application/pdf;base64,${base64Data}`
+                }
+              }
+            ]
+          }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 2000,
+      });
+
+      const content = response.choices[0].message.content;
+      if (!content) {
+        throw new Error("No response content from AI");
+      }
+
+      let result;
+      try {
+        result = JSON.parse(content);
+      } catch (jsonError) {
+        console.error("AI Response JSON Parse Error (PDF):", jsonError);
+        console.error("Raw AI Response:", content);
+        
+        // Try to extract JSON from response if it's wrapped in other text
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            result = JSON.parse(jsonMatch[0]);
+          } catch (secondJsonError) {
+            throw new Error(`Invalid JSON response from AI. Raw response: ${content.substring(0, 200)}...`);
+          }
+        } else {
+          throw new Error(`No valid JSON found in AI response. Raw response: ${content.substring(0, 200)}...`);
+        }
+      }
+
+      console.log(`[AI] PDF Analysis completed. Found ${result.dishes?.length || 0} dishes in ${result.categories?.length || 0} categories`);
+
+      return {
+        categories: Array.isArray(result.categories) ? result.categories : [],
+        dishes: Array.isArray(result.dishes) ? result.dishes : []
+      };
     } catch (error) {
       console.error("PDF analysis error:", error);
+      
+      // If PDF direct analysis fails, provide helpful guidance
+      if (error instanceof Error && error.message.includes("Invalid MIME type")) {
+        throw new Error("PDF формат не поддерживается напрямую. Конвертируйте PDF в изображение (JPG/PNG) и используйте анализ фото, или скопируйте текст и используйте текстовый анализ.");
+      }
+      
       throw new Error(`Failed to analyze PDF: ${handleError(error)}`);
     }
   }
