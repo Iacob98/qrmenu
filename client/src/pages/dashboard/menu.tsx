@@ -31,6 +31,8 @@ export default function MenuManagement() {
   const [editCategoryOpen, setEditCategoryOpen] = useState(false);
   const [createRestaurantOpen, setCreateRestaurantOpen] = useState(false);
   const [editFavoritesTitleOpen, setEditFavoritesTitleOpen] = useState(false);
+  
+  console.log('MenuManagement render - createRestaurantOpen:', createRestaurantOpen);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -147,7 +149,9 @@ export default function MenuManagement() {
             <Button 
               onClick={() => {
                 console.log('Create Restaurant button clicked');
+                console.log('Before state change:', createRestaurantOpen);
                 setCreateRestaurantOpen(true);
+                console.log('After state change called');
               }}
               data-testid="button-create-restaurant"
             >
@@ -420,9 +424,13 @@ export default function MenuManagement() {
       )}
 
       {/* Create Restaurant Modal */}
+      {console.log('About to render CreateRestaurantModal with open:', createRestaurantOpen)}
       <CreateRestaurantModal
         open={createRestaurantOpen}
-        onOpenChange={setCreateRestaurantOpen}
+        onOpenChange={(open) => {
+          console.log('Modal onOpenChange called with:', open);
+          setCreateRestaurantOpen(open);
+        }}
       />
     </div>
   );
