@@ -129,7 +129,7 @@ export function EditDishModal({
         
         let toastMessage = t('photoGenerated');
         if (typeof remainingGenerations === 'number') {
-          toastMessage += ` (осталось генераций: ${remainingGenerations}/5)`;
+          toastMessage += ` (${remainingGenerations}/5 remaining)`;
         }
         
         toast({ title: toastMessage });
@@ -411,12 +411,12 @@ export function EditDishModal({
             />
             <div className="mt-2 space-y-2">
               <div>
-                <Label htmlFor="imagePrompt">🎨 Уточнения для генерации фото</Label>
+                <Label htmlFor="imagePrompt">🎨 Custom Image Prompt</Label>
                 <Textarea
                   id="imagePrompt"
                   value={formData.imagePrompt}
                   onChange={(e) => setFormData(prev => ({ ...prev, imagePrompt: e.target.value }))}
-                  placeholder="Дополнительные детали: стиль подачи, фон, освещение, презентация... (необязательно)"
+                  placeholder="Additional details: serving style, background, lighting, presentation... (optional)"
                   rows={2}
                   className="text-sm"
                 />
@@ -433,9 +433,9 @@ export function EditDishModal({
               </Button>
               {dish && dish.imageGenerationsCount !== undefined && (
                 <p className="text-xs text-muted-foreground mt-1">
-                  Использовано генераций: {dish.imageGenerationsCount || 0}/5
+                  Generations used: {dish.imageGenerationsCount || 0}/5
                   {dish.imageGenerationsCount && dish.imageGenerationsCount >= 5 && (
-                    <span className="text-red-600 ml-2">⚠️ Лимит достигнут</span>
+                    <span className="text-red-600 ml-2">⚠️ Limit reached</span>
                   )}
                 </p>
               )}

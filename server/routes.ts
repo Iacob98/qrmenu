@@ -897,7 +897,7 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
 
       if (generationsCount >= MAX_GENERATIONS) {
         return res.status(400).json({ 
-          message: `Достигнут лимит генераций (${MAX_GENERATIONS}) для этого блюда`,
+          message: `Generation limit reached (${MAX_GENERATIONS}) for this dish`,
           remainingGenerations: 0
         });
       }
