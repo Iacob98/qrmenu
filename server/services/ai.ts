@@ -62,23 +62,40 @@ export class AIService {
 
       console.log(`[AI] Analyzing PDF with ${this.model} on ${this.provider}`);
       
-      // Try to extract basic text information from PDF buffer
+      // Try to extract text from PDF using pdfjs-dist
       let extractedText = '';
       try {
         const pdfBuffer = Buffer.from(base64Data, 'base64');
-        const pdfString = pdfBuffer.toString('latin1');
         
-        // Simple text extraction - look for readable text patterns
-        // This is a basic approach that might capture some text from simple PDFs
-        const textMatches = pdfString.match(/\(([^)]+)\)/g) || [];
-        extractedText = textMatches
-          .map(match => match.replace(/[()]/g, ''))
-          .filter(text => text.length > 2 && /[a-zA-Zа-яё]/i.test(text))
-          .join(' ');
+        // Use pdfjs-dist to properly extract text
+        const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.js');
         
-        console.log(`[AI] Extracted text sample: ${extractedText.substring(0, 200)}...`);
+        // Load the PDF
+        const loadingTask = pdfjsLib.getDocument({
+          data: pdfBuffer,
+          verbosity: 0  // Suppress console logs
+        });
+        const pdf = await loadingTask.promise;
+        
+        console.log(`[AI] PDF loaded successfully. Pages: ${pdf.numPages}`);
+        
+        // Extract text from all pages
+        let allText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items
+            .map((item: any) => item.str)
+            .join(' ');
+          allText += pageText + '\n';
+        }
+        
+        extractedText = allText.trim();
+        console.log(`[AI] Extracted text (${extractedText.length} chars): ${extractedText.substring(0, 300)}...`);
+        
       } catch (extractError) {
-        console.log(`[AI] Could not extract text from PDF, will generate sample menu`);
+        console.log(`[AI] PDF text extraction failed:`, extractError);
+        extractedText = '';
       }
 
       // For PDF analysis, prefer Claude via OpenRouter as it handles documents better
@@ -89,9 +106,23 @@ export class AIService {
         modelToUse = 'gpt-4o'; // Fallback to OpenAI
       }
       
-      const userPrompt = extractedText.length > 50 
-        ? `I extracted this text from a PDF menu: "${extractedText}". Based on this content, create a comprehensive restaurant menu structure with realistic dishes, prices, ingredients, and categories. If the extracted text is unclear, create a professional restaurant menu with diverse dishes.`
-        : `Create a comprehensive restaurant menu with 4-6 categories and 2-3 dishes per category. Include realistic dish names, descriptions, prices (8-25 range), ingredients, nutrition estimates, and relevant tags.`;
+      if (extractedText.length < 50) {
+        throw new Error("Не удалось извлечь текст из PDF. Убедитесь что PDF содержит текстовую информацию, а не только изображения. Попробуйте конвертировать PDF в изображения и использовать анализ фото.");
+      }
+
+      const userPrompt = `Проанализируй этот текст меню из PDF и извлеки ТОЧНУЮ информацию о блюдах:
+
+"${extractedText}"
+
+ВАЖНО: Используй только информацию из предоставленного текста. Не добавляй блюда которых нет в тексте.
+
+Найди и извлеки:
+- Названия блюд (точно как в тексте)
+- Цены (если указаны)
+- Описания (если есть)
+- Категории блюд
+
+Создай JSON структуру только с блюдами которые РЕАЛЬНО есть в тексте.`;
       
       const response = await this.openai.chat.completions.create({
         model: modelToUse,
