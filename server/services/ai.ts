@@ -66,13 +66,15 @@ export class AIService {
       let extractedText = '';
       try {
         const pdfBuffer = Buffer.from(base64Data, 'base64');
+        // Convert Buffer to Uint8Array as required by pdfjs-dist
+        const pdfData = new Uint8Array(pdfBuffer);
         
         // Use pdfjs-dist legacy build for Node.js
         const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
         
         // Load the PDF
         const loadingTask = pdfjsLib.getDocument({
-          data: pdfBuffer,
+          data: pdfData,
           verbosity: 0  // Suppress console logs
         });
         const pdf = await loadingTask.promise;
