@@ -1024,6 +1024,25 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
     }
   });
 
+  // Public objects serving endpoint
+  app.get("/public-objects/:filePath(*)", async (req, res) => {
+    const filePath = req.params.filePath;
+    console.log(`[Public Objects] Serving file: ${filePath}`);
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const file = await objectStorageService.searchPublicObject(filePath);
+      if (!file) {
+        console.log(`[Public Objects] File not found: ${filePath}`);
+        return res.status(404).json({ error: "File not found" });
+      }
+      console.log(`[Public Objects] File found, serving: ${filePath}`);
+      objectStorageService.downloadObject(file, res);
+    } catch (error) {
+      console.error("Error searching for public object:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // Feedback routes
   app.post("/api/feedback", requireAuth, async (req, res) => {
     try {
@@ -1048,7 +1067,7 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
 
       // Send Telegram notification
       const telegramData = {
-        type: feedbackData.type,
+        type: feedbackData.type as "bug" | "suggestion" | "feature_request",
         title: feedbackData.title,
         description: feedbackData.description,
         email: feedbackData.email || user?.email,

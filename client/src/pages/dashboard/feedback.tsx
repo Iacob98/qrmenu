@@ -115,9 +115,18 @@ export default function FeedbackPage() {
         
         if (!uploadResponse.ok) throw new Error("Failed to upload file");
         
+        // Convert to public URL format
+        const publicUrl = uploadURL.split('?')[0].replace(
+          /https:\/\/storage\.googleapis\.com\/([^\/]+)\/(.+)/,
+          '/public-objects/$2'
+        );
+        
+        console.log(`[Upload] Original URL: ${uploadURL}`);
+        console.log(`[Upload] Public URL: ${publicUrl}`);
+        
         return {
           id: Math.random().toString(),
-          url: uploadURL.split('?')[0], // Remove query parameters
+          url: publicUrl,
           name: file.name,
         };
       });

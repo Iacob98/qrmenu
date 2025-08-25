@@ -136,11 +136,19 @@ ${data.browserInfo ? `<b>Browser Info:</b> ${JSON.stringify(data.browserInfo, nu
     // Send photos if any
     if (data.photos.length > 0) {
       console.log(`[Telegram] Sending ${data.photos.length} photos...`);
+      console.log(`[Telegram] Photo URLs:`, data.photos);
       
       for (let i = 0; i < data.photos.length; i++) {
-        const photoUrl = data.photos[i];
+        let photoUrl = data.photos[i];
+        
+        // Convert relative URLs to full URLs if needed
+        if (photoUrl.startsWith('/public-objects/')) {
+          photoUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}${photoUrl}`;
+        }
+        
         const caption = `Photo ${i + 1}/${data.photos.length}`;
         
+        console.log(`[Telegram] Attempting to send photo ${i + 1}: ${photoUrl}`);
         const photoSent = await sendTelegramPhoto(photoUrl, caption);
         if (!photoSent) {
           console.error(`[Telegram] Failed to send photo ${i + 1}: ${photoUrl}`);
