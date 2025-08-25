@@ -11,7 +11,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
-import { Copy, Check, AlertTriangle, Upload, X, Image } from "lucide-react";
+import { Copy, Check, AlertTriangle, Upload, X, Image, Loader2 } from "lucide-react";
 import { FileUpload } from "@/components/ui/file-upload";
 import { useTranslation } from "react-i18next";
 import type { Restaurant } from "@shared/schema";
@@ -161,28 +161,24 @@ export default function Settings() {
 
 
   const checkAiToken = async () => {
-    if (!restaurantForm.aiToken.trim()) return;
-    
     setAiTokenStatus('checking');
     try {
-      const response = await apiRequest("POST", "/api/ai/test-token", {
-        token: restaurantForm.aiToken,
-        provider: "openrouter",
-        model: "anthropic/claude-3.5-sonnet"
+      const response = await apiRequest("POST", "/api/ai/test-global-token", {
+        model: restaurantForm.aiModel || "anthropic/claude-3.5-sonnet"
       });
       
       const result = await response.json();
       
       setAiTokenStatus('valid');
       toast({
-        title: "Token valid",
-        description: `${result.provider} API working correctly (model: ${result.model})`,
+        title: "AI работает",
+        description: `OpenRouter API активен (модель: ${result.model})`,
       });
     } catch (error) {
       setAiTokenStatus('invalid');
       toast({
-        title: "Token invalid", 
-        description: "Check token validity and provider settings",
+        title: "AI недоступен", 
+        description: "Проблема с глобальными токенами",
         variant: "destructive",
       });
     }
@@ -330,6 +326,68 @@ export default function Settings() {
                         className="w-full mt-4"
                       >
                         {updateRestaurantMutation.isPending ? t('validating') : t('saveChanges')}
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {/* AI Settings */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>🤖 AI {t('settings')}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+                        <span className="text-green-600 text-xl">✅</span>
+                        <div>
+                          <p className="text-green-700 font-medium">AI токен активен</p>
+                          <p className="text-sm text-green-600">Используется глобальный токен OpenRouter/Claude 3.5 Sonnet</p>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="aiModel">🧠 AI Model</Label>
+                        <Select
+                          value={restaurantForm.aiModel}
+                          onValueChange={(value) => setRestaurantForm(prev => ({ ...prev, aiModel: value }))}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet (Default)</SelectItem>
+                            <SelectItem value="anthropic/claude-3-haiku">Claude 3 Haiku (Fast)</SelectItem>
+                            <SelectItem value="openai/gpt-4">GPT-4</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <Button 
+                        type="button"
+                        onClick={checkAiToken}
+                        variant="outline"
+                        disabled={aiTokenStatus === 'checking'}
+                        className="w-full"
+                      >
+                        {aiTokenStatus === 'checking' ? (
+                          <>
+                            <Loader2 className="mr-2 animate-spin" size={16} />
+                            Проверка токена...
+                          </>
+                        ) : (
+                          <>
+                            <Check className="mr-2" size={16} />
+                            Тестировать AI
+                          </>
+                        )}
+                      </Button>
+                      
+                      <Button 
+                        type="button"
+                        onClick={() => updateRestaurantMutation.mutate(restaurantForm)}
+                        disabled={updateRestaurantMutation.isPending}
+                        className="w-full"
+                      >
+                        {updateRestaurantMutation.isPending ? t('saving') : t('saveChanges')}
                       </Button>
                     </CardContent>
                   </Card>

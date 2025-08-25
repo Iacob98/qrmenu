@@ -342,7 +342,8 @@ export default function AIGeneration() {
     );
   }
 
-  const hasAIToken = restaurant?.aiToken;
+  // Always show AI as available since we have global tokens
+  const hasAIToken = true;
 
   return (
     <div className="flex min-h-screen">

@@ -583,6 +583,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/ai/test-global-token", requireAuth, async (req, res) => {
+    try {
+      const { model = 'anthropic/claude-3.5-sonnet' } = req.body;
+      
+      const apiKey = process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        return res.status(400).json({ message: "Global AI tokens not configured" });
+      }
+
+      const provider = process.env.OPENROUTER_API_KEY ? 'openrouter' : 'openai';
+      const aiService = createAIService(apiKey, provider, model);
+      
+      // Test the token with a simple completion
+      const testResponse = await aiService.analyzeText("Test menu: Pizza Margherita - 12.99");
+      
+      res.json({ 
+        valid: true, 
+        message: "Global AI token is working",
+        provider,
+        model: aiService.model || model
+      });
+    } catch (error) {
+      console.error("Global token validation error:", error);
+      res.status(400).json({ 
+        valid: false, 
+        message: `Global AI token error: ${handleError(error)}` 
+      });
+    }
+  });
+
   app.post("/api/ai/analyze-pdf", requireAuth, async (req, res) => {
     try {
       const { restaurantId, base64Data } = req.body;
@@ -592,11 +622,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Restaurant not found" });
       }
 
-      if (!restaurant.aiToken) {
-        return res.status(400).json({ message: "AI token not configured" });
+      const apiKey = restaurant.aiToken || process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        return res.status(400).json({ message: "AI token not available" });
       }
 
-      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
+      const aiService = createAIService(apiKey, restaurant.aiProvider || 'openrouter', restaurant.aiModel || 'anthropic/claude-3.5-sonnet');
       const result = await aiService.analyzePDF(base64Data);
       
       res.json(result);
@@ -614,11 +645,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Restaurant not found" });
       }
 
-      if (!restaurant.aiToken) {
-        return res.status(400).json({ message: "AI token not configured" });
+      const apiKey = restaurant.aiToken || process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        return res.status(400).json({ message: "AI token not available" });
       }
 
-      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
+      const aiService = createAIService(apiKey, restaurant.aiProvider || 'openrouter', restaurant.aiModel || 'anthropic/claude-3.5-sonnet');
       const result = await aiService.analyzePhoto(base64Image);
       
       res.json(result);
@@ -636,11 +668,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Restaurant not found" });
       }
 
-      if (!restaurant.aiToken) {
-        return res.status(400).json({ message: "AI token not configured" });
+      const apiKey = restaurant.aiToken || process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        return res.status(400).json({ message: "AI token not available" });
       }
 
-      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
+      const aiService = createAIService(apiKey, restaurant.aiProvider || 'openrouter', restaurant.aiModel || 'anthropic/claude-3.5-sonnet');
       const result = await aiService.analyzeText(text);
       
       res.json(result);
@@ -743,11 +776,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Restaurant not found" });
       }
 
-      if (!restaurant.aiToken) {
-        return res.status(400).json({ message: "AI token not configured" });
+      const apiKey = restaurant.aiToken || process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        return res.status(400).json({ message: "AI token not available" });
       }
 
-      const aiService = createAIService(restaurant.aiToken, restaurant.aiProvider || 'openai', restaurant.aiModel || undefined);
+      const aiService = createAIService(apiKey, restaurant.aiProvider || 'openrouter', restaurant.aiModel || 'anthropic/claude-3.5-sonnet');
       const dishes = await aiService.analyzeText(text);
       
       res.json({ dishes });
