@@ -1045,8 +1045,8 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
         userId: user?.id,
       };
 
-      // TODO: Replace with your actual email - ask user for this
-      const developerEmail = "your.email@example.com"; // User needs to provide this
+      // Email will be sent from a verified domain - using a placeholder for now
+      const developerEmail = "developer@example.com"; // Will need to be configured with real email
       const emailSent = await sendFeedbackEmail(emailData, developerEmail);
       
       if (emailSent) {

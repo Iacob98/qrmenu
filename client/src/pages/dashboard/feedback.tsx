@@ -12,9 +12,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ObjectUploader } from "@/components/ObjectUploader";
-import { ImagePlus, Send, Bug, Lightbulb, Star, X } from "lucide-react";
-import type { UploadResult } from "@uppy/core";
+import { ImagePlus, Send, Bug, Lightbulb, Star, X, Upload } from "lucide-react";
+import { useRef } from "react";
 
 const feedbackSchema = z.object({
   type: z.enum(["bug", "suggestion", "feature_request"]),
@@ -36,6 +35,8 @@ export default function FeedbackPage() {
   const { toast } = useToast();
   const [photos, setPhotos] = useState<PhotoUpload[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<FeedbackData>({
     resolver: zodResolver(feedbackSchema),
@@ -83,34 +84,65 @@ export default function FeedbackPage() {
     submitMutation.mutate({ ...data, photos: photoUrls });
   };
 
-  const handlePhotoUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    if (result.successful && result.successful.length > 0) {
-      const newPhotos: PhotoUpload[] = result.successful.map((file: any) => ({
-        id: file.id || Math.random().toString(),
-        url: file.uploadURL || "",
-        name: file.name || "Unknown",
-      }));
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const remainingSlots = 10 - photos.length;
+    const filesToUpload = Array.from(files).slice(0, remainingSlots);
+    
+    setIsUploading(true);
+    
+    try {
+      const uploadPromises = filesToUpload.map(async (file) => {
+        // Get upload URL
+        const response = await fetch("/api/objects/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+        
+        if (!response.ok) throw new Error("Failed to get upload URL");
+        const { uploadURL } = await response.json();
+        
+        // Upload file
+        const uploadResponse = await fetch(uploadURL, {
+          method: "PUT",
+          body: file,
+          headers: {
+            "Content-Type": file.type,
+          },
+        });
+        
+        if (!uploadResponse.ok) throw new Error("Failed to upload file");
+        
+        return {
+          id: Math.random().toString(),
+          url: uploadURL.split('?')[0], // Remove query parameters
+          name: file.name,
+        };
+      });
       
-      setPhotos(prev => [...prev, ...newPhotos].slice(0, 10)); // Max 10 photos
+      const uploadedPhotos = await Promise.all(uploadPromises);
+      setPhotos(prev => [...prev, ...uploadedPhotos]);
       
       toast({
         title: "Photos Uploaded",
-        description: `${result.successful?.length || 0} photo(s) uploaded successfully`,
+        description: `${uploadedPhotos.length} photo(s) uploaded successfully`,
       });
+      
+    } catch (error) {
+      toast({
+        title: "Upload Error",
+        description: "Failed to upload some photos. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
-  };
-
-  const handleGetUploadParameters = async () => {
-    const response = await fetch("/api/objects/upload", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    });
-    if (!response.ok) throw new Error("Failed to get upload URL");
-    const data = await response.json();
-    return {
-      method: "PUT" as const,
-      url: data.uploadURL,
-    };
   };
 
   const removePhoto = (photoId: string) => {
@@ -278,18 +310,37 @@ export default function FeedbackPage() {
                 </div>
 
                 {photos.length < 10 && (
-                  <ObjectUploader
-                    maxNumberOfFiles={10 - photos.length}
-                    maxFileSize={10485760} // 10MB
-                    onGetUploadParameters={handleGetUploadParameters}
-                    onComplete={handlePhotoUploadComplete}
-                    buttonClassName="w-full"
-                  >
-                    <div className="flex items-center gap-2">
-                      <ImagePlus className="h-4 w-4" />
-                      <span>Add Photos ({photos.length}/10)</span>
-                    </div>
-                  </ObjectUploader>
+                  <div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                      className="w-full"
+                    >
+                      <div className="flex items-center gap-2">
+                        {isUploading ? (
+                          <>
+                            <Upload className="h-4 w-4 animate-spin" />
+                            <span>Uploading...</span>
+                          </>
+                        ) : (
+                          <>
+                            <ImagePlus className="h-4 w-4" />
+                            <span>Add Photos ({photos.length}/10)</span>
+                          </>
+                        )}
+                      </div>
+                    </Button>
+                  </div>
                 )}
               </div>
 

@@ -18,6 +18,11 @@ interface EmailParams {
 }
 
 export async function sendEmail(params: EmailParams): Promise<boolean> {
+  // Validate required email field
+  if (!params.from || !params.to) {
+    console.error('SendGrid: Missing required email addresses');
+    return false;
+  }
   try {
     await mailService.send({
       to: params.to,
@@ -101,7 +106,7 @@ ${data.browserInfo ? `\nBrowser: ${JSON.stringify(data.browserInfo)}` : ''}
 
   return sendEmail({
     to: toEmail,
-    from: "noreply@qrmenu.com",
+    from: "feedback@example.com", // This needs to be a verified sender address
     subject: `QRMenu Feedback: ${data.title}`,
     text: emailText,
     html: emailHtml,
