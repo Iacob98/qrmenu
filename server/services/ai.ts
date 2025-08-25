@@ -120,11 +120,11 @@ export class AIService {
 
 Найди и извлеки:
 - Названия блюд (точно как в тексте)
-- Цены (если указаны)
+- Цены (если указаны) 
 - Описания (если есть)
-- Категории блюд
+- Создай логичные категории для блюд (например: "Appetizers", "Main Dishes", "Desserts", "Beverages")
 
-Создай JSON структуру только с блюдами которые РЕАЛЬНО есть в тексте.`;
+ОБЯЗАТЕЛЬНО создай массив categories и назначь каждому блюду категорию.`;
       
       const response = await this.openai.chat.completions.create({
         model: modelToUse,
@@ -150,21 +150,22 @@ Return a JSON object with:
 {
   "categories": [
     {"name": "Appetizers", "icon": "🥗"},
-    {"name": "Main Dishes", "icon": "🍽️"},
-    {"name": "Desserts", "icon": "🍰"}
+    {"name": "Main Dishes", "icon": "🍽️"}
   ],
   "dishes": [
     {
-      "name": "Grilled Salmon",
-      "category": "Main Dishes",
-      "description": "Fresh Atlantic salmon grilled to perfection with herbs and lemon",
+      "name": "Точное название из текста",
+      "category": "Main Dishes", 
+      "description": "Описание из текста или краткое на основе ингредиентов",
       "price": 18.50,
-      "ingredients": ["salmon fillet", "olive oil", "fresh herbs", "lemon", "garlic"],
-      "nutrition": {"calories": 420, "protein": 35, "fat": 25, "carbs": 5},
-      "tags": ["seafood", "healthy", "gluten-free"]
+      "ingredients": ["список", "ингредиентов", "из", "текста"],
+      "nutrition": {"calories": 420, "protein": 20, "fat": 15, "carbs": 30},
+      "tags": ["подходящие", "теги"]
     }
   ]
-}`
+}
+
+ВАЖНО: Каждое блюдо ОБЯЗАТЕЛЬНО должно иметь category, и эта category должна существовать в массиве categories!`
           },
           {
             role: "user",
