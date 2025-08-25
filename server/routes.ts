@@ -13,7 +13,7 @@ import session from "express-session";
 import MemoryStore from "memorystore";
 import type { MenuWebSocketManager } from "./websocket";
 import { ObjectStorageService } from "./objectStorage";
-import { sendFeedbackEmail } from "./sendgrid";
+import { sendFeedbackToTelegram, testTelegramConnection } from "./telegram";
 import { db } from "./db";
 
 // Extend session interface
@@ -1034,8 +1034,8 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
       const [newFeedback] = await db.insert(feedback).values(feedbackData).returning();
       console.log("[Feedback] Saved to database:", newFeedback.id);
 
-      // Send email notification
-      const emailData = {
+      // Send Telegram notification
+      const telegramData = {
         type: feedbackData.type,
         title: feedbackData.title,
         description: feedbackData.description,
@@ -1045,20 +1045,18 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
         userId: user?.id,
       };
 
-      // Email will be sent from a verified domain - using a placeholder for now
-      const developerEmail = "developer@example.com"; // Will need to be configured with real email
-      const emailSent = await sendFeedbackEmail(emailData, developerEmail);
+      const telegramSent = await sendFeedbackToTelegram(telegramData);
       
-      if (emailSent) {
-        console.log("[Feedback] Email notification sent successfully");
+      if (telegramSent) {
+        console.log("[Feedback] Telegram notification sent successfully");
       } else {
-        console.warn("[Feedback] Failed to send email notification");
+        console.log("[Feedback] Failed to send Telegram notification");
       }
 
       res.json({ 
         success: true, 
         feedbackId: newFeedback.id,
-        emailSent 
+        telegramSent 
       });
 
     } catch (error) {
@@ -1076,6 +1074,20 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
     } catch (error) {
       console.error("[Feedback] Error fetching feedback:", error);
       res.status(500).json({ error: handleError(error) });
+    }
+  });
+
+  // Test Telegram connection endpoint
+  app.get("/api/test-telegram", requireAuth, async (req, res) => {
+    try {
+      const result = await testTelegramConnection();
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ 
+        success: false, 
+        message: "Error testing Telegram connection",
+        error: handleError(error)
+      });
     }
   });
 

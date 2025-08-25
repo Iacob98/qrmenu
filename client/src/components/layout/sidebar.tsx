@@ -13,6 +13,7 @@ const navigation = [
   { nameKey: "ai", href: "/dashboard/ai", icon: Bot },
   { nameKey: "qr", href: "/dashboard/qr", icon: QrCode },
   { nameKey: "feedback", href: "/dashboard/feedback", icon: MessageSquare },
+  { name: "Test Telegram", href: "/dashboard/telegram-test", icon: MessageSquare },
 ];
 
 export function Sidebar() {
