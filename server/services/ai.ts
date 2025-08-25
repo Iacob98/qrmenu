@@ -67,8 +67,8 @@ export class AIService {
       try {
         const pdfBuffer = Buffer.from(base64Data, 'base64');
         
-        // Use pdfjs-dist to properly extract text
-        const pdfjsLib = await import('pdfjs-dist');
+        // Use pdfjs-dist legacy build for Node.js
+        const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
         
         // Load the PDF
         const loadingTask = pdfjsLib.getDocument({
