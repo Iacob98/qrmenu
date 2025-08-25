@@ -75,6 +75,26 @@ export const dishes = pgTable("dishes", {
   availableIdx: index("dishes_available_idx").on(table.available),
 }));
 
+// Feedback and bug reports table
+export const feedback = pgTable("feedback", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }), // Optional, can be anonymous
+  email: text("email"), // For contact back
+  type: text("type").notNull(), // "bug" | "suggestion" | "feature_request"
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  photos: text("photos").array(), // Array of photo URLs
+  status: text("status").notNull().default("open"), // "open" | "in_progress" | "resolved" | "closed"
+  priority: text("priority").notNull().default("medium"), // "low" | "medium" | "high" | "critical"
+  browserInfo: jsonb("browser_info"), // User agent, viewport, etc.
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("feedback_user_id_idx").on(table.userId),
+  typeIdx: index("feedback_type_idx").on(table.type),
+  statusIdx: index("feedback_status_idx").on(table.status),
+  createdAtIdx: index("feedback_created_at_idx").on(table.createdAt),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -100,6 +120,11 @@ export const insertDishSchema = createInsertSchema(dishes).omit({
   price: z.coerce.string(),
 });
 
+export const insertFeedbackSchema = createInsertSchema(feedback).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -112,6 +137,9 @@ export type InsertCategory = z.infer<typeof insertCategorySchema>;
 
 export type Dish = typeof dishes.$inferSelect;
 export type InsertDish = z.infer<typeof insertDishSchema>;
+
+export type Feedback = typeof feedback.$inferSelect;
+export type InsertFeedback = z.infer<typeof insertFeedbackSchema>;
 
 // Extended types for API responses
 export type RestaurantWithCategories = Restaurant & {

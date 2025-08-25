@@ -14,6 +14,7 @@ import AIGeneration from "@/pages/dashboard/ai";
 import Settings from "@/pages/dashboard/settings";
 import Design from "@/pages/dashboard/design";
 import QRPage from "@/pages/dashboard/qr";
+import Feedback from "@/pages/dashboard/feedback";
 import PublicMenu from "@/pages/public-menu/[restaurantId]";
 import NotFound from "@/pages/not-found";
 
@@ -51,6 +52,11 @@ function Router() {
       <Route path="/dashboard/qr">
         <AuthGuard>
           <QRPage />
+        </AuthGuard>
+      </Route>
+      <Route path="/dashboard/feedback">
+        <AuthGuard>
+          <Feedback />
         </AuthGuard>
       </Route>
       <Route path="/menu/:slug" component={PublicMenu} />

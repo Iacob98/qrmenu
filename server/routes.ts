@@ -3,7 +3,7 @@ import express from "express";
 import path from "path";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertRestaurantSchema, insertCategorySchema, insertDishSchema, type Dish } from "@shared/schema";
+import { insertUserSchema, insertRestaurantSchema, insertCategorySchema, insertDishSchema, insertFeedbackSchema, feedback, type Dish, type Feedback } from "@shared/schema";
 import { createAIService } from "./services/ai";
 import { qrService } from "./services/qr";
 import { upload, saveUploadedImage, deleteUploadedFile, saveImageFromURL } from "./middleware/upload";
@@ -12,6 +12,9 @@ import bcrypt from "bcrypt";
 import session from "express-session";
 import MemoryStore from "memorystore";
 import type { MenuWebSocketManager } from "./websocket";
+import { ObjectStorageService } from "./objectStorage";
+import { sendFeedbackEmail } from "./sendgrid";
+import { db } from "./db";
 
 // Extend session interface
 declare module 'express-session' {
@@ -994,6 +997,85 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
       res.json(dishes);
     } catch (error) {
       res.status(500).json({ message: handleError(error) });
+    }
+  });
+
+  // Object Storage routes
+  app.post("/api/objects/upload", requireAuth, async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error getting upload URL:", error);
+      res.status(500).json({ error: "Failed to get upload URL" });
+    }
+  });
+
+  // Feedback routes
+  app.post("/api/feedback", requireAuth, async (req, res) => {
+    try {
+      console.log("[Feedback] Received feedback submission:", req.body);
+      
+      // Get user info for context
+      const user = await storage.getUser(req.session.userId!);
+      
+      // Validate feedback data
+      const feedbackData = insertFeedbackSchema.parse({
+        ...req.body,
+        userId: req.session.userId,
+        browserInfo: {
+          userAgent: req.get('User-Agent'),
+          timestamp: new Date().toISOString(),
+        },
+      });
+
+      // Save feedback to database
+      const [newFeedback] = await db.insert(feedback).values(feedbackData).returning();
+      console.log("[Feedback] Saved to database:", newFeedback.id);
+
+      // Send email notification
+      const emailData = {
+        type: feedbackData.type,
+        title: feedbackData.title,
+        description: feedbackData.description,
+        email: feedbackData.email || user?.email,
+        photos: feedbackData.photos || [],
+        browserInfo: feedbackData.browserInfo,
+        userId: user?.id,
+      };
+
+      // TODO: Replace with your actual email - ask user for this
+      const developerEmail = "your.email@example.com"; // User needs to provide this
+      const emailSent = await sendFeedbackEmail(emailData, developerEmail);
+      
+      if (emailSent) {
+        console.log("[Feedback] Email notification sent successfully");
+      } else {
+        console.warn("[Feedback] Failed to send email notification");
+      }
+
+      res.json({ 
+        success: true, 
+        feedbackId: newFeedback.id,
+        emailSent 
+      });
+
+    } catch (error) {
+      console.error("[Feedback] Error processing feedback:", error);
+      res.status(500).json({ error: handleError(error) });
+    }
+  });
+
+  // Get feedback for admin (optional)
+  app.get("/api/feedback", requireAuth, async (req, res) => {
+    try {
+      // Only allow admin users (you could add role-based access here)
+      const allFeedback = await db.select().from(feedback).orderBy(feedback.createdAt);
+      res.json(allFeedback);
+    } catch (error) {
+      console.error("[Feedback] Error fetching feedback:", error);
+      res.status(500).json({ error: handleError(error) });
     }
   });
 

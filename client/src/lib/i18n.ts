@@ -437,7 +437,8 @@ const resources = {
       "settings": "Einstellungen",
       "design": "Design",
       "ai": "KI",
-      "qr": "QR-Code",
+      "qr": "QR-Code", 
+      "feedback": "Feedback & Fehlerberichte",
       "logout": "Abmelden",
 
       // Common actions

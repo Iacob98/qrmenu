@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Utensils, Palette, Settings, Bot, QrCode, Menu, X } from "lucide-react";
+import { Utensils, Palette, Settings, Bot, QrCode, Menu, X, MessageSquare } from "lucide-react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
@@ -12,6 +12,7 @@ const navigation = [
   { nameKey: "settings", href: "/dashboard/settings", icon: Settings },
   { nameKey: "ai", href: "/dashboard/ai", icon: Bot },
   { nameKey: "qr", href: "/dashboard/qr", icon: QrCode },
+  { nameKey: "feedback", href: "/dashboard/feedback", icon: MessageSquare },
 ];
 
 export function Sidebar() {
