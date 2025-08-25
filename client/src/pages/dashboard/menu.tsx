@@ -148,17 +148,22 @@ export default function MenuManagement() {
           <div className="text-center">
             <h2 className="text-xl lg:text-2xl font-bold mb-4">{t('heroTitle')}</h2>
             <p className="text-gray-600 mb-6">{t('noRestaurantDesc')}</p>
-            <Button 
-              onClick={() => {
-                console.log('Create Restaurant button clicked');
-                console.log('Before state change:', createRestaurantOpen);
-                setCreateRestaurantOpen(true);
-                console.log('After state change called');
-              }}
-              data-testid="button-create-restaurant"
-            >
-              {t('createRestaurant')}
-            </Button>
+            <div>
+              <Button 
+                onClick={() => {
+                  console.log('Create Restaurant button clicked');
+                  console.log('Before state change:', createRestaurantOpen);
+                  setCreateRestaurantOpen(true);
+                  console.log('After state change called');
+                }}
+                data-testid="button-create-restaurant"
+              >
+                {t('createRestaurant')}
+              </Button>
+              <div className="mt-2 text-sm text-red-600 font-bold">
+                Debug: Modal State = {createRestaurantOpen.toString()}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -425,6 +430,8 @@ export default function MenuManagement() {
         </>
       )}
 
+      {/* Debug: createRestaurantOpen = {createRestaurantOpen.toString()} */}
+      
       {/* Inline Modal */}
       {createRestaurantOpen && (
         <div 
