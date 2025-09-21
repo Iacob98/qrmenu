@@ -15,7 +15,6 @@ import Settings from "@/pages/dashboard/settings";
 import Design from "@/pages/dashboard/design";
 import QRPage from "@/pages/dashboard/qr";
 import Feedback from "@/pages/dashboard/feedback";
-import TelegramTest from "@/pages/dashboard/telegram-test";
 import PublicMenu from "@/pages/public-menu/[restaurantId]";
 import NotFound from "@/pages/not-found";
 
