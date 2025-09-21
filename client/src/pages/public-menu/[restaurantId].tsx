@@ -176,9 +176,26 @@ function PublicMenuContent() {
   };
 
   useEffect(() => {
-    if (!menu?.restaurant?.design) return;
+    // Check for preview mode with design parameters in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const isPreview = urlParams.get('preview') === 'true';
+    const previewDesign = urlParams.get('design');
+    
+    let design;
+    if (isPreview && previewDesign) {
+      try {
+        design = JSON.parse(decodeURIComponent(previewDesign));
+        console.log('Applying preview design settings:', design);
+      } catch (error) {
+        console.error('Failed to parse preview design:', error);
+        design = menu?.restaurant?.design;
+      }
+    } else {
+      design = menu?.restaurant?.design;
+    }
+    
+    if (!design) return;
 
-    const design = menu.restaurant.design;
     const root = document.documentElement;
     
     console.log('Applying design settings:', design);
@@ -530,6 +547,7 @@ function PublicMenuContent() {
                 currency={menu?.restaurant?.currency || 'EUR'}
                 onViewDetails={setSelectedDish}
                 isCompact={false}
+                onFilterByTag={handleTagFilter}
               />
             ))
           )}

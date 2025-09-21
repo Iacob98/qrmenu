@@ -11,6 +11,7 @@ interface DishCardProps {
   currency: string;
   onViewDetails: (dish: Dish) => void;
   isCompact?: boolean;
+  onFilterByTag?: (tag: string) => void;
 }
 
 // Memoized dish card to prevent unnecessary re-renders
@@ -19,6 +20,7 @@ export const MemoDishCard = memo(function DishCard({
   currency,
   onViewDetails,
   isCompact = false,
+  onFilterByTag,
 }: DishCardProps) {
   const { t } = useTranslation();
   console.log('DishCard rendering:', dish.name);
@@ -118,8 +120,10 @@ export const MemoDishCard = memo(function DishCard({
                       variant="secondary" 
                       className={cn(
                         "text-xs px-1.5 py-0.5 bg-gray-100 text-gray-700",
-                        isCompact && "text-[10px] px-1"
+                        isCompact && "text-[10px] px-1",
+                        onFilterByTag && "cursor-pointer hover:bg-gray-200 transition-colors"
                       )}
+                      onClick={onFilterByTag ? () => onFilterByTag(tag) : undefined}
                     >
                       {getTagEmoji(tag)} {tag}
                     </Badge>
