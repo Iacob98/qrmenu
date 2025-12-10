@@ -46,8 +46,8 @@ export class QRService {
   }
 
   generateRestaurantQR(restaurantSlug: string): Promise<QRCodeData> {
-    const baseUrl = process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000';
-    const url = `https://${baseUrl}/menu/${restaurantSlug}`;
+    const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+    const url = `${baseUrl}/menu/${restaurantSlug}`;
     return this.generateQRCode(url);
   }
 }

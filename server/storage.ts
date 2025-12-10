@@ -290,6 +290,7 @@ export class DatabaseStorage implements IStorage {
         design: restaurant.design,
         banner: restaurant.banner,
         favoritesTitle: restaurant.favoritesTitle,
+        targetLanguages: restaurant.targetLanguages,
       },
       categories: Array.from(categoriesMap.values()),
     };

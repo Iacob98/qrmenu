@@ -4,15 +4,16 @@ import path from "path";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUserSchema, insertRestaurantSchema, insertCategorySchema, insertDishSchema, insertFeedbackSchema, feedback, type Dish, type Feedback } from "@shared/schema";
+import { sql } from "drizzle-orm";
 import { createAIService } from "./services/ai";
 import { qrService } from "./services/qr";
 import { upload, saveUploadedImage, deleteUploadedFile, saveImageFromURL } from "./middleware/upload";
-// Email service imports removed - using auto-verification for now
 import bcrypt from "bcrypt";
 import session from "express-session";
 import MemoryStore from "memorystore";
 import type { MenuWebSocketManager } from "./websocket";
-import { ObjectStorageService } from "./objectStorage";
+import { storageService } from "./services/storageService";
+import { STORAGE_BUCKETS, isSupabaseConfigured } from "./supabase";
 import { sendFeedbackToTelegram, testTelegramConnection } from "./telegram";
 import { db } from "./db";
 
@@ -41,18 +42,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
   // Session configuration
+  const sessionSecret = process.env.SESSION_SECRET;
+  if (!sessionSecret) {
+    console.warn('[Security] SESSION_SECRET not set! Using random secret (sessions will not persist across restarts)');
+  }
+
   app.use(session({
-    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    secret: sessionSecret || require('crypto').randomBytes(32).toString('hex'),
     resave: false,
     saveUninitialized: false,
     store: new MemoryStoreSession({
       checkPeriod: 86400000 // prune expired entries every 24h
     }),
-    cookie: { 
-      secure: false, // Allow cookies over HTTP for deployment
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      httpOnly: true, // Secure cookies
-      sameSite: 'lax' // Allow same-site cookies
+      httpOnly: true,
+      sameSite: 'lax'
     }
   }));
 
@@ -114,51 +120,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/auth/login", async (req, res) => {
     try {
-      console.log('Login attempt:', { email: req.body.email, hasPassword: !!req.body.password });
       const { email, password } = req.body;
-      
+
       if (!email || !password) {
-        console.log('Missing email or password');
         return res.status(400).json({ message: "Email and password are required" });
       }
-      
-      console.log('Looking for user by email:', email);
+
       const user = await storage.getUserByEmail(email);
-      console.log('User found:', !!user);
-      
       if (!user) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      console.log('Comparing passwords...');
       const isValid = await bcrypt.compare(password, user.password);
-      console.log('Password valid:', isValid);
-      
       if (!isValid) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
       req.session.userId = user.id;
-      console.log('Setting session userId:', user.id);
-      
+
       // Save session and respond
       req.session.save((err) => {
         if (err) {
-          console.error('Session save error:', err);
+          console.error('[Auth] Session save error');
           return res.status(500).json({ message: "Session save failed" });
         }
-        console.log('Login successful for user:', user.email);
-        res.json({ 
-          user: { 
-            id: user.id, 
-            email: user.email, 
+        res.json({
+          user: {
+            id: user.id,
+            email: user.email,
             name: user.name,
-            emailVerified: user.emailVerified 
-          } 
+            emailVerified: user.emailVerified
+          }
         });
       });
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('[Auth] Login error');
       res.status(400).json({ message: handleError(error) });
     }
   });
@@ -234,6 +230,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/restaurants/:id/language", requireAuth, async (req, res) => {
+    try {
+      const { language } = req.body;
+      const restaurant = await storage.getRestaurant(req.params.id);
+
+      if (!restaurant || restaurant.userId !== req.session.userId) {
+        return res.status(404).json({ message: "Restaurant not found" });
+      }
+
+      // Validate language
+      const validLanguages = ['en', 'de', 'ru'];
+      if (!validLanguages.includes(language)) {
+        return res.status(400).json({ message: "Invalid language" });
+      }
+
+      const updatedRestaurant = await storage.updateRestaurant(req.params.id, { language });
+      res.json(updatedRestaurant);
+    } catch (error) {
+      res.status(500).json({ message: handleError(error) });
+    }
+  });
+
   app.post("/api/restaurants", requireAuth, async (req, res) => {
     try {
       // Check if user already has a restaurant
@@ -272,7 +290,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Restaurant not found" });
       }
 
+      console.log(`[Restaurant Update] Received data:`, JSON.stringify(req.body, null, 2));
       const updatedRestaurant = await storage.updateRestaurant(req.params.id, req.body);
+      console.log(`[Restaurant Update] Updated result:`, JSON.stringify(updatedRestaurant, null, 2));
       
       // Notify WebSocket clients about restaurant updates (including banner, logo, design, etc.)
       if (restaurant.slug) {
@@ -324,8 +344,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...req.body,
         restaurantId: req.params.restaurantId,
       });
-      
+
       const category = await storage.createCategory(categoryData);
+
+      // Auto-translate category name in background
+      const targetLangs = restaurant.targetLanguages || ['en', 'de'];
+      const sourceLang = restaurant.language || 'ru';
+
+      if (targetLangs.length > 0) {
+        const provider = restaurant.aiProvider || (process.env.OPENROUTER_API_KEY ? 'openrouter' : 'openai');
+        const apiKey = restaurant.aiToken || (provider === 'openrouter' ? process.env.OPENROUTER_API_KEY : process.env.OPENAI_API_KEY);
+
+        if (apiKey) {
+          const model = restaurant.aiModel || (provider === 'openrouter' ? 'anthropic/claude-3.5-sonnet' : 'gpt-4o');
+          const aiService = createAIService(apiKey, provider, model);
+
+          aiService.translateCategoryName(category.name, sourceLang, targetLangs)
+            .then(async (translations) => {
+              if (Object.keys(translations).length > 0) {
+                await storage.updateCategory(category.id, { translations });
+                console.log(`[Translation] Category "${category.name}" translated to ${Object.keys(translations).join(', ')}`);
+              }
+            }).catch(err => {
+              console.error(`[Translation] Failed to translate category "${category.name}":`, err.message);
+            });
+        }
+      }
+
       res.status(201).json(category);
     } catch (error) {
       res.status(400).json({ message: handleError(error) });
@@ -351,6 +396,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const updatedCategory = await storage.updateCategory(req.params.id, updateData);
+
+      // Re-translate if name changed
+      if (category.name !== req.body.name) {
+        const targetLangs = restaurant.targetLanguages || ['en', 'de'];
+        const sourceLang = restaurant.language || 'ru';
+
+        if (targetLangs.length > 0) {
+          const provider = restaurant.aiProvider || (process.env.OPENROUTER_API_KEY ? 'openrouter' : 'openai');
+          const apiKey = restaurant.aiToken || (provider === 'openrouter' ? process.env.OPENROUTER_API_KEY : process.env.OPENAI_API_KEY);
+
+          if (apiKey) {
+            const model = restaurant.aiModel || (provider === 'openrouter' ? 'anthropic/claude-3.5-sonnet' : 'gpt-4o');
+            const aiService = createAIService(apiKey, provider, model);
+
+            aiService.translateCategoryName(updatedCategory.name, sourceLang, targetLangs)
+              .then(async (translations) => {
+                if (Object.keys(translations).length > 0) {
+                  await storage.updateCategory(updatedCategory.id, { translations });
+                  console.log(`[Translation] Category "${updatedCategory.name}" re-translated to ${Object.keys(translations).join(', ')}`);
+                }
+              }).catch(err => {
+                console.error(`[Translation] Failed to re-translate category "${updatedCategory.name}":`, err.message);
+              });
+          }
+        }
+      }
+
       res.json(updatedCategory);
     } catch (error) {
       res.status(400).json({ message: handleError(error) });
@@ -393,9 +465,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...req.body,
         categoryId: req.params.categoryId,
       });
-      
+
       const dish = await storage.createDish(dishData);
-      
+
+      // Auto-translate dish content in background
+      const targetLangs = restaurant.targetLanguages || ['en', 'de'];
+      const sourceLang = restaurant.language || 'ru';
+
+      if (targetLangs.length > 0) {
+        // Get AI config
+        const provider = restaurant.aiProvider || (process.env.OPENROUTER_API_KEY ? 'openrouter' : 'openai');
+        const apiKey = restaurant.aiToken || (provider === 'openrouter' ? process.env.OPENROUTER_API_KEY : process.env.OPENAI_API_KEY);
+
+        if (apiKey) {
+          const model = restaurant.aiModel || (provider === 'openrouter' ? 'anthropic/claude-3.5-sonnet' : 'gpt-4o');
+          const aiService = createAIService(apiKey, provider, model);
+
+          // Run translation in background (don't block response)
+          aiService.translateContent(
+            {
+              name: dish.name,
+              description: dish.description || undefined,
+              ingredients: dish.ingredients || undefined
+            },
+            sourceLang,
+            targetLangs
+          ).then(async (translations) => {
+            if (Object.keys(translations).length > 0) {
+              await storage.updateDish(dish.id, { translations });
+              console.log(`[Translation] Dish "${dish.name}" translated to ${Object.keys(translations).join(', ')}`);
+            }
+          }).catch(err => {
+            console.error(`[Translation] Failed to translate dish "${dish.name}":`, err.message);
+          });
+        }
+      }
+
       // Notify WebSocket clients about new dish
       const { wsManager } = await import("./index");
       if (wsManager && restaurant.slug) {
@@ -404,7 +509,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           dish: dish
         });
       }
-      
+
       res.status(201).json(dish);
     } catch (error) {
       res.status(400).json({ message: handleError(error) });
@@ -433,6 +538,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ingredients: req.body.ingredients || null,
         tags: req.body.tags || null,
         image: req.body.image || null,
+        nutrition: req.body.nutrition || null,
       };
 
       console.log('[Dish Update] Request body:', JSON.stringify(req.body, null, 2));
@@ -440,7 +546,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const updatedDish = await storage.updateDish(req.params.id, updateData);
       console.log('[Dish Update] Updated dish:', JSON.stringify(updatedDish, null, 2));
-      
+
+      // Check if translatable fields changed and re-translate
+      const translatableFieldsChanged =
+        dish.name !== req.body.name ||
+        dish.description !== req.body.description ||
+        JSON.stringify(dish.ingredients) !== JSON.stringify(req.body.ingredients);
+
+      if (translatableFieldsChanged) {
+        const targetLangs = restaurant.targetLanguages || ['en', 'de'];
+        const sourceLang = restaurant.language || 'ru';
+
+        if (targetLangs.length > 0) {
+          const provider = restaurant.aiProvider || (process.env.OPENROUTER_API_KEY ? 'openrouter' : 'openai');
+          const apiKey = restaurant.aiToken || (provider === 'openrouter' ? process.env.OPENROUTER_API_KEY : process.env.OPENAI_API_KEY);
+
+          if (apiKey) {
+            const model = restaurant.aiModel || (provider === 'openrouter' ? 'anthropic/claude-3.5-sonnet' : 'gpt-4o');
+            const aiService = createAIService(apiKey, provider, model);
+
+            // Run translation in background
+            aiService.translateContent(
+              {
+                name: updatedDish.name,
+                description: updatedDish.description || undefined,
+                ingredients: updatedDish.ingredients || undefined
+              },
+              sourceLang,
+              targetLangs
+            ).then(async (translations) => {
+              if (Object.keys(translations).length > 0) {
+                await storage.updateDish(updatedDish.id, { translations });
+                console.log(`[Translation] Dish "${updatedDish.name}" re-translated to ${Object.keys(translations).join(', ')}`);
+              }
+            }).catch(err => {
+              console.error(`[Translation] Failed to re-translate dish "${updatedDish.name}":`, err.message);
+            });
+          }
+        }
+      }
+
       // Notify WebSocket clients about dish update
       const { wsManager } = await import("./index");
       if (wsManager && restaurant.slug) {
@@ -449,7 +594,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           dish: updatedDish
         });
       }
-      
+
       res.json(updatedDish);
     } catch (error) {
       res.status(400).json({ message: handleError(error) });
@@ -625,12 +770,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Restaurant not found" });
       }
 
-      const apiKey = restaurant.aiToken || process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+      // Determine provider and matching API key
+      const provider = restaurant.aiProvider || (process.env.OPENROUTER_API_KEY ? 'openrouter' : 'openai');
+      const apiKey = restaurant.aiToken || (provider === 'openrouter' ? process.env.OPENROUTER_API_KEY : process.env.OPENAI_API_KEY);
       if (!apiKey) {
         return res.status(400).json({ message: "AI token not available" });
       }
 
-      const aiService = createAIService(apiKey, restaurant.aiProvider || 'openrouter', restaurant.aiModel || 'anthropic/claude-3.5-sonnet');
+      const model = restaurant.aiModel || (provider === 'openrouter' ? 'anthropic/claude-3.5-sonnet' : 'gpt-4o');
+      const aiService = createAIService(apiKey, provider, model);
       const result = await aiService.analyzePDF(base64Data);
       
       res.json(result);
@@ -648,12 +796,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Restaurant not found" });
       }
 
-      const apiKey = restaurant.aiToken || process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+      // Determine provider and matching API key
+      const provider = restaurant.aiProvider || (process.env.OPENROUTER_API_KEY ? 'openrouter' : 'openai');
+      const apiKey = restaurant.aiToken || (provider === 'openrouter' ? process.env.OPENROUTER_API_KEY : process.env.OPENAI_API_KEY);
       if (!apiKey) {
         return res.status(400).json({ message: "AI token not available" });
       }
 
-      const aiService = createAIService(apiKey, restaurant.aiProvider || 'openrouter', restaurant.aiModel || 'anthropic/claude-3.5-sonnet');
+      const model = restaurant.aiModel || (provider === 'openrouter' ? 'anthropic/claude-3.5-sonnet' : 'gpt-4o');
+      const aiService = createAIService(apiKey, provider, model);
       const result = await aiService.analyzePhoto(base64Image);
       
       res.json(result);
@@ -671,12 +822,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Restaurant not found" });
       }
 
-      const apiKey = restaurant.aiToken || process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+      // Determine provider and matching API key
+      const provider = restaurant.aiProvider || (process.env.OPENROUTER_API_KEY ? 'openrouter' : 'openai');
+      const apiKey = restaurant.aiToken || (provider === 'openrouter' ? process.env.OPENROUTER_API_KEY : process.env.OPENAI_API_KEY);
       if (!apiKey) {
         return res.status(400).json({ message: "AI token not available" });
       }
 
-      const aiService = createAIService(apiKey, restaurant.aiProvider || 'openrouter', restaurant.aiModel || 'anthropic/claude-3.5-sonnet');
+      const model = restaurant.aiModel || (provider === 'openrouter' ? 'anthropic/claude-3.5-sonnet' : 'gpt-4o');
+      const aiService = createAIService(apiKey, provider, model);
       const result = await aiService.analyzeText(text);
       
       res.json(result);
@@ -766,29 +920,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "File deleted successfully" });
     } catch (error) {
       console.error("Delete error:", error);
-      res.status(500).json({ message: handleError(error) });
-    }
-  });
-
-  app.post("/api/ai/analyze-text", requireAuth, async (req, res) => {
-    try {
-      const { restaurantId, text } = req.body;
-      
-      const restaurant = await storage.getRestaurant(restaurantId);
-      if (!restaurant || restaurant.userId !== req.session.userId) {
-        return res.status(404).json({ message: "Restaurant not found" });
-      }
-
-      const apiKey = restaurant.aiToken || process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
-      if (!apiKey) {
-        return res.status(400).json({ message: "AI token not available" });
-      }
-
-      const aiService = createAIService(apiKey, restaurant.aiProvider || 'openrouter', restaurant.aiModel || 'anthropic/claude-3.5-sonnet');
-      const dishes = await aiService.analyzeText(text);
-      
-      res.json({ dishes });
-    } catch (error) {
       res.status(500).json({ message: handleError(error) });
     }
   });
@@ -971,14 +1102,50 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
     try {
       // Decode URL-encoded slug
       const decodedSlug = decodeURIComponent(req.params.slug);
-      console.log(`[Public Menu] Requested slug: ${req.params.slug}, decoded: ${decodedSlug}`);
-      
+      const requestedLang = req.query.lang as string | undefined;
+      console.log(`[Public Menu] Requested slug: ${req.params.slug}, decoded: ${decodedSlug}, lang: ${requestedLang}`);
+
       const menu = await storage.getPublicMenu(decodedSlug);
       if (!menu) {
         console.log(`[Public Menu] Menu not found for slug: ${decodedSlug}`);
         return res.status(404).json({ message: "Menu not found" });
       }
-      
+
+      // If a specific language is requested and it differs from restaurant's source language,
+      // overlay translated content where available
+      if (requestedLang && requestedLang !== menu.restaurant.language) {
+        console.log(`[Public Menu] Applying ${requestedLang} translations`);
+
+        // Overlay category translations
+        menu.categories = menu.categories.map(category => {
+          const translations = (category as any).translations;
+          if (translations && translations[requestedLang]) {
+            return {
+              ...category,
+              name: translations[requestedLang].name || category.name,
+            };
+          }
+          return category;
+        });
+
+        // Overlay dish translations
+        menu.categories = menu.categories.map(category => ({
+          ...category,
+          dishes: category.dishes.map(dish => {
+            const translations = (dish as any).translations;
+            if (translations && translations[requestedLang]) {
+              return {
+                ...dish,
+                name: translations[requestedLang].name || dish.name,
+                description: translations[requestedLang].description || dish.description,
+                ingredients: translations[requestedLang].ingredients || dish.ingredients,
+              };
+            }
+            return dish;
+          })
+        }));
+      }
+
       console.log(`[Public Menu] Menu found: ${menu.restaurant.name}`);
       res.json(menu);
     } catch (error) {
@@ -1000,46 +1167,41 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
     }
   });
 
-  // Object Storage routes
-  app.post("/api/objects/upload", requireAuth, async (req, res) => {
+  // Storage routes - signed upload URLs
+  app.post("/api/storage/signed-url", requireAuth, async (req, res) => {
     try {
-      const objectStorageService = new ObjectStorageService();
-      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
-      res.json({ uploadURL });
+      const { bucket = STORAGE_BUCKETS.MENU_IMAGES, filename } = req.body;
+
+      if (!isSupabaseConfigured()) {
+        return res.status(400).json({
+          error: "Storage not configured",
+          message: "Supabase storage is not configured. Use direct upload endpoints instead."
+        });
+      }
+
+      const result = await storageService.getSignedUploadUrl(bucket, filename);
+      res.json(result);
     } catch (error) {
-      console.error("Error getting upload URL:", error);
+      console.error("[Storage] Error getting signed URL:", error);
       res.status(500).json({ error: "Failed to get upload URL" });
     }
   });
 
-  // Public feedback photo upload URL
+  // Feedback photo upload URL
   app.post("/api/feedback/upload", requireAuth, async (req, res) => {
     try {
-      const objectStorageService = new ObjectStorageService();
-      const uploadURL = await objectStorageService.getPublicFeedbackUploadURL();
-      res.json({ uploadURL });
-    } catch (error) {
-      console.error("Error getting feedback upload URL:", error);
-      res.status(500).json({ error: "Failed to get feedback upload URL" });
-    }
-  });
-
-  // Public objects serving endpoint
-  app.get("/public-objects/:filePath(*)", async (req, res) => {
-    const filePath = req.params.filePath;
-    console.log(`[Public Objects] Serving file: ${filePath}`);
-    const objectStorageService = new ObjectStorageService();
-    try {
-      const file = await objectStorageService.searchPublicObject(filePath);
-      if (!file) {
-        console.log(`[Public Objects] File not found: ${filePath}`);
-        return res.status(404).json({ error: "File not found" });
+      if (!isSupabaseConfigured()) {
+        return res.status(400).json({
+          error: "Storage not configured",
+          message: "Supabase storage is not configured"
+        });
       }
-      console.log(`[Public Objects] File found, serving: ${filePath}`);
-      objectStorageService.downloadObject(file, res);
+
+      const result = await storageService.getSignedUploadUrl(STORAGE_BUCKETS.FEEDBACK);
+      res.json({ uploadURL: result.uploadUrl, path: result.path });
     } catch (error) {
-      console.error("Error searching for public object:", error);
-      return res.status(500).json({ error: "Internal server error" });
+      console.error("[Storage] Error getting feedback upload URL:", error);
+      res.status(500).json({ error: "Failed to get feedback upload URL" });
     }
   });
 
@@ -1114,9 +1276,122 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
       const result = await testTelegramConnection();
       res.json(result);
     } catch (error) {
-      res.status(500).json({ 
-        success: false, 
+      res.status(500).json({
+        success: false,
         message: "Error testing Telegram connection",
+        error: handleError(error)
+      });
+    }
+  });
+
+  // Initialization endpoint - check configuration and setup
+  app.get("/api/init", async (req, res) => {
+    const status = {
+      configured: true,
+      database: { connected: false, message: "" },
+      storage: { configured: false, type: "local", message: "" },
+      email: { configured: false, message: "" },
+      telegram: { configured: false, message: "" },
+      environment: {
+        baseUrl: !!process.env.BASE_URL,
+        sessionSecret: !!process.env.SESSION_SECRET,
+        allowedOrigins: !!process.env.ALLOWED_ORIGINS,
+      },
+      missingEnvVars: [] as string[],
+    };
+
+    // Check database connection
+    try {
+      await db.execute(sql`SELECT 1 as test`);
+      status.database.connected = true;
+      status.database.message = "Connected to PostgreSQL";
+    } catch (error) {
+      status.database.connected = false;
+      status.database.message = `Database error: ${handleError(error)}`;
+      status.configured = false;
+    }
+
+    // Check storage configuration
+    if (isSupabaseConfigured()) {
+      status.storage.configured = true;
+      status.storage.type = "supabase";
+      status.storage.message = "Supabase Storage configured";
+    } else {
+      status.storage.configured = true;
+      status.storage.type = "local";
+      status.storage.message = "Using local filesystem storage (set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY for cloud storage)";
+    }
+
+    // Check email configuration
+    if (process.env.SENDGRID_API_KEY) {
+      status.email.configured = true;
+      status.email.message = "SendGrid configured";
+    } else {
+      status.email.message = "Email not configured (set SENDGRID_API_KEY)";
+    }
+
+    // Check Telegram configuration
+    if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
+      status.telegram.configured = true;
+      status.telegram.message = "Telegram notifications configured";
+    } else {
+      status.telegram.message = "Telegram not configured (set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID)";
+    }
+
+    // Check required environment variables
+    const requiredEnvVars = [
+      { name: "DATABASE_URL", required: true },
+      { name: "SESSION_SECRET", required: true },
+      { name: "BASE_URL", required: false },
+    ];
+
+    for (const envVar of requiredEnvVars) {
+      if (!process.env[envVar.name]) {
+        if (envVar.required) {
+          status.missingEnvVars.push(envVar.name);
+          status.configured = false;
+        }
+      }
+    }
+
+    res.json({
+      success: status.configured,
+      status,
+      message: status.configured
+        ? "Application is properly configured"
+        : "Application has configuration issues",
+      requiredEnvVars: [
+        "DATABASE_URL - PostgreSQL connection string (required)",
+        "SESSION_SECRET - Secret for session encryption (required)",
+        "BASE_URL - Public URL of the application (recommended)",
+        "ALLOWED_ORIGINS - Comma-separated list of allowed CORS origins",
+        "SUPABASE_URL - Supabase project URL (for cloud storage)",
+        "SUPABASE_SERVICE_ROLE_KEY - Supabase service role key (for cloud storage)",
+        "SUPABASE_ANON_KEY - Supabase anonymous key (optional)",
+        "SENDGRID_API_KEY - SendGrid API key (for email)",
+        "TELEGRAM_BOT_TOKEN - Telegram bot token (for notifications)",
+        "TELEGRAM_CHAT_ID - Telegram chat ID (for notifications)",
+      ]
+    });
+  });
+
+  // Database migration/push endpoint (protected)
+  app.post("/api/init/db-push", requireAuth, async (req, res) => {
+    try {
+      // This would typically be done via drizzle-kit push
+      // For now, just return instructions
+      res.json({
+        success: true,
+        message: "Run 'npm run db:push' to push schema changes to the database",
+        instructions: [
+          "1. Ensure DATABASE_URL is set",
+          "2. Run: npm run db:push",
+          "3. This will sync your schema with the database"
+        ]
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
         error: handleError(error)
       });
     }

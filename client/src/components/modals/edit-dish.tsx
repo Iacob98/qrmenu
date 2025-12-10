@@ -60,11 +60,16 @@ export function EditDishModal({
     tags: [] as string[],
     image: "",
     imagePrompt: "",
+    calories: "",
+    protein: "",
+    fat: "",
+    carbs: "",
   });
 
   // Update form data when dish changes
   useEffect(() => {
     if (dish && open) {
+      const nutrition = dish.nutrition as { calories?: number; protein?: number; fat?: number; carbs?: number } | null;
       setFormData({
         name: dish.name,
         description: dish.description || "",
@@ -74,6 +79,10 @@ export function EditDishModal({
         tags: dish.tags || [],
         image: dish.image || "",
         imagePrompt: "",
+        calories: nutrition?.calories?.toString() || "",
+        protein: nutrition?.protein?.toString() || "",
+        fat: nutrition?.fat?.toString() || "",
+        carbs: nutrition?.carbs?.toString() || "",
       });
     }
   }, [dish, open]);
@@ -242,6 +251,15 @@ export function EditDishModal({
       .map(ing => ing.trim())
       .filter(ing => ing.length > 0);
 
+    // Build nutrition object if any values provided
+    const hasNutrition = formData.calories || formData.protein || formData.fat || formData.carbs;
+    const nutrition = hasNutrition ? {
+      calories: formData.calories ? parseFloat(formData.calories) : 0,
+      protein: formData.protein ? parseFloat(formData.protein) : 0,
+      fat: formData.fat ? parseFloat(formData.fat) : 0,
+      carbs: formData.carbs ? parseFloat(formData.carbs) : 0,
+    } : null;
+
     updateDishMutation.mutate({
       name: formData.name.trim(),
       description: formData.description.trim() || null,
@@ -250,6 +268,7 @@ export function EditDishModal({
       ingredients: ingredients.length > 0 ? ingredients : null,
       tags: formData.tags.length > 0 ? formData.tags : null,
       image: formData.image || null,
+      nutrition,
     });
   };
 
@@ -360,7 +379,66 @@ export function EditDishModal({
               placeholder={t('ingredientsPlaceholder')}
             />
           </div>
-          
+
+          {/* Nutrition Section */}
+          <div>
+            <Label>{t('nutritionInfo')}</Label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+              <div>
+                <Label htmlFor="edit-calories" className="text-xs text-muted-foreground">{t('calories')}</Label>
+                <Input
+                  id="edit-calories"
+                  type="number"
+                  step="1"
+                  min="0"
+                  value={formData.calories}
+                  onChange={(e) => setFormData(prev => ({ ...prev, calories: e.target.value }))}
+                  placeholder="250"
+                  className="h-9"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-protein" className="text-xs text-muted-foreground">{t('protein')} (г)</Label>
+                <Input
+                  id="edit-protein"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  value={formData.protein}
+                  onChange={(e) => setFormData(prev => ({ ...prev, protein: e.target.value }))}
+                  placeholder="15"
+                  className="h-9"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-fat" className="text-xs text-muted-foreground">{t('fat')} (г)</Label>
+                <Input
+                  id="edit-fat"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  value={formData.fat}
+                  onChange={(e) => setFormData(prev => ({ ...prev, fat: e.target.value }))}
+                  placeholder="10"
+                  className="h-9"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-carbs" className="text-xs text-muted-foreground">{t('carbs')} (г)</Label>
+                <Input
+                  id="edit-carbs"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  value={formData.carbs}
+                  onChange={(e) => setFormData(prev => ({ ...prev, carbs: e.target.value }))}
+                  placeholder="30"
+                  className="h-9"
+                />
+              </div>
+            </div>
+          </div>
+
           <div>
             <Label>{t('tags')}</Label>
             <div className="flex flex-wrap gap-2 mb-2">

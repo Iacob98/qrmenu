@@ -1,6 +1,4 @@
 import React, { memo } from "react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import type { Category } from "@shared/schema";
 
 interface CategoryTabsProps {
@@ -15,8 +13,6 @@ export const MemoCategoryTabs = memo(function CategoryTabs({
   activeCategory,
   onCategoryChange,
 }: CategoryTabsProps) {
-  console.log('CategoryTabs rendering with categories:', categories.length);
-  
   return (
     <div className="px-4 py-4">
       <div className="flex gap-3 overflow-x-auto overflow-y-hidden scrollbar-hide">
@@ -26,12 +22,18 @@ export const MemoCategoryTabs = memo(function CategoryTabs({
             <button
               key={category.id}
               onClick={() => onCategoryChange(category.id)}
-              className={cn(
-                "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap border",
-                isActive 
-                  ? "bg-green-500 text-white border-green-500" 
-                  : "bg-white text-gray-700 border-gray-300"
-              )}
+              className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap border transition-colors"
+              style={isActive ? {
+                backgroundColor: 'var(--primary, #22c55e)',
+                color: 'white',
+                borderColor: 'var(--primary, #22c55e)',
+                fontFamily: 'var(--font-family, inherit)'
+              } : {
+                backgroundColor: 'var(--card-background, #ffffff)',
+                color: 'var(--foreground, #374151)',
+                borderColor: 'rgba(0,0,0,0.15)',
+                fontFamily: 'var(--font-family, inherit)'
+              }}
             >
               {category.icon && (
                 <span className="mr-1.5">{category.icon}</span>

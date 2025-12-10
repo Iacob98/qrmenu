@@ -11,7 +11,8 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
-import { Copy, Check, AlertTriangle, Upload, X, Image, Loader2 } from "lucide-react";
+import { Copy, Check, AlertTriangle, Upload, X, Image, Loader2, Languages } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { FileUpload } from "@/components/ui/file-upload";
 import { useTranslation } from "react-i18next";
 import type { Restaurant } from "@shared/schema";
@@ -24,6 +25,7 @@ export default function Settings() {
     phone: "",
     currency: "EUR",
     language: "en",
+    targetLanguages: ["en", "de"] as string[],
     logo: "",
     banner: "",
   });
@@ -58,6 +60,7 @@ export default function Settings() {
         phone: restaurant.phone || "",
         currency: restaurant.currency || "EUR",
         language: restaurant.language || "en",
+        targetLanguages: (restaurant as any).targetLanguages || ["en", "de"],
         logo: restaurant.logo || "",
         banner: restaurant.banner || "",
       });
@@ -346,7 +349,7 @@ export default function Settings() {
                         {t('displayMenuParams')}
                       </p>
                       
-                      <Button 
+                      <Button
                         type="button"
                         onClick={() => updateRestaurantMutation.mutate(restaurantForm)}
                         disabled={updateRestaurantMutation.isPending}
@@ -357,7 +360,77 @@ export default function Settings() {
                     </CardContent>
                   </Card>
 
+                  {/* Auto-Translation Languages */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Languages className="h-5 w-5" />
+                        {t('translationLanguages') || 'Translation Languages'}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600 mb-4">
+                        {t('translationDescription') || 'Select languages to automatically translate your menu content. When you save a dish or category, it will be translated to these languages.'}
+                      </p>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {[
+                          { code: 'en', name: 'English', flag: '🇺🇸' },
+                          { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+                          { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+                          { code: 'uk', name: 'Українська', flag: '🇺🇦' },
+                          { code: 'es', name: 'Español', flag: '🇪🇸' },
+                          { code: 'fr', name: 'Français', flag: '🇫🇷' },
+                          { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+                          { code: 'pl', name: 'Polski', flag: '🇵🇱' },
+                          { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
+                        ].map((lang) => (
+                          <label
+                            key={lang.code}
+                            className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
+                              restaurantForm.targetLanguages.includes(lang.code)
+                                ? 'border-primary bg-primary/5'
+                                : 'border-gray-200 hover:border-gray-300'
+                            } ${lang.code === restaurantForm.language ? 'opacity-50' : ''}`}
+                          >
+                            <Checkbox
+                              checked={restaurantForm.targetLanguages.includes(lang.code)}
+                              disabled={lang.code === restaurantForm.language}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setRestaurantForm(prev => ({
+                                    ...prev,
+                                    targetLanguages: [...prev.targetLanguages, lang.code]
+                                  }));
+                                } else {
+                                  setRestaurantForm(prev => ({
+                                    ...prev,
+                                    targetLanguages: prev.targetLanguages.filter(l => l !== lang.code)
+                                  }));
+                                }
+                              }}
+                            />
+                            <span className="text-lg">{lang.flag}</span>
+                            <span className="text-sm">{lang.name}</span>
+                            {lang.code === restaurantForm.language && (
+                              <span className="text-xs text-gray-400 ml-auto">({t('sourceLanguage') || 'source'})</span>
+                            )}
+                          </label>
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-3">
+                        {t('translationNote') || 'Your source language (menu language) will not be translated. Translations happen automatically when you save dishes and categories.'}
+                      </p>
 
+                      <Button
+                        type="button"
+                        onClick={() => updateRestaurantMutation.mutate(restaurantForm)}
+                        disabled={updateRestaurantMutation.isPending}
+                        className="w-full mt-4"
+                      >
+                        {updateRestaurantMutation.isPending ? t('saving') : t('saveChanges')}
+                      </Button>
+                    </CardContent>
+                  </Card>
 
 
                 </>

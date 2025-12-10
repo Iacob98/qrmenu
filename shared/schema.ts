@@ -3,6 +3,21 @@ import { pgTable, text, varchar, decimal, boolean, integer, timestamp, jsonb, in
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Translation types for menu content
+export type DishTranslations = {
+  [lang: string]: {
+    name?: string;
+    description?: string;
+    ingredients?: string[];
+  };
+};
+
+export type CategoryTranslations = {
+  [lang: string]: {
+    name?: string;
+  };
+};
+
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: text("email").notNull().unique(),
@@ -25,6 +40,7 @@ export const restaurants = pgTable("restaurants", {
   phone: text("phone"),
   currency: text("currency").notNull().default("EUR"),
   language: text("language").notNull().default("ru"),
+  targetLanguages: text("target_languages").array().default(sql`ARRAY['en', 'de']::text[]`), // Languages to translate menu into
   slug: text("slug").unique(),
   aiProvider: text("ai_provider").default("openai"), // "openai" or "openrouter"
   aiToken: text("ai_token"),
@@ -45,6 +61,7 @@ export const categories = pgTable("categories", {
   name: text("name").notNull(),
   sortOrder: integer("sort_order").default(0),
   icon: text("icon"),
+  translations: jsonb("translations").$type<CategoryTranslations>(), // { [lang]: { name } }
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => ({
   restaurantIdIdx: index("categories_restaurant_id_idx").on(table.restaurantId),
@@ -61,6 +78,7 @@ export const dishes = pgTable("dishes", {
   ingredients: text("ingredients").array(),
   nutrition: jsonb("nutrition"), // { protein: number, fat: number, carbs: number, calories: number }
   tags: text("tags").array(), // ["spicy", "vegetarian", "gluten-free", etc.]
+  translations: jsonb("translations").$type<DishTranslations>(), // { [lang]: { name, description, ingredients } }
   available: boolean("available").default(true),
   isFavorite: boolean("is_favorite").default(false),
   isHidden: boolean("is_hidden").default(false),
@@ -149,7 +167,7 @@ export type RestaurantWithCategories = Restaurant & {
 };
 
 export type PublicMenu = {
-  restaurant: Pick<Restaurant, 'name' | 'city' | 'phone' | 'currency' | 'language' | 'logo' | 'design' | 'banner' | 'favoritesTitle'>;
+  restaurant: Pick<Restaurant, 'name' | 'city' | 'phone' | 'currency' | 'language' | 'logo' | 'design' | 'banner' | 'favoritesTitle' | 'targetLanguages'>;
   categories: (Category & {
     dishes: Dish[];
   })[];

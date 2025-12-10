@@ -41,16 +41,26 @@ function getTagEmoji(tag: string): string {
 function PublicMenuContent() {
   // All hooks must be called in the same order every time
   const [, params] = useRoute("/menu/:slug");
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [filteredDishes, setFilteredDishes] = useState<Dish[]>([]);
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
 
-  // Query hook - must always be called
+  // Get current language from i18n
+  const currentLang = i18n.language;
+
+  // Query hook - must always be called, includes language for translation
   const { data: menu, isLoading, error } = useQuery<PublicMenu>({
-    queryKey: ["/api/public/menu", params?.slug],
+    queryKey: ["/api/public/menu", params?.slug, currentLang],
+    queryFn: async () => {
+      const response = await fetch(`/api/public/menu/${params?.slug}?lang=${currentLang}`);
+      if (!response.ok) {
+        throw new Error('Menu not found');
+      }
+      return response.json();
+    },
     enabled: !!params?.slug,
   });
 
@@ -175,17 +185,22 @@ function PublicMenuContent() {
     });
   };
 
+  // Memoize design string to trigger proper updates
+  const designString = useMemo(() => {
+    return JSON.stringify(menu?.restaurant?.design || {});
+  }, [menu?.restaurant?.design]);
+
   useEffect(() => {
     // Check for preview mode with design parameters in URL
     const urlParams = new URLSearchParams(window.location.search);
     const isPreview = urlParams.get('preview') === 'true';
     const previewDesign = urlParams.get('design');
-    
+
     let design;
     if (isPreview && previewDesign) {
       try {
-        design = JSON.parse(decodeURIComponent(previewDesign));
-        console.log('Applying preview design settings:', design);
+        // URLSearchParams.get() already decodes the value, no need for decodeURIComponent
+        design = JSON.parse(previewDesign);
       } catch (error) {
         console.error('Failed to parse preview design:', error);
         design = menu?.restaurant?.design;
@@ -193,90 +208,76 @@ function PublicMenuContent() {
     } else {
       design = menu?.restaurant?.design;
     }
-    
+
     if (!design) return;
 
     const root = document.documentElement;
-    
-    console.log('Applying design settings:', design);
-    
+
     const applyDesign = async () => {
       // Load Google Font first if fontFamily is specified
       if (design.fontFamily && design.fontFamily !== 'system-ui') {
         await loadGoogleFont(design.fontFamily);
       }
-      
-      // Apply colors
-      if (design.primaryColor) {
-        root.style.setProperty('--primary', design.primaryColor);
-        root.style.setProperty('--primary-600', design.primaryColor);
-        root.style.setProperty('--primary-700', design.primaryColor);
-      }
-      if (design.accentColor) {
-        root.style.setProperty('--accent', design.accentColor);
-        root.style.setProperty('--accent-600', design.accentColor);
-        root.style.setProperty('--accent-700', design.accentColor);
-      }
-      if (design.backgroundColor) {
-        root.style.setProperty('--background', design.backgroundColor);
-        root.style.setProperty('--card-background', design.cardBackground || design.backgroundColor);
-      }
-      if (design.cardBackground) {
-        root.style.setProperty('--card-background', design.cardBackground);
-      }
-      if (design.textColor) {
-        root.style.setProperty('--foreground', design.textColor);
-      }
-      
+
+      // Apply colors - always set if value exists (even if default)
+      const bgColor = design.backgroundColor || '#ffffff';
+      const cardBgColor = design.cardBackground || bgColor;
+      const textColor = design.textColor || '#111827';
+      const primaryColor = design.primaryColor || '#22c55e';
+      const accentColor = design.accentColor || '#f59e0b';
+
+      root.style.setProperty('--primary', primaryColor);
+      root.style.setProperty('--primary-600', primaryColor);
+      root.style.setProperty('--primary-700', primaryColor);
+      root.style.setProperty('--accent', accentColor);
+      root.style.setProperty('--accent-600', accentColor);
+      root.style.setProperty('--accent-700', accentColor);
+      root.style.setProperty('--background', bgColor);
+      root.style.setProperty('--card-background', cardBgColor);
+      root.style.setProperty('--foreground', textColor);
+
       // Apply font family after loading
-      if (design.fontFamily) {
-        const fontFamilyValue = design.fontFamily === 'system-ui' 
-          ? 'system-ui, -apple-system, sans-serif'
-          : `"${design.fontFamily}", sans-serif`;
-        
-        root.style.setProperty('--font-family', fontFamilyValue);
-        document.body.style.fontFamily = fontFamilyValue;
-      }
-      
+      const fontFamilyValue = design.fontFamily && design.fontFamily !== 'system-ui'
+        ? `"${design.fontFamily}", sans-serif`
+        : 'system-ui, -apple-system, sans-serif';
+
+      root.style.setProperty('--font-family', fontFamilyValue);
+      document.body.style.fontFamily = fontFamilyValue;
+
       // Apply font size
-      if (design.fontSize) {
-        const fontSizeMap: Record<string, string> = {
-          small: '14px',
-          medium: '16px',  
-          large: '18px'
-        };
-        const fontSize = fontSizeMap[design.fontSize as string] || '16px';
-        root.style.setProperty('--font-size', fontSize);
-        document.body.style.fontSize = fontSize;
-      }
-      
+      const fontSizeMap: Record<string, string> = {
+        small: '14px',
+        medium: '16px',
+        large: '18px'
+      };
+      const fontSize = fontSizeMap[design.fontSize as string] || '16px';
+      root.style.setProperty('--font-size', fontSize);
+      document.body.style.fontSize = fontSize;
+
       // Apply border radius
-      if (design.cardBorderRadius !== undefined) {
-        root.style.setProperty('--card-radius', `${design.cardBorderRadius}px`);
-      }
-      
+      const borderRadius = design.cardBorderRadius !== undefined ? design.cardBorderRadius : 8;
+      root.style.setProperty('--card-radius', `${borderRadius}px`);
+
       // Apply card spacing
-      if (design.cardSpacing) {
-        const spacingMap: Record<string, string> = {
-          compact: '8px',
-          normal: '12px',
-          spacious: '16px'
-        };
-        const spacing = spacingMap[design.cardSpacing as string] || '12px';
-        root.style.setProperty('--card-spacing', spacing);
-      }
+      const spacingMap: Record<string, string> = {
+        compact: '8px',
+        normal: '12px',
+        spacious: '16px'
+      };
+      const spacing = spacingMap[design.cardSpacing as string] || '12px';
+      root.style.setProperty('--card-spacing', spacing);
     };
-    
+
     // Apply design
     applyDesign();
-    
+
     // Cleanup on unmount
     return () => {
       const root = document.documentElement;
       // Remove dynamic font link
       const fontLink = document.querySelector('#dynamic-google-font');
       if (fontLink) fontLink.remove();
-      
+
       // Reset CSS variables
       root.style.removeProperty('--primary');
       root.style.removeProperty('--primary-600');
@@ -291,12 +292,12 @@ function PublicMenuContent() {
       root.style.removeProperty('--font-size');
       root.style.removeProperty('--card-radius');
       root.style.removeProperty('--card-spacing');
-      
+
       // Reset body styles
       document.body.style.fontFamily = '';
       document.body.style.fontSize = '';
     };
-  }, [menu?.restaurant?.design]);
+  }, [designString, menu?.restaurant?.design]);
 
   const handleTagFilter = useCallback((tag: string) => {
     setActiveTags(prev => 
@@ -361,9 +362,9 @@ function PublicMenuContent() {
   }
 
   return (
-    <div 
-      className="min-h-screen bg-gray-50 antialiased safe-area-inset"
-      style={{ 
+    <div
+      className="min-h-screen antialiased safe-area-inset"
+      style={{
         backgroundColor: 'var(--background, #f9fafb)',
         fontFamily: 'var(--font-family, "Inter", system-ui, -apple-system, sans-serif)',
         fontSize: 'var(--font-size, 16px)',
@@ -374,11 +375,15 @@ function PublicMenuContent() {
       }}
     >
       {/* Mobile-First Layout with error boundary */}
-      <div className="max-w-lg mx-auto bg-white min-h-screen relative">
+      <div
+        className="max-w-lg mx-auto min-h-screen relative"
+        style={{ backgroundColor: 'var(--card-background, #ffffff)' }}
+      >
         
         {/* Compact Header */}
-        <div 
-          className="sticky top-0 z-50 bg-white border-b shadow-sm header-sticky"
+        <div
+          className="sticky top-0 z-50 border-b shadow-sm header-sticky"
+          style={{ backgroundColor: 'var(--card-background, #ffffff)' }}
         >
           <div 
             className="flex items-center p-4 space-x-3"
@@ -389,7 +394,13 @@ function PublicMenuContent() {
           >
             {/* Language Selector */}
             <div className="absolute top-4 right-4">
-              <LanguageSelector />
+              <LanguageSelector
+                availableLanguages={
+                  menu?.restaurant?.targetLanguages
+                    ? [menu.restaurant.language || 'en', ...menu.restaurant.targetLanguages]
+                    : undefined
+                }
+              />
             </div>
             
             {/* Logo with positioning */}
@@ -441,14 +452,15 @@ function PublicMenuContent() {
 
         {/* Banner (if exists) - Simplified */}
         {menu?.restaurant?.banner && menu.restaurant.banner.trim() !== '' && (
-          <div 
-            className="h-24 bg-cover bg-center relative"
+          <div
+            className="bg-cover bg-center relative"
             style={{
+              height: `${menu?.restaurant?.design?.bannerHeight || 96}px`,
               backgroundImage: `url(${menu.restaurant.banner})`,
               backgroundPosition: `${menu?.restaurant?.design?.bannerPositionX || 50}% ${menu?.restaurant?.design?.bannerPositionY || 50}%`
             }}
           >
-            <div 
+            <div
               className="absolute inset-0"
               style={{
                 backgroundColor: menu?.restaurant?.design?.bannerOverlayColor || 'transparent',
@@ -459,7 +471,7 @@ function PublicMenuContent() {
         )}
 
         {/* Simple Search */}
-        <div className="p-3 bg-gray-50">
+        <div className="p-3" style={{ backgroundColor: 'var(--background, #f9fafb)' }}>
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <Input
@@ -483,7 +495,7 @@ function PublicMenuContent() {
         </div>
 
         {/* Category Tabs - Simple horizontal carousel */}
-        <div className="bg-white border-b border-gray-100">
+        <div className="border-b" style={{ backgroundColor: 'var(--card-background, #ffffff)', borderColor: 'var(--foreground, #e5e7eb)' }}>
           <MemoCategoryTabs
             categories={menuWithFavorites?.categories || []}
             activeCategory={selectedCategory}
@@ -548,6 +560,7 @@ function PublicMenuContent() {
                 onViewDetails={setSelectedDish}
                 isCompact={false}
                 onFilterByTag={handleTagFilter}
+                showImages={(menu?.restaurant?.design as any)?.showImages !== false}
               />
             ))
           )}
@@ -572,7 +585,13 @@ function PublicMenuContent() {
         
         {/* Language Selector at Bottom */}
         <div className="p-4 border-t mt-4 flex justify-center">
-          <LanguageSelector />
+          <LanguageSelector
+            availableLanguages={
+              menu?.restaurant?.targetLanguages
+                ? [menu.restaurant.language || 'en', ...menu.restaurant.targetLanguages]
+                : undefined
+            }
+          />
         </div>
       </div>
     </div>

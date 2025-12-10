@@ -142,8 +142,9 @@ ${data.browserInfo ? `<b>Browser Info:</b> ${JSON.stringify(data.browserInfo, nu
         let photoUrl = data.photos[i];
         
         // Convert relative URLs to full URLs if needed
-        if (photoUrl.startsWith('/public-objects/')) {
-          photoUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}${photoUrl}`;
+        if (photoUrl.startsWith('/')) {
+          const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+          photoUrl = `${baseUrl}${photoUrl}`;
         }
         
         const caption = `Photo ${i + 1}/${data.photos.length}`;

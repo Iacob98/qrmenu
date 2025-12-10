@@ -59,31 +59,51 @@ export function DishDetailsModal({ dish, currency, onClose }: DishDetailsModalPr
     <Dialog open={!!dish} onOpenChange={onClose}>
       <DialogContent className="max-w-xs sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-lg sm:text-xl text-left">{dish.name}</DialogTitle>
+          <DialogTitle
+            className="text-lg sm:text-xl text-left"
+            style={{ color: 'var(--foreground, #111827)' }}
+          >
+            {dish.name}
+          </DialogTitle>
           <DialogDescription className="sr-only">
             {t('dishDetailsTitle')} {dish.name}
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-3 sm:space-y-4">
           {/* Dish Image */}
-          <div className="w-full h-32 sm:h-48 bg-gray-200 rounded-lg">
+          <div
+            className="w-full h-32 sm:h-48 rounded-lg overflow-hidden"
+            style={{
+              backgroundColor: 'var(--background, #f3f4f6)',
+              borderRadius: 'var(--card-radius, 8px)'
+            }}
+          >
             {dish.image ? (
-              <img 
-                src={dish.image} 
+              <img
+                src={dish.image}
                 alt={dish.name}
-                className="w-full h-full object-cover rounded-lg"
+                className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center">
-                <Utensils className="text-primary-500 text-2xl sm:text-4xl" />
+              <div
+                className="w-full h-full flex items-center justify-center"
+                style={{ backgroundColor: 'var(--background, #f3f4f6)' }}
+              >
+                <Utensils
+                  className="text-2xl sm:text-4xl"
+                  style={{ color: 'var(--primary, #22c55e)' }}
+                />
               </div>
             )}
           </div>
 
           {/* Price */}
           <div className="text-center">
-            <span className="text-xl sm:text-2xl font-bold text-primary-600">
+            <span
+              className="text-xl sm:text-2xl font-bold"
+              style={{ color: 'var(--primary, #22c55e)' }}
+            >
               {getCurrencySymbol(currency)}{String(dish.price)}
             </span>
           </div>
@@ -91,35 +111,96 @@ export function DishDetailsModal({ dish, currency, onClose }: DishDetailsModalPr
           {/* Description */}
           {dish.description && (
             <div>
-              <h4 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">{t('description')}</h4>
-              <p className="text-gray-600 text-sm sm:text-base">{dish.description}</p>
+              <h4
+                className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base"
+                style={{ color: 'var(--foreground, #111827)' }}
+              >
+                {t('description')}
+              </h4>
+              <p
+                className="text-sm sm:text-base opacity-80"
+                style={{ color: 'var(--foreground, #4b5563)' }}
+              >
+                {dish.description}
+              </p>
             </div>
           )}
 
           {/* Ingredients */}
           {dish.ingredients && dish.ingredients.length > 0 && (
             <div>
-              <h4 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">{t('ingredients')}</h4>
-              <p className="text-gray-600 text-sm sm:text-base">{dish.ingredients.join(", ")}</p>
+              <h4
+                className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base"
+                style={{ color: 'var(--foreground, #111827)' }}
+              >
+                {t('ingredients')}
+              </h4>
+              <p
+                className="text-sm sm:text-base opacity-80"
+                style={{ color: 'var(--foreground, #4b5563)' }}
+              >
+                {dish.ingredients.join(", ")}
+              </p>
             </div>
           )}
 
           {/* Nutrition Info */}
           {dish.nutrition && typeof dish.nutrition === 'object' && (
             <div>
-              <h4 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">{t('nutritionInfo')}</h4>
-              <div className="grid grid-cols-2 gap-1 sm:gap-2 text-xs sm:text-sm text-gray-600">
+              <h4
+                className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base"
+                style={{ color: 'var(--foreground, #111827)' }}
+              >
+                {t('nutritionInfo')}
+              </h4>
+              <div className="grid grid-cols-2 gap-1 sm:gap-2 text-xs sm:text-sm">
                 {(dish.nutrition as any).calories && (
-                  <div className="bg-gray-50 p-1 sm:p-2 rounded">{t('calories')}: {(dish.nutrition as any).calories} {t('kcal')}</div>
+                  <div
+                    className="p-1 sm:p-2 rounded border"
+                    style={{
+                      backgroundColor: 'var(--background, #f9fafb)',
+                      color: 'var(--foreground, #4b5563)',
+                      borderColor: 'rgba(0,0,0,0.1)'
+                    }}
+                  >
+                    {t('calories')}: {(dish.nutrition as any).calories} {t('kcal')}
+                  </div>
                 )}
                 {(dish.nutrition as any).protein && (
-                  <div className="bg-gray-50 p-1 sm:p-2 rounded">{t('protein')}: {(dish.nutrition as any).protein}{t('grams')}</div>
+                  <div
+                    className="p-1 sm:p-2 rounded border"
+                    style={{
+                      backgroundColor: 'var(--background, #f9fafb)',
+                      color: 'var(--foreground, #4b5563)',
+                      borderColor: 'rgba(0,0,0,0.1)'
+                    }}
+                  >
+                    {t('protein')}: {(dish.nutrition as any).protein}{t('grams')}
+                  </div>
                 )}
                 {(dish.nutrition as any).carbs && (
-                  <div className="bg-gray-50 p-1 sm:p-2 rounded">{t('carbs')}: {(dish.nutrition as any).carbs}{t('grams')}</div>
+                  <div
+                    className="p-1 sm:p-2 rounded border"
+                    style={{
+                      backgroundColor: 'var(--background, #f9fafb)',
+                      color: 'var(--foreground, #4b5563)',
+                      borderColor: 'rgba(0,0,0,0.1)'
+                    }}
+                  >
+                    {t('carbs')}: {(dish.nutrition as any).carbs}{t('grams')}
+                  </div>
                 )}
                 {(dish.nutrition as any).fat && (
-                  <div className="bg-gray-50 p-1 sm:p-2 rounded">{t('fat')}: {(dish.nutrition as any).fat}{t('grams')}</div>
+                  <div
+                    className="p-1 sm:p-2 rounded border"
+                    style={{
+                      backgroundColor: 'var(--background, #f9fafb)',
+                      color: 'var(--foreground, #4b5563)',
+                      borderColor: 'rgba(0,0,0,0.1)'
+                    }}
+                  >
+                    {t('fat')}: {(dish.nutrition as any).fat}{t('grams')}
+                  </div>
                 )}
               </div>
             </div>
@@ -128,7 +209,12 @@ export function DishDetailsModal({ dish, currency, onClose }: DishDetailsModalPr
           {/* Tags */}
           {dish.tags && dish.tags.length > 0 && (
             <div>
-              <h4 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">{t('features')}</h4>
+              <h4
+                className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base"
+                style={{ color: 'var(--foreground, #111827)' }}
+              >
+                {t('features')}
+              </h4>
               <div className="flex flex-wrap gap-1 sm:gap-2">
                 {dish.tags.map((tag) => (
                   <Badge

@@ -12,6 +12,7 @@ interface DishCardProps {
   onViewDetails: (dish: Dish) => void;
   isCompact?: boolean;
   onFilterByTag?: (tag: string) => void;
+  showImages?: boolean;
 }
 
 // Memoized dish card to prevent unnecessary re-renders
@@ -21,10 +22,10 @@ export const MemoDishCard = memo(function DishCard({
   onViewDetails,
   isCompact = false,
   onFilterByTag,
+  showImages = true,
 }: DishCardProps) {
   const { t } = useTranslation();
-  console.log('DishCard rendering:', dish.name);
-  
+
   const getCurrencySymbol = (currency: string) => {
     const symbols: Record<string, string> = {
       'EUR': '€',
@@ -50,19 +51,21 @@ export const MemoDishCard = memo(function DishCard({
   };
 
   return (
-    <div 
+    <div
       className={cn(
-        "bg-white rounded-lg border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md hover:border-gray-300",
+        "rounded-lg border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-md hover:border-gray-300",
         isCompact ? "p-3" : "p-4"
       )}
-      style={{ 
+      style={{
         borderRadius: 'var(--card-radius, 8px)',
-        padding: 'var(--card-spacing, 12px)'
+        padding: 'var(--card-spacing, 12px)',
+        backgroundColor: 'var(--card-background, #ffffff)',
+        fontFamily: 'var(--font-family, inherit)'
       }}
     >
       <div className="flex gap-3">
         {/* Image */}
-        {dish.image && (
+        {showImages && dish.image && (
           <div className={cn(
             "flex-shrink-0 rounded overflow-hidden bg-gray-100",
             isCompact ? "w-16 h-16" : "w-20 h-20"
@@ -101,11 +104,12 @@ export const MemoDishCard = memo(function DishCard({
               </div>
               
               {dish.description && (
-                <p 
+                <p
                   className={cn(
-                    "text-gray-600 line-clamp-2 mt-1",
+                    "line-clamp-2 mt-1 opacity-75",
                     isCompact ? "text-xs" : "text-sm"
                   )}
+                  style={{ color: 'var(--foreground, #4b5563)' }}
                 >
                   {dish.description}
                 </p>
@@ -115,29 +119,35 @@ export const MemoDishCard = memo(function DishCard({
               {dish.tags && dish.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-2">
                   {dish.tags.slice(0, 3).map((tag) => (
-                    <Badge 
-                      key={tag} 
-                      variant="secondary" 
+                    <span
+                      key={tag}
                       className={cn(
-                        "text-xs px-1.5 py-0.5 bg-gray-100 text-gray-700",
-                        isCompact && "text-[10px] px-1",
-                        onFilterByTag && "cursor-pointer hover:bg-gray-200 transition-colors"
+                        "inline-flex items-center text-xs px-2 py-0.5 rounded-full",
+                        isCompact && "text-[10px] px-1.5",
+                        onFilterByTag && "cursor-pointer hover:opacity-70 transition-opacity"
                       )}
+                      style={{
+                        backgroundColor: 'rgba(0,0,0,0.06)',
+                        color: 'var(--foreground, #374151)'
+                      }}
                       onClick={onFilterByTag ? () => onFilterByTag(tag) : undefined}
                     >
                       {getTagEmoji(tag)} {tag}
-                    </Badge>
+                    </span>
                   ))}
                   {dish.tags.length > 3 && (
-                    <Badge 
-                      variant="secondary" 
+                    <span
                       className={cn(
-                        "text-xs px-1.5 py-0.5 bg-gray-100 text-gray-700",
-                        isCompact && "text-[10px] px-1"
+                        "inline-flex items-center text-xs px-2 py-0.5 rounded-full",
+                        isCompact && "text-[10px] px-1.5"
                       )}
+                      style={{
+                        backgroundColor: 'rgba(0,0,0,0.06)',
+                        color: 'var(--foreground, #374151)'
+                      }}
                     >
                       +{dish.tags.length - 3}
-                    </Badge>
+                    </span>
                   )}
                 </div>
               )}

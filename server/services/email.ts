@@ -16,8 +16,7 @@ class SendGridEmailService implements EmailService {
   }
 
   async sendVerificationEmail(email: string, token: string): Promise<void> {
-    const baseUrl = process.env.BASE_URL || 
-      (process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000');
+    const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
     
     const verificationUrl = `${baseUrl}/api/auth/verify-email?token=${token}`;
 
@@ -95,8 +94,7 @@ class SendGridEmailService implements EmailService {
   }
 
   async sendPasswordResetEmail(email: string, token: string): Promise<void> {
-    const baseUrl = process.env.BASE_URL || 
-      (process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000');
+    const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
     
     const resetUrl = `${baseUrl}/api/auth/reset-password?token=${token}`;
 

@@ -623,7 +623,7 @@ The composition is minimal and elegant, focused on the food, with no distracting
       if (!this.openai) {
         throw new Error("OpenAI client not initialized for text improvement");
       }
-      
+
       const response = await this.openai.chat.completions.create({
         model: this.model,
         messages: [
@@ -639,6 +639,166 @@ The composition is minimal and elegant, focused on the food, with no distracting
       return response.choices[0].message.content || "";
     } catch (error) {
       throw new Error(`Failed to improve text: ${handleError(error)}`);
+    }
+  }
+
+  /**
+   * Translate menu content to multiple target languages
+   */
+  async translateContent(
+    content: { name?: string; description?: string; ingredients?: string[] },
+    sourceLang: string,
+    targetLangs: string[]
+  ): Promise<{ [lang: string]: { name?: string; description?: string; ingredients?: string[] } }> {
+    if (!this.openai) {
+      throw new Error("OpenAI client not initialized for translation");
+    }
+
+    // Filter out source language from targets
+    const langsToTranslate = targetLangs.filter(lang => lang !== sourceLang);
+
+    if (langsToTranslate.length === 0) {
+      return {};
+    }
+
+    console.log(`[AI] Translating content from ${sourceLang} to ${langsToTranslate.join(', ')}`);
+
+    const languageNames: Record<string, string> = {
+      'en': 'English',
+      'de': 'German',
+      'ru': 'Russian',
+      'uk': 'Ukrainian',
+      'es': 'Spanish',
+      'fr': 'French',
+      'it': 'Italian',
+      'pl': 'Polish',
+      'tr': 'Turkish',
+      'zh': 'Chinese',
+      'ja': 'Japanese',
+      'ko': 'Korean'
+    };
+
+    try {
+      const response = await this.openai.chat.completions.create({
+        model: this.model,
+        messages: [
+          {
+            role: "system",
+            content: `You are a professional translator specializing in restaurant menus and culinary content.
+Translate the provided menu content accurately while preserving the appetizing and descriptive nature of food descriptions.
+Keep ingredient names accurate and recognizable. Maintain the same tone and style across all translations.
+Return ONLY valid JSON, no additional text.`
+          },
+          {
+            role: "user",
+            content: `Translate this menu content from ${languageNames[sourceLang] || sourceLang} to the following languages: ${langsToTranslate.map(l => languageNames[l] || l).join(', ')}.
+
+Content to translate:
+${JSON.stringify(content, null, 2)}
+
+Return a JSON object where each key is a language code and the value contains the translated fields:
+{
+  "${langsToTranslate[0]}": {
+    "name": "translated name",
+    "description": "translated description",
+    "ingredients": ["translated", "ingredients", "array"]
+  }
+  ${langsToTranslate.length > 1 ? '// ... other languages' : ''}
+}
+
+Only include fields that exist in the original content.`
+          }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 1500,
+        temperature: 0.3, // Lower temperature for more consistent translations
+      });
+
+      const resultContent = response.choices[0].message.content;
+      if (!resultContent) {
+        throw new Error("No response content from AI");
+      }
+
+      const translations = JSON.parse(resultContent);
+      console.log(`[AI] Translation completed for ${Object.keys(translations).length} languages`);
+
+      return translations;
+    } catch (error) {
+      console.error("Translation error:", error);
+      throw new Error(`Failed to translate content: ${handleError(error)}`);
+    }
+  }
+
+  /**
+   * Translate a single category name to multiple target languages
+   */
+  async translateCategoryName(
+    name: string,
+    sourceLang: string,
+    targetLangs: string[]
+  ): Promise<{ [lang: string]: { name: string } }> {
+    if (!this.openai) {
+      throw new Error("OpenAI client not initialized for translation");
+    }
+
+    const langsToTranslate = targetLangs.filter(lang => lang !== sourceLang);
+
+    if (langsToTranslate.length === 0) {
+      return {};
+    }
+
+    console.log(`[AI] Translating category "${name}" from ${sourceLang} to ${langsToTranslate.join(', ')}`);
+
+    const languageNames: Record<string, string> = {
+      'en': 'English',
+      'de': 'German',
+      'ru': 'Russian',
+      'uk': 'Ukrainian',
+      'es': 'Spanish',
+      'fr': 'French',
+      'it': 'Italian',
+      'pl': 'Polish',
+      'tr': 'Turkish',
+      'zh': 'Chinese',
+      'ja': 'Japanese',
+      'ko': 'Korean'
+    };
+
+    try {
+      const response = await this.openai.chat.completions.create({
+        model: this.model,
+        messages: [
+          {
+            role: "system",
+            content: `You are a professional translator specializing in restaurant menus. Translate menu category names accurately.
+Return ONLY valid JSON, no additional text.`
+          },
+          {
+            role: "user",
+            content: `Translate this menu category name from ${languageNames[sourceLang] || sourceLang} to: ${langsToTranslate.map(l => languageNames[l] || l).join(', ')}.
+
+Category name: "${name}"
+
+Return JSON: { "lang_code": { "name": "translated name" }, ... }`
+          }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 500,
+        temperature: 0.3,
+      });
+
+      const resultContent = response.choices[0].message.content;
+      if (!resultContent) {
+        throw new Error("No response content from AI");
+      }
+
+      const translations = JSON.parse(resultContent);
+      console.log(`[AI] Category translation completed`);
+
+      return translations;
+    } catch (error) {
+      console.error("Category translation error:", error);
+      throw new Error(`Failed to translate category: ${handleError(error)}`);
     }
   }
 }

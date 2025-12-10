@@ -11,16 +11,22 @@ const app = express();
 // CORS configuration for development and production
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  
-  // Allow requests from .replit.dev domains and localhost
-  if (!origin || origin.includes('.replit.dev') || origin.includes('localhost')) {
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+
+  // Allow requests from configured origins, localhost, and same origin
+  const isAllowed = !origin ||
+    origin.includes('localhost') ||
+    origin.includes('127.0.0.1') ||
+    allowedOrigins.some(allowed => origin.includes(allowed.trim()));
+
+  if (isAllowed) {
     res.header('Access-Control-Allow-Origin', origin || '*');
     res.header('Access-Control-Allow-Credentials', 'true');
   }
-  
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,Authorization');
-  
+
   if (req.method === 'OPTIONS') {
     res.sendStatus(200);
   } else {

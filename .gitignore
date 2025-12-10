@@ -1,6 +1,56 @@
+# Dependencies
 node_modules
+package-lock.json
+
+# Build output
 dist
-.DS_Store
 server/public
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sensitive files
+*cookies*.txt
+cookies*.txt
+*.secret
+*.key
+
+# Uploads (local development)
+uploads/*
+!uploads/.gitkeep
+
+# Replit files (legacy)
+.replit
+replit.nix
+.config/
+.local/
+
+# Temporary files
+*.tmp
+*.temp
 vite.config.ts.*
 *.tar.gz
+
+# Database
+*.sqlite
+*.db
+
+# Test files
+coverage/
+.nyc_output/

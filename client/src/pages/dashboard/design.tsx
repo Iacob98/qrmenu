@@ -1,18 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { Sidebar } from "@/components/layout/sidebar";
-import { CategoryTabs } from "@/components/menu/category-tabs";
-import { DishCard } from "@/components/menu/dish-card";
 import { Separator } from "@/components/ui/separator";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
-import { Palette, RotateCcw, Save, ExternalLink } from "lucide-react";
+import { Palette, RotateCcw, Save, ExternalLink, Image } from "lucide-react";
 import type { RestaurantWithCategories } from "@shared/schema";
 
 const getColorThemes = (t: (key: string) => string) => ({
@@ -68,7 +67,6 @@ export default function Design() {
   const colorThemes = getColorThemes(t);
   const fontOptions = getFontOptions(t);
   const [selectedRestaurant, setSelectedRestaurant] = useState<string>("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [designSettings, setDesignSettings] = useState({
     theme: "default",
     primaryColor: "#22c55e",
@@ -81,8 +79,8 @@ export default function Design() {
     cardBorderRadius: 8,
     cardSpacing: "normal",
     showImages: true,
-    showLogo: true,
     logoPosition: "left",
+    bannerHeight: 96, // Высота баннера в пикселях (64-200)
     bannerPositionX: 50, // Позиция по горизонтали (0-100%)
     bannerPositionY: 50, // Позиция по вертикали (0-100%)
     bannerOverlayColor: "#000000", // Цвет заливки
@@ -91,6 +89,9 @@ export default function Design() {
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Debounced design for iframe preview - prevents too many reloads
+  const [debouncedDesign, setDebouncedDesign] = useState(designSettings);
 
   // Get user restaurants
   const { data: restaurants, isLoading: restaurantsLoading } = useQuery({
@@ -116,6 +117,24 @@ export default function Design() {
       setSelectedRestaurant(restaurants[0].id);
     }
   }, [restaurants, selectedRestaurant]);
+
+  // Debounce design changes for iframe preview
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedDesign(designSettings);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [designSettings]);
+
+  // Generate preview URL for iframe
+  const previewUrl = useMemo(() => {
+    if (!restaurant?.slug) return '';
+    const params = new URLSearchParams({
+      preview: 'true',
+      design: JSON.stringify(debouncedDesign),
+    });
+    return `/menu/${restaurant.slug}?${params}`;
+  }, [restaurant?.slug, debouncedDesign]);
 
   const saveDesignMutation = useMutation({
     mutationFn: async () => {
@@ -166,8 +185,8 @@ export default function Design() {
       cardBorderRadius: 8,
       cardSpacing: "normal",
       showImages: true,
-      showLogo: true,
       logoPosition: "left",
+      bannerHeight: 96,
       bannerPositionX: 50,
       bannerPositionY: 50,
       bannerOverlayColor: "#000000",
@@ -184,17 +203,6 @@ export default function Design() {
       });
       window.open(`/menu/${restaurant.slug}?${params}`, '_blank');
     }
-  };
-
-  const getFilteredDishes = () => {
-    if (!restaurant) return [];
-    
-    if (!selectedCategory) {
-      return restaurant.categories.flatMap(cat => cat.dishes);
-    }
-    
-    const category = restaurant.categories.find(cat => cat.id === selectedCategory);
-    return category?.dishes || [];
   };
 
   if (restaurantsLoading || restaurantLoading) {
@@ -221,8 +229,6 @@ export default function Design() {
       </div>
     );
   }
-
-  const filteredDishes = getFilteredDishes();
 
   return (
     <div className="flex min-h-screen">
@@ -327,6 +333,32 @@ export default function Design() {
                       <span className="text-sm text-gray-600">{designSettings.backgroundColor}</span>
                     </div>
                   </div>
+
+                  <div>
+                    <Label htmlFor="cardBackground">{t('cardBackground')}</Label>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <input
+                        type="color"
+                        value={designSettings.cardBackground}
+                        onChange={(e) => setDesignSettings(prev => ({ ...prev, cardBackground: e.target.value }))}
+                        className="w-10 h-10 border rounded"
+                      />
+                      <span className="text-sm text-gray-600">{designSettings.cardBackground}</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="textColor">{t('textColor')}</Label>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <input
+                        type="color"
+                        value={designSettings.textColor}
+                        onChange={(e) => setDesignSettings(prev => ({ ...prev, textColor: e.target.value }))}
+                        className="w-10 h-10 border rounded"
+                      />
+                      <span className="text-sm text-gray-600">{designSettings.textColor}</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -408,6 +440,20 @@ export default function Design() {
                       </SelectContent>
                     </Select>
                   </div>
+
+                  <Separator />
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Image className="h-4 w-4 text-gray-500" />
+                      <Label htmlFor="showImages">{t('showImages')}</Label>
+                    </div>
+                    <Switch
+                      id="showImages"
+                      checked={designSettings.showImages}
+                      onCheckedChange={(checked) => setDesignSettings(prev => ({ ...prev, showImages: checked }))}
+                    />
+                  </div>
                 </CardContent>
               </Card>
 
@@ -437,7 +483,50 @@ export default function Design() {
 
                   <div className="space-y-4">
                     <Label className="text-sm font-medium">{t('bannerPositioning')}</Label>
-                    
+
+                    {/* Banner position preview */}
+                    {restaurant?.banner && (
+                      <div
+                        className="relative w-full rounded-lg overflow-hidden border"
+                        style={{
+                          height: `${Math.min(designSettings.bannerHeight, 120)}px`,
+                          backgroundImage: `url(${restaurant.banner})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: `${designSettings.bannerPositionX}% ${designSettings.bannerPositionY}%`
+                        }}
+                      >
+                        {/* Overlay preview */}
+                        <div
+                          className="absolute inset-0"
+                          style={{
+                            backgroundColor: designSettings.bannerOverlayColor,
+                            opacity: designSettings.bannerOverlayOpacity / 100
+                          }}
+                        />
+                        {/* Position indicator */}
+                        <div
+                          className="absolute w-4 h-4 bg-white border-2 border-primary rounded-full shadow-lg transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                          style={{
+                            left: `${designSettings.bannerPositionX}%`,
+                            top: `${designSettings.bannerPositionY}%`
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    <div>
+                      <Label className="text-xs">{t('bannerHeight')}</Label>
+                      <Slider
+                        value={[designSettings.bannerHeight]}
+                        onValueChange={([value]) => setDesignSettings(prev => ({ ...prev, bannerHeight: value }))}
+                        min={64}
+                        max={200}
+                        step={8}
+                        className="mt-2"
+                      />
+                      <span className="text-sm text-gray-600">{designSettings.bannerHeight}px</span>
+                    </div>
+
                     <div>
                       <Label className="text-xs">{t('horizontalPosition')}</Label>
                       <Slider
@@ -510,111 +599,27 @@ export default function Design() {
             </div>
           </div>
 
-          {/* Right Panel - Preview */}
-          <div className="flex-1 p-6 bg-gray-50">
-            <div className="max-w-md mx-auto">
-              {/* Preview Container */}
-              <div 
-                className="bg-white rounded-xl shadow-xl overflow-hidden"
-                style={{
-                  backgroundColor: designSettings.backgroundColor,
-                  fontFamily: designSettings.fontFamily,
-                  color: designSettings.textColor,
-                }}
-              >
-                {/* Menu Header */}
-                <div 
-                  className="text-white p-6 text-center"
-                  style={{ backgroundColor: designSettings.primaryColor }}
-                >
-                  <h1 className="text-xl font-bold">{restaurant?.name || 'Restaurant Name'}</h1>
-                  {restaurant?.city && (
-                    <p className="opacity-90">{restaurant.city}</p>
-                  )}
-                  <div className="flex justify-center space-x-4 mt-3 text-sm opacity-90">
-                    <span>{restaurant?.language === 'en' ? '🇺🇸 English' : restaurant?.language === 'de' ? '🇩🇪 Deutsch' : '🇺🇸 English'}</span>
-                    <span>💶 {restaurant?.currency}</span>
-                  </div>
-                </div>
-
-                {/* Category Tabs */}
-                <CategoryTabs
-                  categories={restaurant.categories}
-                  activeCategory={selectedCategory}
-                  onCategoryChange={setSelectedCategory}
-                />
-
-                {/* Dishes List */}
-                <div 
-                  className="p-4 space-y-3 max-h-96 overflow-y-auto"
+          {/* Right Panel - Live Preview via iframe */}
+          <div className="flex-1 p-6 bg-gray-50 flex items-start justify-center">
+            <div className="flex flex-col items-center">
+              <p className="text-sm text-gray-500 mb-3">{t('livePreview')}</p>
+              {previewUrl ? (
+                <iframe
+                  key={previewUrl}
+                  src={previewUrl}
+                  className="w-[375px] h-[667px] rounded-xl shadow-xl border-0 bg-white"
+                  title="Menu Preview"
                   style={{
-                    gap: designSettings.cardSpacing === "compact" ? "8px" : 
-                         designSettings.cardSpacing === "spacious" ? "16px" : "12px"
+                    maxWidth: '100%',
+                    border: '8px solid #1f2937',
+                    borderRadius: '32px',
                   }}
-                >
-                  {filteredDishes.slice(0, 3).map((dish) => (
-                    <div
-                      key={dish.id}
-                      className="border p-3 transition-all"
-                      style={{
-                        backgroundColor: designSettings.cardBackground,
-                        borderRadius: `${designSettings.cardBorderRadius}px`,
-                        fontSize: designSettings.fontSize === "small" ? "14px" :
-                                 designSettings.fontSize === "large" ? "18px" : "16px",
-                      }}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-semibold mb-1">{dish.name}</h3>
-                          {dish.description && (
-                            <p 
-                              className="text-sm mb-2 opacity-75"
-                              style={{ color: designSettings.textColor }}
-                            >
-                              {dish.description.slice(0, 80)}...
-                            </p>
-                          )}
-                          {dish.tags && dish.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {dish.tags.slice(0, 2).map((tag) => (
-                                <span
-                                  key={tag}
-                                  className="text-xs px-2 py-1 rounded"
-                                  style={{
-                                    backgroundColor: designSettings.primaryColor + "20",
-                                    color: designSettings.primaryColor,
-                                  }}
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                        <span 
-                          className="font-bold ml-2"
-                          style={{ color: designSettings.primaryColor }}
-                        >
-                          {restaurant?.currency === 'USD' ? '$' : 
-                           restaurant?.currency === 'PLN' ? 'zł' : 
-                           restaurant?.currency === 'MDL' ? 'L' : '€'}{dish.price}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {filteredDishes.length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
-                      <p>{t('addDishesForPreview')}</p>
-                    </div>
-                  )}
+                />
+              ) : (
+                <div className="w-[375px] h-[667px] rounded-xl shadow-xl bg-white flex items-center justify-center">
+                  <p className="text-gray-500">{t('selectRestaurant')}</p>
                 </div>
-
-                {/* Footer */}
-                <div className="bg-gray-50 p-3 text-center text-xs text-gray-600">
-                  <p>{t('createdWithQRMenu')}</p>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
