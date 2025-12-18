@@ -143,8 +143,11 @@ ${data.browserInfo ? `<b>Browser Info:</b> ${JSON.stringify(data.browserInfo, nu
         
         // Convert relative URLs to full URLs if needed
         if (photoUrl.startsWith('/')) {
-          const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
-          photoUrl = `${baseUrl}${photoUrl}`;
+          const baseUrl = process.env.BASE_URL;
+          if (!baseUrl && process.env.NODE_ENV === 'production') {
+            console.warn('[Telegram] BASE_URL not set - photo URLs may not resolve correctly in production');
+          }
+          photoUrl = `${baseUrl || 'http://localhost:5000'}${photoUrl}`;
         }
         
         const caption = `Photo ${i + 1}/${data.photos.length}`;

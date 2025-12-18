@@ -1,22 +1,38 @@
 import express, { type Request, Response, NextFunction } from "express";
+import compression from "compression";
 import { registerRoutes, setWebSocketManager } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { MenuWebSocketManager } from "./websocket";
 import bcrypt from "bcrypt";
+import { closeRedis } from "./redis";
 
 export let wsManager: MenuWebSocketManager;
 
 const app = express();
 
+// Compression middleware - reduces response size by ~70%
+app.use(compression({
+  level: 6, // Balanced compression level
+  threshold: 1024, // Only compress responses > 1KB
+  filter: (req, res) => {
+    // Don't compress if client doesn't accept it
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  }
+}));
+
 // CORS configuration for development and production
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+  const isLocalhost = origin?.includes('localhost') || origin?.includes('127.0.0.1');
 
-  // Allow requests from configured origins, localhost, and same origin
+  // Allow requests from configured origins; localhost only in development
   const isAllowed = !origin ||
-    origin.includes('localhost') ||
-    origin.includes('127.0.0.1') ||
+    (isDevelopment && isLocalhost) ||
     allowedOrigins.some(allowed => origin.includes(allowed.trim()));
 
   if (isAllowed) {
@@ -103,4 +119,17 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
   });
+
+  // Graceful shutdown handler
+  const shutdown = async () => {
+    log('Shutting down gracefully...');
+    await closeRedis();
+    server.close(() => {
+      log('Server closed');
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
 })();

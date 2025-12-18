@@ -54,3 +54,5 @@ vite.config.ts.*
 # Test files
 coverage/
 .nyc_output/
+.mcp.json
+vektor/

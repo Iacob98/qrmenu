@@ -10,12 +10,15 @@ import { qrService } from "./services/qr";
 import { upload, saveUploadedImage, deleteUploadedFile, saveImageFromURL } from "./middleware/upload";
 import bcrypt from "bcrypt";
 import session from "express-session";
-import MemoryStore from "memorystore";
+import { RedisStore } from "connect-redis";
 import type { MenuWebSocketManager } from "./websocket";
 import { storageService } from "./services/storageService";
 import { STORAGE_BUCKETS, isSupabaseConfigured } from "./supabase";
 import { sendFeedbackToTelegram, testTelegramConnection } from "./telegram";
 import { db } from "./db";
+import { initRedis, getRedisClient, isRedisConnected, closeRedis } from "./redis";
+import { initRateLimiters, getGlobalLimiter, getAuthLimiter, getAiLimiter, getPublicMenuLimiter, getUploadLimiter } from "./middleware/rateLimiter";
+import { cacheMiddleware, invalidateCache, CACHE_KEYS } from "./middleware/cache";
 
 // Extend session interface
 declare module 'express-session' {
@@ -29,8 +32,6 @@ const handleError = (error: unknown): string => {
   return error instanceof Error ? error.message : "An unexpected error occurred";
 };
 
-const MemoryStoreSession = MemoryStore(session);
-
 let menuWebSocketManager: MenuWebSocketManager;
 
 export function setWebSocketManager(wsManager: MenuWebSocketManager) {
@@ -38,22 +39,46 @@ export function setWebSocketManager(wsManager: MenuWebSocketManager) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize Redis and rate limiters
+  console.log('[Server] Initializing Redis...');
+  const redisConnected = await initRedis();
+  console.log(`[Server] Redis connected: ${redisConnected}`);
+
+  await initRateLimiters();
+
   // Serve uploaded files
   app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-  // Session configuration
+  // Session configuration with Redis store
   const sessionSecret = process.env.SESSION_SECRET;
   if (!sessionSecret) {
     console.warn('[Security] SESSION_SECRET not set! Using random secret (sessions will not persist across restarts)');
+  }
+
+  // Configure session store - use Redis if available, fall back to memory
+  let sessionStore;
+  const redisClient = await getRedisClient();
+
+  if (redisClient && isRedisConnected()) {
+    console.log('[Session] Using Redis store for sessions');
+    sessionStore = new RedisStore({
+      client: redisClient,
+      prefix: 'qrmenu:sess:',
+      ttl: 86400, // 24 hours in seconds
+    });
+  } else {
+    console.warn('[Session] Redis not available, using MemoryStore (sessions will not persist across restarts)');
+    const MemoryStore = (await import('memorystore')).default(session);
+    sessionStore = new MemoryStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    });
   }
 
   app.use(session({
     secret: sessionSecret || require('crypto').randomBytes(32).toString('hex'),
     resave: false,
     saveUninitialized: false,
-    store: new MemoryStoreSession({
-      checkPeriod: 86400000 // prune expired entries every 24h
-    }),
+    store: sessionStore,
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
@@ -61,6 +86,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       sameSite: 'lax'
     }
   }));
+
+  // Apply global rate limiter to all API routes
+  app.use('/api', getGlobalLimiter());
 
   // Authentication middleware
   const requireAuth = (req: any, res: any, next: any) => {
@@ -70,8 +98,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   };
 
-  // Auth routes
-  app.post("/api/auth/register", async (req, res) => {
+  // Auth routes (with rate limiting)
+  app.post("/api/auth/register", getAuthLimiter(), async (req, res) => {
     try {
       const { email, password, name } = insertUserSchema.parse(req.body);
       
@@ -118,7 +146,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/auth/login", async (req, res) => {
+  app.post("/api/auth/login", getAuthLimiter(), async (req, res) => {
     try {
       const { email, password } = req.body;
 
@@ -290,14 +318,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Restaurant not found" });
       }
 
+      // Detect newly added target languages for bulk translation
+      const oldTargetLanguages = restaurant.targetLanguages || [];
+      const newTargetLanguages = req.body.targetLanguages || oldTargetLanguages;
+      const addedLanguages = newTargetLanguages.filter(
+        (lang: string) => !oldTargetLanguages.includes(lang)
+      );
+
       console.log(`[Restaurant Update] Received data:`, JSON.stringify(req.body, null, 2));
       const updatedRestaurant = await storage.updateRestaurant(req.params.id, req.body);
       console.log(`[Restaurant Update] Updated result:`, JSON.stringify(updatedRestaurant, null, 2));
-      
+
+      // Invalidate cache for this restaurant's public menu
+      if (restaurant.slug) {
+        await invalidateCache(`cache:menu:*${encodeURIComponent(restaurant.slug)}*`);
+        console.log(`[Cache] Invalidated cache for restaurant: ${restaurant.slug}`);
+      }
+
+      // Start bulk translation if new languages were added
+      let translationJobId: string | null = null;
+      if (addedLanguages.length > 0) {
+        try {
+          const { translateRestaurantContent } = await import('./services/translationService');
+          translationJobId = await translateRestaurantContent(req.params.id, addedLanguages);
+          console.log(`[Translation] Started job ${translationJobId} for languages: ${addedLanguages.join(', ')}`);
+        } catch (translationError) {
+          console.error(`[Translation] Failed to start translation job:`, translationError);
+        }
+      }
+
       // Notify WebSocket clients about restaurant updates (including banner, logo, design, etc.)
       if (restaurant.slug) {
         const updateType = req.body.design ? 'design_update' : 'restaurant_update';
-        
+
         menuWebSocketManager.notifyMenuUpdate(restaurant.slug, {
           type: updateType,
           design: req.body.design,
@@ -308,13 +361,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
           restaurantSlug: restaurant.slug,
           timestamp: new Date().toISOString()
         });
-        
+
         console.log(`📡 Sent ${updateType} notification for restaurant: ${restaurant.slug}`);
       }
-      
-      res.json(updatedRestaurant);
+
+      // Return updated restaurant with optional translation job ID
+      res.json({
+        ...updatedRestaurant,
+        translationJobId
+      });
     } catch (error) {
       res.status(400).json({ message: handleError(error) });
+    }
+  });
+
+  // Get translation job progress
+  app.get("/api/translation-progress/:jobId", requireAuth, async (req, res) => {
+    try {
+      const { getTranslationProgress } = await import('./services/translationService');
+      const progress = getTranslationProgress(req.params.jobId);
+
+      if (!progress) {
+        return res.status(404).json({ message: "Translation job not found" });
+      }
+
+      res.json(progress);
+    } catch (error) {
+      res.status(500).json({ message: handleError(error) });
     }
   });
 
@@ -761,7 +834,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ai/analyze-pdf", requireAuth, async (req, res) => {
+  app.post("/api/ai/analyze-pdf", requireAuth, getAiLimiter(), async (req, res) => {
     try {
       const { restaurantId, base64Data } = req.body;
       
@@ -787,7 +860,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ai/analyze-photo", requireAuth, async (req, res) => {
+  app.post("/api/ai/analyze-photo", requireAuth, getAiLimiter(), async (req, res) => {
     try {
       const { restaurantId, base64Image } = req.body;
       
@@ -813,7 +886,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ai/analyze-text", requireAuth, async (req, res) => {
+  app.post("/api/ai/analyze-text", requireAuth, getAiLimiter(), async (req, res) => {
     try {
       const { restaurantId, text } = req.body;
       
@@ -839,8 +912,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // File upload routes
-  app.post("/api/upload/image", requireAuth, upload.single('image'), async (req, res) => {
+  // File upload routes (with rate limiting)
+  app.post("/api/upload/image", requireAuth, getUploadLimiter(), upload.single('image'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No image file provided" });
@@ -863,7 +936,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/upload/logo", requireAuth, upload.single('logo'), async (req, res) => {
+  app.post("/api/upload/logo", requireAuth, getUploadLimiter(), upload.single('logo'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No logo file provided" });
@@ -886,7 +959,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/upload/banner", requireAuth, upload.single('banner'), async (req, res) => {
+  app.post("/api/upload/banner", requireAuth, getUploadLimiter(), upload.single('banner'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No banner file provided" });
@@ -924,7 +997,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ai/improve-description", requireAuth, async (req, res) => {
+  app.post("/api/ai/improve-description", requireAuth, getAiLimiter(), async (req, res) => {
     try {
       const { restaurantId, dishName, currentDescription, ingredients, tags } = req.body;
       
@@ -1007,7 +1080,7 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
     }
   });
 
-  app.post("/api/ai/generate-image", requireAuth, async (req, res) => {
+  app.post("/api/ai/generate-image", requireAuth, getAiLimiter(), async (req, res) => {
     try {
       const { restaurantId, dishName, description, ingredients, tags, imagePrompt, dishId } = req.body;
       
@@ -1097,8 +1170,8 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
     }
   });
 
-  // Public menu route (no auth required)
-  app.get("/api/public/menu/:slug", async (req, res) => {
+  // Public menu route (no auth required) - with rate limiting and caching
+  app.get("/api/public/menu/:slug", getPublicMenuLimiter(), cacheMiddleware(300, 'cache:menu'), async (req, res) => {
     try {
       // Decode URL-encoded slug
       const decodedSlug = decodeURIComponent(req.params.slug);

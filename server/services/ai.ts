@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import type Replicate from "replicate";
+import { getCachedTranslation, cacheTranslation, type FieldType } from './translationCache';
 
 // Helper function for error handling
 const handleError = (error: unknown): string => {
@@ -644,6 +645,7 @@ The composition is minimal and elegant, focused on the food, with no distracting
 
   /**
    * Translate menu content to multiple target languages
+   * Uses global cache to avoid redundant AI calls
    */
   async translateContent(
     content: { name?: string; description?: string; ingredients?: string[] },
@@ -678,59 +680,149 @@ The composition is minimal and elegant, focused on the food, with no distracting
       'ko': 'Korean'
     };
 
-    try {
-      const response = await this.openai.chat.completions.create({
-        model: this.model,
-        messages: [
-          {
-            role: "system",
-            content: `You are a professional translator specializing in restaurant menus and culinary content.
+    const translations: { [lang: string]: { name?: string; description?: string; ingredients?: string[] } } = {};
+
+    for (const targetLang of langsToTranslate) {
+      translations[targetLang] = {};
+
+      // Track what needs AI translation
+      const needsAI: { name?: boolean; description?: boolean; ingredients?: number[] } = {};
+
+      // Check cache for name
+      if (content.name) {
+        const cachedName = await getCachedTranslation(content.name, targetLang, 'dish_name');
+        if (cachedName) {
+          translations[targetLang].name = cachedName;
+        } else {
+          needsAI.name = true;
+        }
+      }
+
+      // Check cache for description
+      if (content.description) {
+        const cachedDesc = await getCachedTranslation(content.description, targetLang, 'dish_description');
+        if (cachedDesc) {
+          translations[targetLang].description = cachedDesc;
+        } else {
+          needsAI.description = true;
+        }
+      }
+
+      // Check cache for each ingredient
+      if (content.ingredients && content.ingredients.length > 0) {
+        translations[targetLang].ingredients = [];
+        needsAI.ingredients = [];
+
+        for (let i = 0; i < content.ingredients.length; i++) {
+          const ingredient = content.ingredients[i];
+          const cachedIngredient = await getCachedTranslation(ingredient, targetLang, 'ingredient');
+          if (cachedIngredient) {
+            translations[targetLang].ingredients![i] = cachedIngredient;
+          } else {
+            needsAI.ingredients.push(i);
+          }
+        }
+      }
+
+      // If everything is cached, skip AI call
+      if (!needsAI.name && !needsAI.description && (!needsAI.ingredients || needsAI.ingredients.length === 0)) {
+        console.log(`[AI] All fields cached for ${targetLang}`);
+        continue;
+      }
+
+      // Build content for AI translation (only non-cached fields)
+      const contentToTranslate: { name?: string; description?: string; ingredients?: string[] } = {};
+      if (needsAI.name && content.name) {
+        contentToTranslate.name = content.name;
+      }
+      if (needsAI.description && content.description) {
+        contentToTranslate.description = content.description;
+      }
+      if (needsAI.ingredients && needsAI.ingredients.length > 0 && content.ingredients) {
+        contentToTranslate.ingredients = needsAI.ingredients.map(i => content.ingredients![i]);
+      }
+
+      try {
+        const response = await this.openai.chat.completions.create({
+          model: this.model,
+          messages: [
+            {
+              role: "system",
+              content: `You are a professional translator specializing in restaurant menus and culinary content.
 Translate the provided menu content accurately while preserving the appetizing and descriptive nature of food descriptions.
 Keep ingredient names accurate and recognizable. Maintain the same tone and style across all translations.
 Return ONLY valid JSON, no additional text.`
-          },
-          {
-            role: "user",
-            content: `Translate this menu content from ${languageNames[sourceLang] || sourceLang} to the following languages: ${langsToTranslate.map(l => languageNames[l] || l).join(', ')}.
+            },
+            {
+              role: "user",
+              content: `Translate this menu content from ${languageNames[sourceLang] || sourceLang} to ${languageNames[targetLang] || targetLang}.
 
 Content to translate:
-${JSON.stringify(content, null, 2)}
+${JSON.stringify(contentToTranslate, null, 2)}
 
-Return a JSON object where each key is a language code and the value contains the translated fields:
+Return a JSON object with the translated fields:
 {
-  "${langsToTranslate[0]}": {
-    "name": "translated name",
-    "description": "translated description",
-    "ingredients": ["translated", "ingredients", "array"]
-  }
-  ${langsToTranslate.length > 1 ? '// ... other languages' : ''}
+  "name": "translated name",
+  "description": "translated description",
+  "ingredients": ["translated", "ingredients", "array"]
 }
 
 Only include fields that exist in the original content.`
+            }
+          ],
+          response_format: { type: "json_object" },
+          max_tokens: 1000,
+          temperature: 0.3,
+        });
+
+        const resultContent = response.choices[0].message.content;
+        if (!resultContent) {
+          throw new Error("No response content from AI");
+        }
+
+        const aiResult = JSON.parse(resultContent);
+
+        // Merge AI results and cache them
+        if (aiResult.name && content.name) {
+          translations[targetLang].name = aiResult.name;
+          await cacheTranslation(content.name, sourceLang, targetLang, aiResult.name, 'dish_name');
+        }
+
+        if (aiResult.description && content.description) {
+          translations[targetLang].description = aiResult.description;
+          await cacheTranslation(content.description, sourceLang, targetLang, aiResult.description, 'dish_description');
+        }
+
+        if (aiResult.ingredients && needsAI.ingredients && content.ingredients) {
+          for (let j = 0; j < needsAI.ingredients.length; j++) {
+            const originalIndex = needsAI.ingredients[j];
+            const translatedIngredient = aiResult.ingredients[j];
+            if (translatedIngredient) {
+              translations[targetLang].ingredients![originalIndex] = translatedIngredient;
+              await cacheTranslation(
+                content.ingredients[originalIndex],
+                sourceLang,
+                targetLang,
+                translatedIngredient,
+                'ingredient'
+              );
+            }
           }
-        ],
-        response_format: { type: "json_object" },
-        max_tokens: 1500,
-        temperature: 0.3, // Lower temperature for more consistent translations
-      });
+        }
 
-      const resultContent = response.choices[0].message.content;
-      if (!resultContent) {
-        throw new Error("No response content from AI");
+        console.log(`[AI] Translation completed for ${targetLang}`);
+      } catch (error) {
+        console.error(`Translation error for ${targetLang}:`, error);
+        throw new Error(`Failed to translate content: ${handleError(error)}`);
       }
-
-      const translations = JSON.parse(resultContent);
-      console.log(`[AI] Translation completed for ${Object.keys(translations).length} languages`);
-
-      return translations;
-    } catch (error) {
-      console.error("Translation error:", error);
-      throw new Error(`Failed to translate content: ${handleError(error)}`);
     }
+
+    return translations;
   }
 
   /**
    * Translate a single category name to multiple target languages
+   * Uses global cache to avoid redundant AI calls
    */
   async translateCategoryName(
     name: string,
@@ -764,6 +856,26 @@ Only include fields that exist in the original content.`
       'ko': 'Korean'
     };
 
+    const translations: { [lang: string]: { name: string } } = {};
+    const langsNeedingAI: string[] = [];
+
+    // Check cache first for each language
+    for (const targetLang of langsToTranslate) {
+      const cached = await getCachedTranslation(name, targetLang, 'category_name');
+      if (cached) {
+        translations[targetLang] = { name: cached };
+        console.log(`[AI] Category cache hit for ${targetLang}`);
+      } else {
+        langsNeedingAI.push(targetLang);
+      }
+    }
+
+    // If all are cached, return immediately
+    if (langsNeedingAI.length === 0) {
+      console.log(`[AI] All category translations cached`);
+      return translations;
+    }
+
     try {
       const response = await this.openai.chat.completions.create({
         model: this.model,
@@ -775,7 +887,7 @@ Return ONLY valid JSON, no additional text.`
           },
           {
             role: "user",
-            content: `Translate this menu category name from ${languageNames[sourceLang] || sourceLang} to: ${langsToTranslate.map(l => languageNames[l] || l).join(', ')}.
+            content: `Translate this menu category name from ${languageNames[sourceLang] || sourceLang} to: ${langsNeedingAI.map(l => languageNames[l] || l).join(', ')}.
 
 Category name: "${name}"
 
@@ -792,9 +904,19 @@ Return JSON: { "lang_code": { "name": "translated name" }, ... }`
         throw new Error("No response content from AI");
       }
 
-      const translations = JSON.parse(resultContent);
-      console.log(`[AI] Category translation completed`);
+      const aiTranslations = JSON.parse(resultContent);
 
+      // Merge AI results and cache them
+      for (const [lang, result] of Object.entries(aiTranslations)) {
+        const translation = result as { name: string };
+        if (translation.name) {
+          translations[lang] = translation;
+          // Cache the translation
+          await cacheTranslation(name, sourceLang, lang, translation.name, 'category_name');
+        }
+      }
+
+      console.log(`[AI] Category translation completed`);
       return translations;
     } catch (error) {
       console.error("Category translation error:", error);

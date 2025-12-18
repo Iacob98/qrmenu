@@ -46,8 +46,11 @@ export class QRService {
   }
 
   generateRestaurantQR(restaurantSlug: string): Promise<QRCodeData> {
-    const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
-    const url = `${baseUrl}/menu/${restaurantSlug}`;
+    const baseUrl = process.env.BASE_URL;
+    if (!baseUrl && process.env.NODE_ENV === 'production') {
+      console.warn('[QR] BASE_URL not set - QR codes may point to incorrect URLs in production');
+    }
+    const url = `${baseUrl || 'http://localhost:5000'}/menu/${restaurantSlug}`;
     return this.generateQRCode(url);
   }
 }

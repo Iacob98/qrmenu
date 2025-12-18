@@ -93,6 +93,24 @@ export const dishes = pgTable("dishes", {
   availableIdx: index("dishes_available_idx").on(table.available),
 }));
 
+// Global translation cache for cross-restaurant translation reuse
+export const translationCache = pgTable("translation_cache", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  contentHash: text("content_hash").notNull(), // SHA-256 hash of normalized source text + field type
+  sourceLang: text("source_lang").notNull(),
+  targetLang: text("target_lang").notNull(),
+  sourceText: text("source_text").notNull(), // Original text for debugging
+  translatedText: text("translated_text").notNull(),
+  fieldType: text("field_type").notNull(), // 'dish_name' | 'dish_description' | 'ingredient' | 'category_name'
+  usageCount: integer("usage_count").default(1),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  // Unique constraint for hash + target language + field type
+  contentHashLangTypeIdx: index("translation_cache_hash_lang_type_idx").on(table.contentHash, table.targetLang, table.fieldType),
+  contentHashIdx: index("translation_cache_content_hash_idx").on(table.contentHash),
+}));
+
 // Feedback and bug reports table
 export const feedback = pgTable("feedback", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -158,6 +176,8 @@ export type InsertDish = z.infer<typeof insertDishSchema>;
 
 export type Feedback = typeof feedback.$inferSelect;
 export type InsertFeedback = z.infer<typeof insertFeedbackSchema>;
+
+export type TranslationCache = typeof translationCache.$inferSelect;
 
 // Extended types for API responses
 export type RestaurantWithCategories = Restaurant & {

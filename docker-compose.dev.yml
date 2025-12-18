@@ -18,9 +18,10 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=5000
-      - DATABASE_URL=postgresql://qrmenu:qrmenu_password@db:5432/qrmenu
-      - SESSION_SECRET=dev-session-secret-not-for-production
-      - BASE_URL=http://localhost:5000
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-qrmenu}:${POSTGRES_PASSWORD:-qrmenu_password}@db:5432/${POSTGRES_DB:-qrmenu}
+      - SESSION_SECRET=${SESSION_SECRET:-dev-session-secret-not-for-production}
+      - BASE_URL=${BASE_URL:-http://localhost:5000}
+      - REDIS_URL=redis://redis:6379
     volumes:
       # Mount source code for hot reload
       - ./client:/app/client
@@ -31,6 +32,8 @@ services:
       - /app/node_modules
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - qrmenu-network
@@ -43,9 +46,9 @@ services:
     container_name: qrmenu-db-dev
     restart: unless-stopped
     environment:
-      - POSTGRES_USER=qrmenu
-      - POSTGRES_PASSWORD=qrmenu_password
-      - POSTGRES_DB=qrmenu
+      - POSTGRES_USER=${POSTGRES_USER:-qrmenu}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-qrmenu_password}
+      - POSTGRES_DB=${POSTGRES_DB:-qrmenu}
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
     ports:
@@ -58,6 +61,23 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  # ==========================================
+  # Redis Cache
+  # ==========================================
+  redis:
+    image: redis:7-alpine
+    container_name: qrmenu-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - qrmenu-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data_dev:

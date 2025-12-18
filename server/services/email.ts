@@ -16,9 +16,12 @@ class SendGridEmailService implements EmailService {
   }
 
   async sendVerificationEmail(email: string, token: string): Promise<void> {
-    const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
-    
-    const verificationUrl = `${baseUrl}/api/auth/verify-email?token=${token}`;
+    const baseUrl = process.env.BASE_URL;
+    if (!baseUrl && process.env.NODE_ENV === 'production') {
+      console.warn('[Email] BASE_URL not set - email links may not work correctly in production');
+    }
+
+    const verificationUrl = `${baseUrl || 'http://localhost:5000'}/api/auth/verify-email?token=${token}`;
 
     const msg = {
       to: email,
@@ -94,9 +97,12 @@ class SendGridEmailService implements EmailService {
   }
 
   async sendPasswordResetEmail(email: string, token: string): Promise<void> {
-    const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
-    
-    const resetUrl = `${baseUrl}/api/auth/reset-password?token=${token}`;
+    const baseUrl = process.env.BASE_URL;
+    if (!baseUrl && process.env.NODE_ENV === 'production') {
+      console.warn('[Email] BASE_URL not set - password reset links may not work correctly in production');
+    }
+
+    const resetUrl = `${baseUrl || 'http://localhost:5000'}/api/auth/reset-password?token=${token}`;
 
     const msg = {
       to: email,
@@ -166,14 +172,16 @@ class SendGridEmailService implements EmailService {
 
 class MockEmailService implements EmailService {
   async sendVerificationEmail(email: string, token: string): Promise<void> {
+    const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
     console.log(`📧 Mock email verification sent to: ${email}`);
-    console.log(`🔗 Verification link: ${process.env.BASE_URL || 'http://localhost:5000'}/api/auth/verify-email?token=${token}`);
+    console.log(`🔗 Verification link: ${baseUrl}/api/auth/verify-email?token=${token}`);
     console.log(`⚠️  Using mock service. Set SENDGRID_API_KEY to send real emails.`);
   }
 
   async sendPasswordResetEmail(email: string, token: string): Promise<void> {
+    const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
     console.log(`📧 Mock password reset email sent to: ${email}`);
-    console.log(`🔗 Reset link: ${process.env.BASE_URL || 'http://localhost:5000'}/api/auth/reset-password?token=${token}`);
+    console.log(`🔗 Reset link: ${baseUrl}/api/auth/reset-password?token=${token}`);
     console.log(`⚠️  Using mock service. Set SENDGRID_API_KEY to send real emails.`);
   }
 }
