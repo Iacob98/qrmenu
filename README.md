@@ -115,6 +115,19 @@ docker compose -f docker-compose.dev.yml up
 docker compose up -d
 ```
 
+## Production Notes
+
+Before deploying to production:
+
+- [ ] **Reduce AI rate limit** — Change `max: 100` to `max: 10` in `server/middleware/rateLimiter.ts` (line 81)
+- [ ] Set secure `SESSION_SECRET` (32+ random characters)
+- [ ] Configure `ALLOWED_ORIGINS` for CORS
+- [ ] Set up proper `BASE_URL` for QR codes and emails
+
+## Future Features
+
+- **Logo Style Transfer** — Nano Banana model (Gemini 2.5 Flash Image) supports using restaurant logo as a style reference for dish images. Can be enabled by passing `image_input` parameter with logo URL to generate branded food photos that match the restaurant's visual identity.
+
 ## License
 
 MIT

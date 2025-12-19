@@ -174,7 +174,7 @@ Return a JSON object with:
           }
         ],
         response_format: { type: "json_object" },
-        max_tokens: 2000,
+        max_tokens: 8000,
       });
 
       const content = response.choices[0].message.content;
@@ -269,7 +269,7 @@ Return a JSON object with:
           }
         ],
         response_format: { type: "json_object" },
-        max_tokens: 2000,
+        max_tokens: 8000,
       });
 
       const content = response.choices[0].message.content;
@@ -345,7 +345,7 @@ Return a JSON object with:
           }
         ],
         response_format: { type: "json_object" },
-        max_tokens: 2000,
+        max_tokens: 8000,
       });
 
       const content = response.choices[0].message.content;
@@ -385,41 +385,38 @@ Return a JSON object with:
 
   async generateDishImage(dishName: string, description: string, ingredients?: string[], tags?: string[], imagePrompt?: string): Promise<string> {
       // Build comprehensive dish information
-      let dishInfo = dishName;
-      
+      let dishInfo = `"${dishName}"`;
+
       if (description) {
         dishInfo += ` - ${description}`;
       }
-      
-      if (ingredients && ingredients.length > 0) {
-        dishInfo += `. Ingredients: ${ingredients.join(', ')}`;
-      }
-      
-      if (tags && tags.length > 0) {
-        const relevantTags = tags.filter(tag => 
-          !['popular', 'healthy'].includes(tag) // Remove generic tags
-        );
-        if (relevantTags.length > 0) {
-          dishInfo += `. Style: ${relevantTags.join(', ')}`;
-        }
-      }
-      
-      let basePrompt = `A highly realistic, professionally styled food photo of ${dishInfo}. The dish is served on a clean ceramic plate, placed on a neutral white background. The lighting is soft and natural, coming from the top left at a ~45° angle, creating gentle shadows and highlighting textures.
 
-The composition is minimal and elegant, focused on the food, with no distracting elements or background props. The image should be centered, with sharp details, realistic portion size, and natural color tones. High-quality photo style (not illustration, not AI-looking, no watercolor). No watermark. No text.`;
+      if (ingredients && ingredients.length > 0) {
+        dishInfo += ` with ${ingredients.slice(0, 5).join(', ')}`;
+      }
+
+      if (tags && tags.length > 0) {
+        dishInfo += ` [${tags.join(', ')}]`;
+      }
+
+      let basePrompt = `Professional food photography of ${dishInfo}.
+
+Camera: Canon 5D Mark IV, 50mm lens, f/2.8, ISO 100
+Angle: 45-degree overhead
+Lighting: Soft natural window light from left
+Background: Clean white surface, minimal
+Plate: White ceramic, elegant presentation
+Style: Editorial food magazine, appetizing, vibrant colors
+Focus: Sharp on dish, shallow depth of field
+
+Photorealistic, natural textures, no text, no watermarks.`;
 
       // Add user-provided image prompt if specified
       if (imagePrompt && imagePrompt.trim()) {
-        basePrompt += `\n\nAdditional details: ${imagePrompt.trim()}`;
+        basePrompt += `\n\nCustom: ${imagePrompt.trim()}`;
       }
 
-      const prompt = `${basePrompt}
-
---style photo
---v 6
---ar 1:1
---quality 2
---upbeta`;
+      const prompt = basePrompt;
 
       console.log(`[AI Service] Generating image with ComfyUI for: ${dishName}`);
       
@@ -443,22 +440,19 @@ The composition is minimal and elegant, focused on the food, with no distracting
         });
       }
 
-      console.log(`[Replicate] Using Imagen-4 Fast for image generation`);
+      console.log(`[Replicate] Using Nano Banana for image generation`);
       console.log(`[Replicate] Auth token available:`, !!process.env.REPLICATE_API_TOKEN);
       console.log(`[Replicate] Client initialized:`, !!this.replicate);
-      
+
       let prediction: any;
       try {
-        console.log(`[Replicate] Starting API call with Imagen-4 Fast...`);
-        
-        const fullPrompt = englishPrompt + ", professional food photography, high quality, detailed, appetizing, clean background. The dish is served on a clean ceramic plate, placed on a neutral white background. The lighting is soft and natural, coming from the top left at a ~45° angle, creating gentle shadows and highlighting textures. The composition is minimal and elegant, focused on the food, with no distracting elements or background props. The image should be centered, with sharp details, realistic portion size, and natural color tones. High-quality photo style (not illustration, not AI-looking, no watercolor). No watermark. No text.";
+        console.log(`[Replicate] Starting API call with Nano Banana...`);
 
         prediction = await this.replicate.run(
-          "google/imagen-4-fast", 
+          "google/nano-banana",
           {
             input: {
-              prompt: fullPrompt,
-              aspect_ratio: "1:1"
+              prompt: englishPrompt
             }
           }
         );
