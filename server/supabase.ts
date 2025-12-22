@@ -4,6 +4,8 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+// Public URL for client-facing image URLs (defaults to SUPABASE_URL if not set)
+const supabasePublicUrl = process.env.SUPABASE_PUBLIC_URL || supabaseUrl;
 
 if (!supabaseUrl) {
   console.warn('SUPABASE_URL is not set. Supabase features will be disabled.');
@@ -39,8 +41,8 @@ export function isSupabaseConfigured(): boolean {
 
 // Get public URL for a file in storage
 export function getPublicUrl(bucket: string, path: string): string {
-  if (!supabaseUrl) {
+  if (!supabasePublicUrl) {
     throw new Error('SUPABASE_URL is not configured');
   }
-  return `${supabaseUrl}/storage/v1/object/public/${bucket}/${path}`;
+  return `${supabasePublicUrl}/storage/v1/object/public/${bucket}/${path}`;
 }
