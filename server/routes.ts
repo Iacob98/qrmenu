@@ -55,6 +55,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve uploaded files
   app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
+  // Proxy storage requests to Supabase Kong (for public image URLs)
+  const SUPABASE_INTERNAL_URL = process.env.SUPABASE_URL || 'http://supabase-kong:8000';
+  app.use('/storage', async (req, res) => {
+    try {
+      const targetUrl = `${SUPABASE_INTERNAL_URL}/storage${req.url}`;
+      const response = await fetch(targetUrl, {
+        method: req.method,
+        headers: {
+          'Host': new URL(SUPABASE_INTERNAL_URL).host,
+        },
+      });
+
+      // Forward response headers
+      response.headers.forEach((value, key) => {
+        if (key.toLowerCase() !== 'transfer-encoding') {
+          res.setHeader(key, value);
+        }
+      });
+
+      res.status(response.status);
+
+      // Stream response body
+      if (response.body) {
+        const reader = response.body.getReader();
+        const pump = async () => {
+          const { done, value } = await reader.read();
+          if (done) {
+            res.end();
+            return;
+          }
+          res.write(Buffer.from(value));
+          return pump();
+        };
+        await pump();
+      } else {
+        res.end();
+      }
+    } catch (error) {
+      console.error('[Storage Proxy] Error:', error);
+      res.status(502).json({ error: 'Storage proxy error' });
+    }
+  });
+
   // Session configuration with Redis store
   const sessionSecret = process.env.SESSION_SECRET;
   if (!sessionSecret) {
