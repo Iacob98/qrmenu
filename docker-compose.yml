@@ -17,8 +17,8 @@ services:
       - PORT=5000
       - DATABASE_URL=postgresql://${POSTGRES_USER:-qrmenu}:${POSTGRES_PASSWORD:-qrmenu_password}@db:5432/${POSTGRES_DB:-qrmenu}
       - SESSION_SECRET=${SESSION_SECRET:-change-this-to-a-secure-random-string-min-32-chars}
-      - BASE_URL=${BASE_URL:-http://localhost:5000}
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-}
+      - BASE_URL=${BASE_URL:-https://dinelink.info}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-https://dinelink.info}
       # Supabase Storage (optional)
       - SUPABASE_URL=${SUPABASE_URL:-}
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-}
