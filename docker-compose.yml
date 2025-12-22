@@ -127,6 +127,8 @@ services:
       - postgres
       - -c
       - wal_level=logical
+      - -c
+      - listen_addresses=*
 
   # ==========================================
   # Supabase PostgREST API
