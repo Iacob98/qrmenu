@@ -57,7 +57,7 @@ export function DishDetailsModal({ dish, currency, onClose }: DishDetailsModalPr
 
   return (
     <Dialog open={!!dish} onOpenChange={onClose}>
-      <DialogContent className="max-w-xs sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[340px] sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle
             className="text-lg sm:text-xl text-left"
@@ -73,7 +73,7 @@ export function DishDetailsModal({ dish, currency, onClose }: DishDetailsModalPr
         <div className="space-y-3 sm:space-y-4">
           {/* Dish Image */}
           <div
-            className="w-full h-32 sm:h-48 rounded-lg overflow-hidden"
+            className="w-full h-44 sm:h-56 rounded-lg overflow-hidden"
             style={{
               backgroundColor: 'var(--background, #f3f4f6)',
               borderRadius: 'var(--card-radius, 8px)'
@@ -83,7 +83,7 @@ export function DishDetailsModal({ dish, currency, onClose }: DishDetailsModalPr
               <img
                 src={dish.image}
                 alt={dish.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover max-w-full"
               />
             ) : (
               <div

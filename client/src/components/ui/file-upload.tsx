@@ -122,12 +122,12 @@ export function FileUpload({
       <Label className="block text-sm font-medium mb-2">{label}</Label>
       
       {value ? (
-        <div className="relative group">
+        <div className="relative group" style={{ maxWidth: width }}>
           <img
             src={value}
             alt={label}
-            className="rounded-lg border object-cover"
-            style={{ width, height }}
+            className="rounded-lg border object-cover w-full"
+            style={{ maxWidth: '100%', height: 'auto', maxHeight: height }}
           />
           <Button
             type="button"
@@ -141,12 +141,12 @@ export function FileUpload({
         </div>
       ) : (
         <div
-          className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-            dragOver 
-              ? 'border-primary bg-primary/5' 
+          className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors w-full ${
+            dragOver
+              ? 'border-primary bg-primary/5'
               : 'border-gray-300 hover:border-gray-400'
           }`}
-          style={{ width, height }}
+          style={{ maxWidth: width, minHeight: height }}
           onDrop={handleDrop}
           onDragOver={(e) => {
             e.preventDefault();

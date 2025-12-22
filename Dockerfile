@@ -62,9 +62,6 @@ RUN mkdir -p uploads && chown -R expressjs:nodejs uploads
 # Copy shared schema (needed at runtime for drizzle)
 COPY --from=builder /app/shared ./shared
 
-# Copy migrations if they exist
-COPY --from=builder /app/migrations ./migrations
-
 # Switch to non-root user
 USER expressjs
 

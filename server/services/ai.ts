@@ -399,17 +399,15 @@ Return a JSON object with:
         dishInfo += ` [${tags.join(', ')}]`;
       }
 
-      let basePrompt = `Professional food photography of ${dishInfo}.
+      let basePrompt = `Simple food photo of ${dishInfo}.
 
-Camera: Canon 5D Mark IV, 50mm lens, f/2.8, ISO 100
-Angle: 45-degree overhead
-Lighting: Soft natural window light from left
-Background: Clean white surface, minimal
-Plate: White ceramic, elegant presentation
-Style: Editorial food magazine, appetizing, vibrant colors
-Focus: Sharp on dish, shallow depth of field
+Composition: Dish small in center, 40% dish 60% empty space
+Angle: ALWAYS 45-degree angle, never change
+Background: ALWAYS plain light gray or white surface, solid color, no props, no decorations
+Plate: Simple white plate, realistic portion size
+Style: Simple realistic photo, NOT stylized, NOT exaggerated, natural looking, modest presentation
 
-Photorealistic, natural textures, no text, no watermarks.`;
+Simple photo, no text, no watermarks, no garnishes, no extra decorations.`;
 
       // Add user-provided image prompt if specified
       if (imagePrompt && imagePrompt.trim()) {
@@ -452,7 +450,8 @@ Photorealistic, natural textures, no text, no watermarks.`;
           "google/nano-banana",
           {
             input: {
-              prompt: englishPrompt
+              prompt: englishPrompt,
+              aspect_ratio: "1:1"
             }
           }
         );
