@@ -18,6 +18,7 @@ interface FileUploadProps {
   height?: number;
   className?: string;
   hideUrlInput?: boolean;
+  isGenerating?: boolean; // External generation state (e.g., AI image generation)
 }
 
 export function FileUpload({
@@ -30,7 +31,8 @@ export function FileUpload({
   width = 300,
   height = 200,
   className = "",
-  hideUrlInput = false
+  hideUrlInput = false,
+  isGenerating = false
 }: FileUploadProps) {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -129,33 +131,52 @@ export function FileUpload({
             className="rounded-lg border object-cover w-full"
             style={{ maxWidth: '100%', height: 'auto', maxHeight: height }}
           />
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={handleRemove}
-          >
-            <X size={16} />
-          </Button>
+          {isGenerating && (
+            <div className="absolute inset-0 bg-black/60 rounded-lg flex flex-col items-center justify-center">
+              <Loader2 className="h-10 w-10 animate-spin text-white mb-2" />
+              <p className="text-white text-sm font-medium">Generating...</p>
+            </div>
+          )}
+          {!isGenerating && (
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={handleRemove}
+            >
+              <X size={16} />
+            </Button>
+          )}
         </div>
       ) : (
         <div
-          className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors w-full ${
-            dragOver
-              ? 'border-primary bg-primary/5'
-              : 'border-gray-300 hover:border-gray-400'
+          className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors w-full ${
+            isGenerating
+              ? 'border-primary bg-primary/5 cursor-wait'
+              : dragOver
+                ? 'border-primary bg-primary/5 cursor-pointer'
+                : 'border-gray-300 hover:border-gray-400 cursor-pointer'
           }`}
           style={{ maxWidth: width, minHeight: height }}
-          onDrop={handleDrop}
-          onDragOver={(e) => {
+          onDrop={isGenerating ? undefined : handleDrop}
+          onDragOver={isGenerating ? undefined : (e) => {
             e.preventDefault();
             setDragOver(true);
           }}
-          onDragLeave={() => setDragOver(false)}
-          onClick={() => fileInputRef.current?.click()}
+          onDragLeave={isGenerating ? undefined : () => setDragOver(false)}
+          onClick={isGenerating ? undefined : () => fileInputRef.current?.click()}
         >
-          {uploadMutation.isPending ? (
+          {isGenerating ? (
+            <div className="flex flex-col items-center justify-center h-full">
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping" style={{ width: 48, height: 48 }} />
+                <Loader2 className="h-12 w-12 animate-spin text-primary relative z-10" />
+              </div>
+              <p className="text-sm font-medium text-primary mt-3">AI generating image...</p>
+              <p className="text-xs text-muted-foreground mt-1">This may take a few seconds</p>
+            </div>
+          ) : uploadMutation.isPending ? (
             <div className="flex flex-col items-center justify-center h-full">
               <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
               <p className="text-sm text-gray-600">Uploading...</p>

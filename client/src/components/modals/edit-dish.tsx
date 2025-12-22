@@ -486,6 +486,7 @@ export function EditDishModal({
               height={180}
               maxSize={8}
               hideUrlInput={true}
+              isGenerating={generateImageMutation.isPending}
             />
             <div className="mt-2 space-y-2">
               <div>

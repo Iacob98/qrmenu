@@ -54,7 +54,7 @@ export default function Landing() {
                   size="lg"
                   variant="outline"
                   className="text-lg px-8 py-4 !border-white !text-white !bg-transparent hover:!bg-white hover:!text-blue-600"
-                  onClick={() => window.open('/menu/тестовое-кафе-0hnxsd', '_blank')}
+                  onClick={() => window.open('/menu/test-zbllwi', '_blank')}
                 >
                   {t('viewDemo')}
                 </Button>
@@ -629,7 +629,7 @@ export default function Landing() {
                 size="lg"
                 variant="outline"
                 className="text-lg px-8 py-4 !border-white !text-white !bg-transparent hover:!bg-white hover:!text-blue-600"
-                onClick={() => window.open('/menu/тестовое-кафе-0hnxsd', '_blank')}
+                onClick={() => window.open('/menu/test-zbllwi', '_blank')}
               >
                 {t('viewDemo')}
               </Button>

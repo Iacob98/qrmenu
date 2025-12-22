@@ -61,8 +61,6 @@ export function AddDishModal({
     carbs: "",
   });
   
-  const [imageGenerating, setImageGenerating] = useState(false);
-
   const { toast } = useToast();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -394,6 +392,7 @@ export function AddDishModal({
               height={180}
               maxSize={8}
               hideUrlInput={true}
+              isGenerating={generateImageMutation.isPending}
             />
             <div className="mt-2">
               <Button
