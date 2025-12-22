@@ -78,49 +78,26 @@ export default function Landing() {
             </div>
             
             <div className="mt-16 flex justify-center" id="demo">
-              {/* Modern smartphone mockup showing menu interface */}
-              <div className="relative w-80 h-96 bg-gray-900 rounded-3xl p-2 shadow-2xl transform hover:scale-105 transition-transform duration-300">
-                <div className="w-full h-full bg-white rounded-2xl overflow-hidden">
-                  <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 text-center">
-                    <h3 className="font-semibold">{t('italianRestaurant')}</h3>
-                    <p className="text-xs opacity-90">{t('scanQrForMenu')}</p>
-                  </div>
-                  <div className="p-4 space-y-3">
-                    <div className="flex space-x-2">
-                      <span className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm">{t('soups')}</span>
-                      <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm">{t('hotDishes')}</span>
-                      <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm">{t('desserts')}</span>
-                    </div>
-                    <div className="border rounded-lg p-3 hover:bg-gray-50 transition-colors">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-semibold text-sm">{t('ukrainianBorscht')}</h4>
-                          <p className="text-gray-600 text-xs">{t('beetMeatSourCream')}</p>
-                          <div className="flex mt-1">
-                            {[1,2,3,4,5].map(i => (
-                              <Star key={i} className="w-3 h-3 text-yellow-400 fill-current" />
-                            ))}
-                          </div>
-                        </div>
-                        <span className="text-primary-600 font-semibold text-sm">€5.90</span>
-                      </div>
-                    </div>
-                    <div className="border rounded-lg p-3 hover:bg-gray-50 transition-colors">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-semibold text-sm">{t('meatSolyanka')}</h4>
-                          <p className="text-gray-600 text-xs">{t('smokedMeatPicklesLemon')}</p>
-                          <div className="flex mt-1">
-                            {[1,2,3,4].map(i => (
-                              <Star key={i} className="w-3 h-3 text-yellow-400 fill-current" />
-                            ))}
-                            <Star className="w-3 h-3 text-gray-300" />
-                          </div>
-                        </div>
-                        <span className="text-primary-600 font-semibold text-sm">€6.50</span>
-                      </div>
-                    </div>
-                  </div>
+              {/* Modern smartphone mockup with real demo menu */}
+              <div
+                className="relative bg-gray-900 rounded-[3rem] p-3 shadow-2xl transform hover:scale-105 transition-transform duration-300 cursor-pointer"
+                onClick={() => window.open('/menu/test-zbllwi', '_blank')}
+                style={{ width: '320px', height: '640px' }}
+              >
+                {/* Phone notch */}
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-2xl z-10"></div>
+                {/* Screen */}
+                <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden">
+                  <iframe
+                    src="/menu/test-zbllwi"
+                    className="w-full h-full border-0"
+                    title="Demo Menu"
+                    style={{ pointerEvents: 'none' }}
+                  />
+                </div>
+                {/* Click hint */}
+                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-black/70 text-white text-xs px-3 py-1 rounded-full opacity-0 hover:opacity-100 transition-opacity">
+                  {t('viewDemo')}
                 </div>
               </div>
             </div>
