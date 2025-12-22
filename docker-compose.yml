@@ -35,6 +35,9 @@ services:
       - REPLICATE_API_TOKEN=${REPLICATE_API_TOKEN:-}
       # Redis
       - REDIS_URL=redis://redis:6379
+      # Proxy settings (for Cloudflare/nginx)
+      - TRUST_PROXY=true
+      - COOKIE_SECURE=true
     volumes:
       - uploads_data:/app/uploads
     depends_on:

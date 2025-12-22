@@ -46,6 +46,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   await initRateLimiters();
 
+  // Trust proxy (Cloudflare, nginx, etc.) - required for secure cookies behind reverse proxy
+  if (process.env.TRUST_PROXY === 'true') {
+    app.set('trust proxy', 1);
+    console.log('[Server] Trust proxy enabled');
+  }
+
   // Serve uploaded files
   app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
