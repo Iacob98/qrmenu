@@ -11,8 +11,8 @@ RUN apk add --no-cache libc6-compat python3 make g++
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Install all dependencies
-RUN npm ci
+# Install all dependencies (npm install handles optional deps better than npm ci)
+RUN npm install
 
 # ==========================================
 # Stage 2: Builder
@@ -70,7 +70,7 @@ EXPOSE 5000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:5000/api/init || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:5000/health || exit 1
 
 # Start the application
 CMD ["node", "dist/index.js"]
