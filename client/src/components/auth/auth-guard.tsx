@@ -1,6 +1,7 @@
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { OnboardingModal } from "@/components/modals/onboarding-modal";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -10,6 +11,7 @@ interface AuthGuardProps {
 export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
   const { user, loading } = useAuth();
   const [, setLocation] = useLocation();
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     if (!loading) {
@@ -20,6 +22,13 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
       }
     }
   }, [user, loading, requireAuth, setLocation]);
+
+  // Show onboarding for new users
+  useEffect(() => {
+    if (user && !user.onboarded && requireAuth) {
+      setShowOnboarding(true);
+    }
+  }, [user, requireAuth]);
 
   if (loading) {
     return (
@@ -37,5 +46,13 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <OnboardingModal
+        open={showOnboarding}
+        onOpenChange={setShowOnboarding}
+      />
+    </>
+  );
 }

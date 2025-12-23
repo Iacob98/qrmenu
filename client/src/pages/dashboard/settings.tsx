@@ -11,10 +11,11 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
-import { Copy, Check, AlertTriangle, Upload, X, Image, Loader2, Languages } from "lucide-react";
+import { Copy, Check, AlertTriangle, Upload, X, Image, Loader2, Languages, BookOpen } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FileUpload } from "@/components/ui/file-upload";
 import { useTranslation } from "react-i18next";
+import { OnboardingModal } from "@/components/modals/onboarding-modal";
 import type { Restaurant } from "@shared/schema";
 
 export default function Settings() {
@@ -34,7 +35,8 @@ export default function Settings() {
     email: "",
   });
   const [copied, setCopied] = useState(false);
-  
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
   const { toast } = useToast();
   const { user, logout } = useAuth();
   const queryClient = useQueryClient();
@@ -491,10 +493,34 @@ export default function Settings() {
                   </form>
                 </CardContent>
               </Card>
+
+              {/* Tutorial Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>📚 Tutorial</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {t('onboardingTitle')}
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowOnboarding(true)}
+                  >
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    {t('showTutorial')}
+                  </Button>
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </div>
       </div>
+
+      <OnboardingModal
+        open={showOnboarding}
+        onOpenChange={setShowOnboarding}
+      />
     </div>
   );
 }

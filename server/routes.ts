@@ -255,14 +255,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
       
-      res.json({ 
-        user: { 
-          id: user.id, 
-          email: user.email, 
+      res.json({
+        user: {
+          id: user.id,
+          email: user.email,
           name: user.name,
-          emailVerified: user.emailVerified 
-        } 
+          emailVerified: user.emailVerified,
+          onboarded: user.onboarded
+        }
       });
+    } catch (error) {
+      res.status(500).json({ message: handleError(error) });
+    }
+  });
+
+  // Mark user as onboarded
+  app.patch("/api/auth/onboarded", requireAuth, async (req, res) => {
+    try {
+      await db.update(users).set({ onboarded: true }).where(eq(users.id, req.session.userId!));
+      res.json({ success: true });
     } catch (error) {
       res.status(500).json({ message: handleError(error) });
     }

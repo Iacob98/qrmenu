@@ -6,6 +6,7 @@ interface User {
   email: string;
   name?: string;
   emailVerified?: boolean;
+  onboarded?: boolean;
 }
 
 interface AuthContextType {
@@ -13,6 +14,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => Promise<void>;
+  markOnboarded: () => Promise<void>;
   loading: boolean;
 }
 
@@ -113,8 +115,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
+  const markOnboarded = async () => {
+    const response = await fetch("/api/auth/onboarded", {
+      method: "PATCH",
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to mark as onboarded");
+    }
+
+    // Update local user state
+    if (user) {
+      setUser({ ...user, onboarded: true });
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, markOnboarded, loading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -26,6 +26,7 @@ export const users = pgTable("users", {
   emailVerified: boolean("email_verified").default(false),
   emailVerificationToken: text("email_verification_token"),
   emailVerificationExpires: timestamp("email_verification_expires"),
+  onboarded: boolean("onboarded").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => ({
   emailIdx: index("users_email_idx").on(table.email),
