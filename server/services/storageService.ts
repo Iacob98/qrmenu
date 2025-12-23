@@ -4,6 +4,7 @@ import sharp from 'sharp';
 import path from 'path';
 import fs from 'fs/promises';
 import fetch from 'node-fetch';
+import { withRetry, isRetryableError } from '../utils/retry';
 
 // Fallback to local storage if Supabase is not configured
 const LOCAL_UPLOADS_DIR = path.join(process.cwd(), 'uploads');
@@ -78,13 +79,28 @@ export class StorageService {
 
     console.log('[Storage] Downloading image from:', imageUrl);
 
-    const response = await fetch(imageUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch image: ${response.statusText}`);
-    }
-
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const buffer = await withRetry(
+      async () => {
+        const response = await fetch(imageUrl, {
+          signal: AbortSignal.timeout(30000), // 30s timeout
+        });
+        if (!response.ok) {
+          const error = new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+          (error as any).status = response.status;
+          throw error;
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        return Buffer.from(arrayBuffer);
+      },
+      {
+        maxRetries: 3,
+        retryOn: isRetryableError,
+        onRetry: (error, attempt) => {
+          console.warn(`[Storage] Retry ${attempt} for image download:`,
+            error instanceof Error ? error.message : error);
+        },
+      }
+    );
 
     return this.uploadImage(buffer, bucket, { width, height, quality });
   }

@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+import { fetchWithRetry } from "./utils/retry";
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
@@ -30,7 +30,7 @@ async function sendTelegramMessage(text: string): Promise<boolean> {
 
   try {
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    const response = await fetch(url, {
+    const response = await fetchWithRetry(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -40,6 +40,11 @@ async function sendTelegramMessage(text: string): Promise<boolean> {
         text: text,
         parse_mode: 'HTML',
       }),
+    }, {
+      maxRetries: 3,
+      onRetry: (error, attempt) => {
+        console.warn(`[Telegram] Retry ${attempt} for sendMessage:`, error instanceof Error ? error.message : error);
+      },
     });
 
     const result = await response.json();
@@ -64,7 +69,7 @@ async function sendTelegramPhoto(photoUrl: string, caption?: string): Promise<bo
 
   try {
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
-    const response = await fetch(url, {
+    const response = await fetchWithRetry(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -74,6 +79,11 @@ async function sendTelegramPhoto(photoUrl: string, caption?: string): Promise<bo
         photo: photoUrl,
         caption: caption || '',
       }),
+    }, {
+      maxRetries: 3,
+      onRetry: (error, attempt) => {
+        console.warn(`[Telegram] Retry ${attempt} for sendPhoto:`, error instanceof Error ? error.message : error);
+      },
     });
 
     const result = await response.json();

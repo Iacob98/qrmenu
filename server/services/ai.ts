@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import type Replicate from "replicate";
 import { getCachedTranslation, cacheTranslation, type FieldType } from './translationCache';
+import { withRetry, isRetryableError } from '../utils/retry';
 
 // Helper function for error handling
 const handleError = (error: unknown): string => {
@@ -39,20 +40,41 @@ export class AIService {
 
   constructor(apiKey: string, provider: string = "openai", model?: string) {
     this.provider = provider;
-    
+
     if (provider === "replicate") {
       // Replicate will be initialized dynamically when needed
     } else {
-      const baseURL = provider === "openrouter" 
+      const baseURL = provider === "openrouter"
         ? "https://openrouter.ai/api/v1"
         : undefined;
-        
-      this.openai = new OpenAI({ 
+
+      this.openai = new OpenAI({
         apiKey,
-        baseURL 
+        baseURL,
+        maxRetries: 3, // Built-in retry for transient errors
+        timeout: 60000, // 60 second timeout
       });
     }
     this.model = provider === "openrouter" ? (model || "gpt-4o") : "gpt-4o";
+  }
+
+  /**
+   * Execute OpenAI API call with retry logic
+   */
+  private async withOpenAIRetry<T>(
+    operation: () => Promise<T>,
+    context: string
+  ): Promise<T> {
+    return withRetry(operation, {
+      maxRetries: 3,
+      initialDelayMs: 1000,
+      maxDelayMs: 10000,
+      retryOn: isRetryableError,
+      onRetry: (error, attempt) => {
+        console.warn(`[AI] Retry ${attempt} for ${context}:`,
+          error instanceof Error ? error.message : error);
+      },
+    });
   }
 
   async analyzePDF(base64Data: string): Promise<AIGeneratedMenuResult> {
