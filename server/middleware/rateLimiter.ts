@@ -78,7 +78,7 @@ export async function initRateLimiters(): Promise<void> {
 
   limiters.ai = await createRateLimiter({
     windowMs: 60 * 60 * 1000, // 1 hour
-    max: 100, // TODO: Reduce to 10 for production
+    max: 10, // Production limit: 10 AI requests per hour per IP
     message: { error: 'AI rate limit exceeded. Please wait before making more AI requests' },
     prefix: 'ai',
   });

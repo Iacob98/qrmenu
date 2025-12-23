@@ -32,8 +32,8 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       - REPLICATE_API_TOKEN=${REPLICATE_API_TOKEN:-}
-      # Redis
-      - REDIS_URL=redis://redis:6379
+      # Redis (with authentication)
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_secure_password_change_me}@redis:6379
       # Proxy settings (for Cloudflare/nginx)
       - TRUST_PROXY=${TRUST_PROXY:-false}
       - COOKIE_SECURE=${COOKIE_SECURE:-false}
@@ -66,11 +66,11 @@ services:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru --requirepass ${REDIS_PASSWORD:-redis_secure_password_change_me}
     networks:
       - qrmenu-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis_secure_password_change_me}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5

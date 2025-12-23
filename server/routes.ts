@@ -4,7 +4,7 @@ import path from "path";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUserSchema, insertRestaurantSchema, insertCategorySchema, insertDishSchema, insertFeedbackSchema, feedback, type Dish, type Feedback } from "@shared/schema";
-import { sql } from "drizzle-orm";
+import { sql, eq } from "drizzle-orm";
 import { createAIService } from "./services/ai";
 import { qrService } from "./services/qr";
 import { upload, saveUploadedImage, deleteUploadedFile, saveImageFromURL } from "./middleware/upload";
@@ -129,7 +129,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     saveUninitialized: false,
     store: sessionStore,
     cookie: {
-      secure: process.env.COOKIE_SECURE === 'true', // Set COOKIE_SECURE=true if using HTTPS
+      // Secure by default in production, can be overridden with COOKIE_SECURE=false
+      secure: process.env.COOKIE_SECURE !== 'false' && process.env.NODE_ENV === 'production',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
       httpOnly: true,
       sameSite: 'lax'
@@ -1380,12 +1381,16 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
     }
   });
 
-  // Get feedback for admin (optional)
+  // Get feedback for current user only (security: users can only see their own feedback)
   app.get("/api/feedback", requireAuth, async (req, res) => {
     try {
-      // Only allow admin users (you could add role-based access here)
-      const allFeedback = await db.select().from(feedback).orderBy(feedback.createdAt);
-      res.json(allFeedback);
+      // Return only feedback created by the current user
+      const userFeedback = await db
+        .select()
+        .from(feedback)
+        .where(eq(feedback.userId, req.session.userId!))
+        .orderBy(feedback.createdAt);
+      res.json(userFeedback);
     } catch (error) {
       console.error("[Feedback] Error fetching feedback:", error);
       res.status(500).json({ error: handleError(error) });
@@ -1404,6 +1409,41 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
         error: handleError(error)
       });
     }
+  });
+
+  // Health check endpoint for load balancers and monitoring
+  app.get("/health", async (req, res) => {
+    const health = {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      checks: {
+        database: false,
+        redis: false,
+      }
+    };
+
+    try {
+      // Check database
+      await db.execute(sql`SELECT 1`);
+      health.checks.database = true;
+    } catch (error) {
+      health.status = 'degraded';
+    }
+
+    try {
+      // Check Redis
+      const redisClient = await getRedisClient();
+      if (redisClient && isRedisConnected()) {
+        await redisClient.ping();
+        health.checks.redis = true;
+      }
+    } catch (error) {
+      health.status = 'degraded';
+    }
+
+    const httpStatus = health.status === 'healthy' ? 200 : 503;
+    res.status(httpStatus).json(health);
   });
 
   // Initialization endpoint - check configuration and setup

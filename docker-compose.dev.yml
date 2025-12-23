@@ -21,7 +21,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-qrmenu}:${POSTGRES_PASSWORD:-qrmenu_password}@db:5432/${POSTGRES_DB:-qrmenu}
       - SESSION_SECRET=${SESSION_SECRET:-dev-session-secret-not-for-production}
       - BASE_URL=${BASE_URL:-http://localhost:5000}
-      - REDIS_URL=redis://redis:6379
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_dev_password}@redis:6379
     volumes:
       # Mount source code for hot reload
       - ./client:/app/client
@@ -63,7 +63,7 @@ services:
       start_period: 10s
 
   # ==========================================
-  # Redis Cache
+  # Redis Cache (with authentication)
   # ==========================================
   redis:
     image: redis:7-alpine
@@ -71,10 +71,11 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_dev_password}
     networks:
       - qrmenu-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis_dev_password}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5

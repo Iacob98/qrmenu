@@ -53,6 +53,27 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '10mb' })); // Increase limit for AI image uploads
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
+// Global error handlers for unhandled exceptions
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[Unhandled Rejection]', {
+    reason: reason instanceof Error ? reason.message : reason,
+    stack: reason instanceof Error ? reason.stack : undefined,
+  });
+  // Don't exit - let the process continue handling requests
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('[Uncaught Exception]', {
+    message: error.message,
+    stack: error.stack,
+  });
+  // For uncaught exceptions, we should exit gracefully
+  // Give time to finish pending requests
+  setTimeout(() => {
+    process.exit(1);
+  }, 1000);
+});
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -94,8 +115,14 @@ app.use((req, res, next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
+    // Log error without crashing the process
+    console.error('[Error Handler]', {
+      status,
+      message: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+    });
+
     res.status(status).json({ message });
-    throw err;
   });
 
   // importantly only setup vite in development and after

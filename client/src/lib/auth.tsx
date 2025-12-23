@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { apiRequest } from "./queryClient";
+import { queryClient } from "./queryClient";
 
 interface User {
   id: string;
@@ -17,6 +17,22 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
+
+// Clear user-specific data while preserving app settings (like language preference)
+const clearUserData = () => {
+  // Save language preference before clearing
+  const savedLanguage = localStorage.getItem('i18nextLng');
+
+  // Clear all cached data
+  queryClient.clear();
+  localStorage.clear();
+  sessionStorage.clear();
+
+  // Restore language preference
+  if (savedLanguage) {
+    localStorage.setItem('i18nextLng', savedLanguage);
+  }
+};
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -41,35 +57,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const login = async (email: string, password: string) => {
+    // Clear any cached data from previous session before logging in
+    clearUserData();
+
     const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({ email, password }),
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || "Login failed");
     }
-    
+
     const { user } = await response.json();
     setUser(user);
   };
 
   const register = async (email: string, password: string, name?: string) => {
+    // Clear any cached data from previous session before registering
+    clearUserData();
+
     const response = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({ email, password, name }),
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || "Registration failed");
     }
-    
+
     const { user } = await response.json();
     setUser(user);
   };
@@ -79,12 +101,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       method: "POST",
       credentials: "include",
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || "Logout failed");
     }
-    
+
+    // Clear all cached data to prevent data leakage between users
+    clearUserData();
+
     setUser(null);
   };
 
