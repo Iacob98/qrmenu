@@ -3,7 +3,7 @@ import express from "express";
 import path from "path";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertRestaurantSchema, insertCategorySchema, insertDishSchema, insertFeedbackSchema, feedback, type Dish, type Feedback } from "@shared/schema";
+import { insertUserSchema, insertRestaurantSchema, insertCategorySchema, insertDishSchema, insertFeedbackSchema, feedback, users, type Dish, type Feedback } from "@shared/schema";
 import { sql, eq } from "drizzle-orm";
 import { createAIService } from "./services/ai";
 import { qrService } from "./services/qr";
