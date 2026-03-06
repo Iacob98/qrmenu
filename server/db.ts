@@ -12,7 +12,7 @@ if (!process.env.DATABASE_URL) {
 // Optimized for 1000+ concurrent users
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false' } : false,
   max: parseInt(process.env.DB_POOL_MAX || '25', 10), // Maximum number of clients in the pool
   min: parseInt(process.env.DB_POOL_MIN || '5', 10), // Minimum number of clients to keep ready
   idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
@@ -25,13 +25,6 @@ pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
 });
 
-// Graceful shutdown
-process.on('SIGINT', () => {
-  pool.end(() => {
-    console.log('Pool has ended');
-    process.exit(0);
-  });
-});
-
+// Pool cleanup is handled by server/index.ts graceful shutdown
 export { pool };
 export const db = drizzle(pool, { schema });

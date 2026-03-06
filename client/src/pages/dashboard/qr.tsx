@@ -7,7 +7,14 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { Copy, Check, ExternalLink, Download, QrCode } from "lucide-react";
+import DOMPurify from "dompurify";
 import type { Restaurant } from "@shared/schema";
+
+const escapeHtml = (str: string) =>
+  str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+const sanitizeSvg = (svg: string) =>
+  DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true } });
 
 interface QRData {
   url: string;
@@ -59,7 +66,12 @@ export default function QRPage() {
 
   const openMenu = () => {
     if (!qrData?.url) return;
-    window.open(qrData.url, '_blank');
+    try {
+      const url = new URL(qrData.url, window.location.origin);
+      if (url.protocol === 'https:' || url.protocol === 'http:') {
+        window.open(url.toString(), '_blank', 'noopener,noreferrer');
+      }
+    } catch { /* invalid URL, ignore */ }
   };
 
   const downloadQR = (format: 'png' | 'svg') => {
@@ -142,15 +154,15 @@ export default function QRPage() {
       </head>
       <body>
         <div class="qr-container">
-          <h1>${restaurant.name}</h1>
+          <h1>${escapeHtml(restaurant.name)}</h1>
           <div class="qr-code">
-            ${qrData.qrCodeSVG}
+            ${sanitizeSvg(qrData.qrCodeSVG)}
           </div>
           <div class="instruction">
-            ${t('scanQRCode')}<br>
-            ${t('toOpenMenu')}
+            ${escapeHtml(t('scanQRCode'))}<br>
+            ${escapeHtml(t('toOpenMenu'))}
           </div>
-          <div class="url">${qrData.url}</div>
+          <div class="url">${escapeHtml(qrData.url)}</div>
         </div>
       </body>
       </html>
@@ -267,7 +279,7 @@ export default function QRPage() {
                   <CardContent className="text-center">
                     <div className="bg-white p-6 rounded-lg border inline-block">
                       <div 
-                        dangerouslySetInnerHTML={{ __html: qrData.qrCodeSVG }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeSvg(qrData.qrCodeSVG) }}
                         className="w-48 h-48 mx-auto"
                       />
                     </div>

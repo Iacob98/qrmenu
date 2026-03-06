@@ -46,6 +46,7 @@ export function FileUpload({
       const response = await fetch(`/api/upload/${endpoint}`, {
         method: 'POST',
         body: formData,
+        credentials: 'include',
       });
 
       if (!response.ok) {

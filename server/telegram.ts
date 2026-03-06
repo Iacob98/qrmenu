@@ -1,5 +1,10 @@
 import { fetchWithRetry } from "./utils/retry";
 
+// Escape HTML special characters for Telegram parse_mode: HTML
+function escTg(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
@@ -118,20 +123,18 @@ export async function sendFeedbackToTelegram(data: FeedbackData): Promise<boolea
     feature_request: "Feature Request"
   };
 
-  // Main message text
+  // Main message text — escape user-supplied fields
   const messageText = `
 ${typeEmojis[data.type]} <b>${typeLabels[data.type]}</b>
 
-<b>Title:</b> ${data.title}
+<b>Title:</b> ${escTg(data.title)}
 
 <b>Description:</b>
-${data.description}
+${escTg(data.description)}
 
-${data.email ? `<b>Contact:</b> ${data.email}` : ''}
-${data.userId ? `<b>User ID:</b> ${data.userId}` : ''}
+${data.email ? `<b>Contact:</b> ${escTg(data.email)}` : ''}
+${data.userId ? `<b>User ID:</b> ${escTg(data.userId)}` : ''}
 ${data.photos.length > 0 ? `<b>Photos:</b> ${data.photos.length} attached` : ''}
-
-${data.browserInfo ? `<b>Browser Info:</b> ${JSON.stringify(data.browserInfo, null, 2)}` : ''}
 
 📱 <i>Sent from QRMenu Dashboard</i>
 `.trim();

@@ -121,9 +121,6 @@ export default function FeedbackPage() {
           '/public-objects/$2'
         );
         
-        console.log(`[Upload] Original URL: ${uploadURL}`);
-        console.log(`[Upload] Public URL: ${publicUrl}`);
-        
         return {
           id: Math.random().toString(),
           url: publicUrl,

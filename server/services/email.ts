@@ -171,23 +171,23 @@ class SendGridEmailService implements EmailService {
 }
 
 class MockEmailService implements EmailService {
-  async sendVerificationEmail(email: string, token: string): Promise<void> {
-    const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
-    console.log(`📧 Mock email verification sent to: ${email}`);
-    console.log(`🔗 Verification link: ${baseUrl}/api/auth/verify-email?token=${token}`);
-    console.log(`⚠️  Using mock service. Set SENDGRID_API_KEY to send real emails.`);
+  async sendVerificationEmail(email: string, _token: string): Promise<void> {
+    console.warn(`[Email] SENDGRID_API_KEY not set — verification email to ${email} NOT sent`);
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error("Email service not configured");
+    }
   }
 
-  async sendPasswordResetEmail(email: string, token: string): Promise<void> {
-    const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
-    console.log(`📧 Mock password reset email sent to: ${email}`);
-    console.log(`🔗 Reset link: ${baseUrl}/api/auth/reset-password?token=${token}`);
-    console.log(`⚠️  Using mock service. Set SENDGRID_API_KEY to send real emails.`);
+  async sendPasswordResetEmail(email: string, _token: string): Promise<void> {
+    console.warn(`[Email] SENDGRID_API_KEY not set — password reset email to ${email} NOT sent`);
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error("Email service not configured");
+    }
   }
 }
 
-export const emailService: EmailService = process.env.SENDGRID_API_KEY 
-  ? new SendGridEmailService() 
+export const emailService: EmailService = process.env.SENDGRID_API_KEY
+  ? new SendGridEmailService()
   : new MockEmailService();
 
 export function generateVerificationToken(): string {

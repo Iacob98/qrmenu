@@ -66,11 +66,17 @@ export async function invalidateCache(pattern: string): Promise<number> {
   }
 
   try {
-    const keys = await redisClient.keys(pattern);
+    // Use SCAN instead of KEYS to avoid blocking Redis
+    const keys: string[] = [];
+    let cursor = 0;
+    do {
+      const result = await redisClient.scan(cursor, { MATCH: pattern, COUNT: 100 });
+      cursor = result.cursor;
+      keys.push(...result.keys);
+    } while (cursor !== 0);
 
     if (keys.length > 0) {
       await redisClient.del(keys);
-      console.log(`[Cache] Invalidated ${keys.length} keys matching "${pattern}"`);
       return keys.length;
     }
 

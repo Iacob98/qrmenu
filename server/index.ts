@@ -1,14 +1,22 @@
 import express, { type Request, Response, NextFunction } from "express";
+import helmet from "helmet";
 import compression from "compression";
 import { registerRoutes, setWebSocketManager } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { MenuWebSocketManager } from "./websocket";
 import bcrypt from "bcrypt";
 import { closeRedis } from "./redis";
+import { pool } from "./db";
 
 export let wsManager: MenuWebSocketManager;
 
 const app = express();
+
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: false, // Disabled for now — Vite injects inline scripts in dev
+  crossOriginEmbedderPolicy: false,
+}));
 
 // Compression middleware - reduces response size by ~70%
 app.use(compression({
@@ -33,7 +41,7 @@ app.use((req, res, next) => {
   // Allow requests from configured origins; localhost only in development
   const isAllowed = !origin ||
     (isDevelopment && isLocalhost) ||
-    allowedOrigins.some(allowed => origin.includes(allowed.trim()));
+    allowedOrigins.some(allowed => origin === allowed.trim() || origin === `https://${allowed.trim()}` || origin === `http://${allowed.trim()}`);
 
   if (isAllowed) {
     res.header('Access-Control-Allow-Origin', origin || '*');
@@ -151,6 +159,7 @@ app.use((req, res, next) => {
   const shutdown = async () => {
     log('Shutting down gracefully...');
     await closeRedis();
+    await pool.end();
     server.close(() => {
       log('Server closed');
       process.exit(0);

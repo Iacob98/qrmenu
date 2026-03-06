@@ -1,5 +1,10 @@
 import { MailService } from '@sendgrid/mail';
 
+// Escape HTML to prevent injection in email templates
+function escHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
 
 if (!SENDGRID_API_KEY) {
@@ -63,18 +68,18 @@ export async function sendFeedbackEmail(
       <h2 style="color: #1f2937;">${typeLabels[data.type] || "Feedback"}</h2>
       
       <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
-        <h3 style="margin-top: 0; color: #374151;">${data.title}</h3>
-        <p style="color: #6b7280; white-space: pre-wrap;">${data.description}</p>
-        
-        ${data.email ? `<p><strong>Contact:</strong> ${data.email}</p>` : ''}
-        ${data.userId ? `<p><strong>User ID:</strong> ${data.userId}</p>` : ''}
+        <h3 style="margin-top: 0; color: #374151;">${escHtml(data.title)}</h3>
+        <p style="color: #6b7280; white-space: pre-wrap;">${escHtml(data.description)}</p>
+
+        ${data.email ? `<p><strong>Contact:</strong> ${escHtml(data.email)}</p>` : ''}
+        ${data.userId ? `<p><strong>User ID:</strong> ${escHtml(data.userId)}</p>` : ''}
       </div>
       
       ${data.photos.length > 0 ? `
         <div style="margin: 20px 0;">
           <h4>Screenshots/Photos:</h4>
           ${data.photos.map((photo, index) => 
-            `<p><a href="${photo}" style="color: #3b82f6;">Photo ${index + 1}</a></p>`
+            `<p><a href="${escHtml(photo)}" style="color: #3b82f6;">Photo ${index + 1}</a></p>`
           ).join('')}
         </div>
       ` : ''}

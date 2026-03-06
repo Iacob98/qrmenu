@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 // Helper function to apply design settings immediately
@@ -52,6 +52,7 @@ function applyDesignSettings(design: any) {
 export function useRealTimeMenu(restaurantSlug: string) {
   const [ws, setWs] = useState<WebSocket | null>(null);
   const queryClient = useQueryClient();
+  const invalidateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!restaurantSlug) return;
@@ -116,8 +117,8 @@ export function useRealTimeMenu(restaurantSlug: string) {
             };
             
             // Debounce multiple rapid updates
-            clearTimeout((window as any).invalidateTimeout);
-            (window as any).invalidateTimeout = setTimeout(invalidateMenu, 100);
+            if (invalidateTimeoutRef.current) clearTimeout(invalidateTimeoutRef.current);
+            invalidateTimeoutRef.current = setTimeout(invalidateMenu, 100);
             
             console.log('✅ Menu data refresh scheduled');
           }
