@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { X, Upload, Wand2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -59,8 +60,10 @@ export function AddDishModal({
     protein: "",
     fat: "",
     carbs: "",
+    discountEnabled: false,
+    discountPrice: "",
   });
-  
+
   const { toast } = useToast();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -101,6 +104,8 @@ export function AddDishModal({
       protein: "",
       fat: "",
       carbs: "",
+      discountEnabled: false,
+      discountPrice: "",
     });
   };
 
@@ -121,12 +126,12 @@ export function AddDishModal({
       return await response.json();
     },
     onSuccess: (response: any) => {
-      console.log('[Generated Image] Response:', response);
+
       const imageUrl = response?.imageUrl;
       if (imageUrl) {
         setFormData(prev => ({ ...prev, image: imageUrl }));
         toast({ title: t('photoGenerated') });
-        console.log('[Generated Image] URL:', imageUrl);
+
       } else {
         toast({
           title: t('error'),
@@ -192,6 +197,8 @@ export function AddDishModal({
       tags: formData.tags.length > 0 ? formData.tags : undefined,
       image: formData.image || undefined,
       nutrition,
+      discountEnabled: formData.discountEnabled,
+      discountPrice: formData.discountEnabled && formData.discountPrice ? parseFloat(formData.discountPrice) : undefined,
     });
   };
 
@@ -243,6 +250,33 @@ export function AddDishModal({
                 required
               />
             </div>
+          </div>
+
+          {/* Discount Section */}
+          <div className="border rounded-lg p-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="discountEnabled">{t('discount')}</Label>
+              <Switch
+                id="discountEnabled"
+                checked={formData.discountEnabled}
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, discountEnabled: checked, discountPrice: checked ? prev.discountPrice : "" }))}
+              />
+            </div>
+            {formData.discountEnabled && (
+              <div>
+                <Label htmlFor="discountPrice" className="text-xs text-muted-foreground">{t('discountPrice')}</Label>
+                <Input
+                  id="discountPrice"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.discountPrice}
+                  onChange={(e) => setFormData(prev => ({ ...prev, discountPrice: e.target.value }))}
+                  placeholder={t('discountPricePlaceholder')}
+                  className="h-9"
+                />
+              </div>
+            )}
           </div>
           
           <div>

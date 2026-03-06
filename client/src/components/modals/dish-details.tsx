@@ -100,12 +100,26 @@ export function DishDetailsModal({ dish, currency, onClose }: DishDetailsModalPr
 
           {/* Price */}
           <div className="text-center">
-            <span
-              className="text-xl sm:text-2xl font-bold"
-              style={{ color: 'var(--primary, #22c55e)' }}
-            >
-              {getCurrencySymbol(currency)}{String(dish.price)}
-            </span>
+            {dish.discountEnabled && dish.discountPrice ? (
+              <div className="flex items-center justify-center gap-2">
+                <span
+                  className="text-xl sm:text-2xl font-bold"
+                  style={{ color: 'var(--primary, #22c55e)' }}
+                >
+                  {getCurrencySymbol(currency)}{String(dish.discountPrice)}
+                </span>
+                <span className="text-base sm:text-lg text-muted-foreground line-through">
+                  {getCurrencySymbol(currency)}{String(dish.price)}
+                </span>
+              </div>
+            ) : (
+              <span
+                className="text-xl sm:text-2xl font-bold"
+                style={{ color: 'var(--primary, #22c55e)' }}
+              >
+                {getCurrencySymbol(currency)}{String(dish.price)}
+              </span>
+            )}
           </div>
 
           {/* Description */}
