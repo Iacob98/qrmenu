@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 // Helper function to apply design settings immediately
 function applyDesignSettings(design: any) {
   const root = document.documentElement;
-  
+
   if (design.primaryColor) {
     root.style.setProperty('--primary', design.primaryColor);
     root.style.setProperty('--primary-600', design.primaryColor);
@@ -28,7 +28,7 @@ function applyDesignSettings(design: any) {
   if (design.fontSize) {
     const fontSizeMap: Record<string, string> = {
       small: '14px',
-      medium: '16px',  
+      medium: '16px',
       large: '18px'
     };
     const fontSize = fontSizeMap[design.fontSize as string] || '16px';
@@ -49,98 +49,115 @@ function applyDesignSettings(design: any) {
   }
 }
 
+const MAX_RECONNECT_DELAY = 30_000; // 30 seconds
+const BASE_RECONNECT_DELAY = 1_000; // 1 second
+
 export function useRealTimeMenu(restaurantSlug: string) {
-  const [ws, setWs] = useState<WebSocket | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
   const queryClient = useQueryClient();
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectAttemptRef = useRef(0);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const invalidateTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const unmountedRef = useRef(false);
 
-  useEffect(() => {
-    if (!restaurantSlug) return;
+  const connect = useCallback(() => {
+    if (unmountedRef.current || !restaurantSlug) return;
 
-    // Create WebSocket connection
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/ws?restaurant=${encodeURIComponent(restaurantSlug)}`;
-    
+
     const websocket = new WebSocket(wsUrl);
+    wsRef.current = websocket;
 
     websocket.onopen = () => {
-      console.log('🔌 Connected to real-time menu updates for:', restaurantSlug);
-      setWs(websocket);
+      setIsConnected(true);
+      reconnectAttemptRef.current = 0; // Reset backoff on successful connection
     };
 
     websocket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        
-        if (data.type === 'menu_update' || 
-            data.type === 'dish_updated' || 
-            data.type === 'dish_created' || 
+
+        if (data.type === 'connected') return;
+
+        if (data.type === 'menu_update' ||
+            data.type === 'dish_updated' ||
+            data.type === 'dish_created' ||
             data.type === 'dish_deleted' ||
             data.type === 'design_update' ||
-            data.type === 'restaurant_update' ||
-            data.type === 'connected') {
-          
-          console.log('📡 Received real-time menu update:', data);
-          
-          // Only invalidate for actual updates, not connection confirmation
-          if (data.type !== 'connected') {
-            
-            // For design updates, apply immediately to avoid flash
-            if (data.type === 'design_update' && data.design) {
-              console.log('🎨 Applying real-time design update:', data.design);
-              applyDesignSettings(data.design);
-            }
-            
-            // Throttle invalidations to avoid excessive refetching
-            const invalidateMenu = async () => {
-              try {
-                if (data.type === 'restaurant_update') {
-                  console.log('🏢 Restaurant data updated, forcing refresh:', data);
-                  queryClient.removeQueries({ 
-                    queryKey: ["/api/public/menu", restaurantSlug] 
-                  });
-                }
-                
-                await queryClient.invalidateQueries({ 
-                  queryKey: ["/api/public/menu", restaurantSlug] 
-                });
-                
-                // Only invalidate admin dashboard for relevant updates
-                if (data.type === 'restaurant_update' || data.type === 'design_update') {
-                  await queryClient.invalidateQueries({ 
-                    queryKey: ["/api/restaurants"] 
-                  });
-                }
-              } catch (error) {
-                console.error('Error invalidating queries:', error);
-              }
-            };
-            
-            // Debounce multiple rapid updates
-            clearTimeout((window as any).invalidateTimeout);
-            (window as any).invalidateTimeout = setTimeout(invalidateMenu, 100);
-            
-            console.log('✅ Menu data refresh scheduled');
+            data.type === 'restaurant_update') {
+
+          // For design updates, apply immediately to avoid flash
+          if (data.type === 'design_update' && data.design) {
+            applyDesignSettings(data.design);
           }
+
+          // Debounce query invalidation
+          clearTimeout(invalidateTimerRef.current);
+          invalidateTimerRef.current = setTimeout(async () => {
+            try {
+              if (data.type === 'restaurant_update') {
+                queryClient.removeQueries({
+                  queryKey: ["/api/public/menu", restaurantSlug]
+                });
+              }
+
+              await queryClient.invalidateQueries({
+                queryKey: ["/api/public/menu", restaurantSlug]
+              });
+
+              if (data.type === 'restaurant_update' || data.type === 'design_update') {
+                await queryClient.invalidateQueries({
+                  queryKey: ["/api/restaurants"]
+                });
+              }
+            } catch (error) {
+              console.error('Error invalidating queries:', error);
+            }
+          }, 100);
         }
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
       }
     };
 
-    websocket.onclose = () => {
-      console.log('❌ Disconnected from real-time menu updates');
-      setWs(null);
+    websocket.onclose = (event) => {
+      setIsConnected(false);
+      wsRef.current = null;
+
+      // Don't reconnect if intentionally closed or component unmounted
+      if (unmountedRef.current || event.code === 1000) return;
+
+      // Exponential backoff reconnect
+      const delay = Math.min(
+        BASE_RECONNECT_DELAY * Math.pow(2, reconnectAttemptRef.current),
+        MAX_RECONNECT_DELAY
+      );
+      reconnectAttemptRef.current++;
+
+      reconnectTimerRef.current = setTimeout(connect, delay);
     };
 
-    websocket.onerror = (error) => {
-      console.error('🚨 WebSocket error:', error);
-      setWs(null);
-    };
-
-    return () => {
-      websocket.close();
+    websocket.onerror = () => {
+      // onclose will fire after onerror, reconnection handled there
+      setIsConnected(false);
     };
   }, [restaurantSlug, queryClient]);
 
-  return { isConnected: !!ws };
+  useEffect(() => {
+    unmountedRef.current = false;
+    connect();
+
+    return () => {
+      unmountedRef.current = true;
+      clearTimeout(reconnectTimerRef.current);
+      clearTimeout(invalidateTimerRef.current);
+      if (wsRef.current) {
+        wsRef.current.close(1000); // Normal closure
+      }
+    };
+  }, [connect]);
+
+  return { isConnected };
 }

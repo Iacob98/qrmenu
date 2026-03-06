@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const response = await fetch("/api/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-CSRF-Protection": "1" },
       credentials: "include",
       body: JSON.stringify({ email, password }),
     });
@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const response = await fetch("/api/auth/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-CSRF-Protection": "1" },
       credentials: "include",
       body: JSON.stringify({ email, password, name }),
     });
@@ -101,6 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     const response = await fetch("/api/auth/logout", {
       method: "POST",
+      headers: { "X-CSRF-Protection": "1" },
       credentials: "include",
     });
 
@@ -118,6 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const markOnboarded = async () => {
     const response = await fetch("/api/auth/onboarded", {
       method: "PATCH",
+      headers: { "X-CSRF-Protection": "1" },
       credentials: "include",
     });
 

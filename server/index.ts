@@ -41,7 +41,7 @@ app.use((req, res, next) => {
   }
 
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,Authorization');
+  res.header('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,Authorization,X-CSRF-Protection');
 
   if (req.method === 'OPTIONS') {
     res.sendStatus(200);
@@ -52,6 +52,29 @@ app.use((req, res, next) => {
 
 app.use(express.json({ limit: '10mb' })); // Increase limit for AI image uploads
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+
+// CSRF protection via custom header
+// All mutating API requests must include X-CSRF-Protection header.
+// Custom headers trigger CORS preflight, so cross-origin requests from
+// unauthorized origins are blocked by the browser before they reach the server.
+app.use('/api', (req, res, next) => {
+  const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
+  if (safeMethods.includes(req.method)) {
+    return next();
+  }
+
+  // Public endpoints that don't require CSRF (no session mutation)
+  const publicPaths = ['/api/feedback'];
+  if (publicPaths.some(p => req.path.startsWith(p))) {
+    return next();
+  }
+
+  if (req.headers['x-csrf-protection'] !== '1') {
+    return res.status(403).json({ message: 'CSRF validation failed' });
+  }
+
+  next();
+});
 
 // Global error handlers for unhandled exceptions
 process.on('unhandledRejection', (reason, promise) => {
@@ -107,8 +130,9 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
   
-  // Initialize WebSocket manager
-  wsManager = new MenuWebSocketManager(server);
+  // Initialize WebSocket manager with allowed origins for Origin validation
+  const wsAllowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+  wsManager = new MenuWebSocketManager(server, wsAllowedOrigins);
   setWebSocketManager(wsManager);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -150,6 +174,7 @@ app.use((req, res, next) => {
   // Graceful shutdown handler
   const shutdown = async () => {
     log('Shutting down gracefully...');
+    wsManager.close();
     await closeRedis();
     server.close(() => {
       log('Server closed');

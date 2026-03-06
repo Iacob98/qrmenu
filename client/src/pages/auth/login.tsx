@@ -43,6 +43,7 @@ export default function Login() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-CSRF-Protection": "1",
         },
         credentials: "include",
         body: JSON.stringify(data),

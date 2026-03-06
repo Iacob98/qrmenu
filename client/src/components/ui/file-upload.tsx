@@ -45,7 +45,9 @@ export function FileUpload({
 
       const response = await fetch(`/api/upload/${endpoint}`, {
         method: 'POST',
+        headers: { "X-CSRF-Protection": "1" },
         body: formData,
+        credentials: "include",
       });
 
       if (!response.ok) {
