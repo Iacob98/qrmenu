@@ -418,7 +418,7 @@ export default function MenuManagement() {
             open={editFavoritesTitleOpen}
             onOpenChange={setEditFavoritesTitleOpen}
             restaurantId={selectedRestaurant}
-            currentTitle={restaurant?.favoritesTitle || "Избранное"}
+            currentTitle={restaurant?.favoritesTitle || t('favorites')}
           />
         </>
       )}

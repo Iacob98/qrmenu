@@ -113,14 +113,32 @@ export class DatabaseStorage implements IStorage {
     // Generate slug from restaurant name
     const slug = this.generateSlug(restaurantData.name);
 
+    // Set default favoritesTitle based on restaurant language
+    const favoritesTitle = restaurantData.favoritesTitle || this.getDefaultFavoritesTitle(restaurantData.language || 'ru');
+
     const [restaurant] = await db
       .insert(restaurants)
       .values(encryptRestaurantData({
         ...restaurantData,
         slug,
+        favoritesTitle,
       }))
       .returning();
     return decryptRestaurant(restaurant);
+  }
+
+  private getDefaultFavoritesTitle(language: string): string {
+    const titles: Record<string, string> = {
+      ru: 'Избранное',
+      en: 'Favorites',
+      de: 'Favoriten',
+      fr: 'Favoris',
+      es: 'Favoritos',
+      it: 'Preferiti',
+      tr: 'Favoriler',
+      uk: 'Вибране',
+    };
+    return titles[language] || titles['en'];
   }
 
   private generateSlug(name: string): string {
