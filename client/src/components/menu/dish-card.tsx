@@ -84,10 +84,24 @@ export function DishCard({
               {dish.isFavorite && <span className="ml-1 text-red-500">❤️</span>}
               {dish.isHidden && <span className="ml-1 text-gray-400">👁️‍🗨️</span>}
             </h3>
-            <span className="font-bold text-lg text-right flex-shrink-0" style={{ color: 'var(--primary, #1f2937)' }}>
-              {currency === "EUR" ? "€" : currency === "USD" ? "$" : currency === "PLN" ? "zł" : currency === "MDL" ? "lei" : ""}
-              {dish.price}
-            </span>
+            <div className="text-right flex-shrink-0">
+              {dish.discountEnabled && dish.discountPrice ? (
+                <>
+                  <span className="font-bold text-lg" style={{ color: 'var(--primary, #1f2937)' }}>
+                    {currency === "EUR" ? "€" : currency === "USD" ? "$" : currency === "PLN" ? "zł" : currency === "MDL" ? "lei" : ""}
+                    {dish.discountPrice}
+                  </span>
+                  <span className="text-sm text-muted-foreground line-through ml-1">
+                    {dish.price}
+                  </span>
+                </>
+              ) : (
+                <span className="font-bold text-lg" style={{ color: 'var(--primary, #1f2937)' }}>
+                  {currency === "EUR" ? "€" : currency === "USD" ? "$" : currency === "PLN" ? "zł" : currency === "MDL" ? "lei" : ""}
+                  {dish.price}
+                </span>
+              )}
+            </div>
           </div>
 
           {dish.description && (

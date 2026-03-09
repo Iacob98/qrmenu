@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { X, Wand2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -64,6 +65,8 @@ export function EditDishModal({
     protein: "",
     fat: "",
     carbs: "",
+    discountEnabled: false,
+    discountPrice: "",
   });
 
   // Update form data when dish changes
@@ -83,6 +86,8 @@ export function EditDishModal({
         protein: nutrition?.protein?.toString() || "",
         fat: nutrition?.fat?.toString() || "",
         carbs: nutrition?.carbs?.toString() || "",
+        discountEnabled: dish.discountEnabled ?? false,
+        discountPrice: dish.discountPrice?.toString() || "",
       });
     }
   }, [dish, open]);
@@ -128,7 +133,7 @@ export function EditDishModal({
       return await response.json();
     },
     onSuccess: (response: any) => {
-      console.log('[Generated Image] Response:', response);
+
       const imageUrl = response?.imageUrl;
       const remainingGenerations = response?.remainingGenerations;
       
@@ -142,7 +147,7 @@ export function EditDishModal({
         }
         
         toast({ title: toastMessage });
-        console.log('[Generated Image] URL:', imageUrl);
+
       } else {
         toast({
           title: t('error'),
@@ -269,6 +274,8 @@ export function EditDishModal({
       tags: formData.tags.length > 0 ? formData.tags : null,
       image: formData.image || null,
       nutrition,
+      discountEnabled: formData.discountEnabled,
+      discountPrice: formData.discountEnabled && formData.discountPrice ? parseFloat(formData.discountPrice) : null,
     });
   };
 
@@ -323,7 +330,34 @@ export function EditDishModal({
               />
             </div>
           </div>
-          
+
+          {/* Discount Section */}
+          <div className="border rounded-lg p-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="edit-discountEnabled">{t('discount')}</Label>
+              <Switch
+                id="edit-discountEnabled"
+                checked={formData.discountEnabled}
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, discountEnabled: checked, discountPrice: checked ? prev.discountPrice : "" }))}
+              />
+            </div>
+            {formData.discountEnabled && (
+              <div>
+                <Label htmlFor="edit-discountPrice" className="text-xs text-muted-foreground">{t('discountPrice')}</Label>
+                <Input
+                  id="edit-discountPrice"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.discountPrice}
+                  onChange={(e) => setFormData(prev => ({ ...prev, discountPrice: e.target.value }))}
+                  placeholder={t('discountPricePlaceholder')}
+                  className="h-9"
+                />
+              </div>
+            )}
+          </div>
+
           <div>
             <Label htmlFor="category">{t('category')}</Label>
             <Select

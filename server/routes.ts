@@ -32,6 +32,15 @@ const handleError = (error: unknown): string => {
   return error instanceof Error ? error.message : "An unexpected error occurred";
 };
 
+// Strip sensitive fields from restaurant objects before sending to client
+const stripSensitiveRestaurantFields = (restaurant: any) => {
+  const { aiToken, ...safe } = restaurant;
+  return { ...safe, hasAiToken: !!aiToken };
+};
+
+const stripSensitiveRestaurantArray = (restaurants: any[]) =>
+  restaurants.map(stripSensitiveRestaurantFields);
+
 let menuWebSocketManager: MenuWebSocketManager;
 
 export function setWebSocketManager(wsManager: MenuWebSocketManager) {
@@ -59,7 +68,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const SUPABASE_INTERNAL_URL = process.env.SUPABASE_URL || 'http://supabase-kong:8000';
   app.use('/storage', async (req, res) => {
     try {
-      const targetUrl = `${SUPABASE_INTERNAL_URL}/storage${req.url}`;
+      // Validate URL to prevent SSRF — only allow /v1/object/public/ paths
+      const normalizedPath = req.url.replace(/\.\./g, '');
+      if (!normalizedPath.startsWith('/v1/object/public/')) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+      const targetUrl = `${SUPABASE_INTERNAL_URL}/storage${normalizedPath}`;
       const response = await fetch(targetUrl, {
         method: req.method,
         headers: {
@@ -124,6 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   app.use(session({
+    name: 'qrmenu.sid',
     secret: sessionSecret || require('crypto').randomBytes(32).toString('hex'),
     resave: false,
     saveUninitialized: false,
@@ -160,7 +175,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Hash password
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 12);
       
       // Create user (email verification disabled)
       const user = await storage.createUser({
@@ -172,23 +187,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         emailVerificationExpires: null,
       });
 
-      // Set session (user can use app while unverified)
-      req.session.userId = user.id;
-      
-      // Save session and respond
-      req.session.save((err) => {
-        if (err) {
-          console.error('Session save error:', err);
-          return res.status(500).json({ message: "Session save failed" });
+      // Regenerate session to prevent session fixation
+      req.session.regenerate((regenerateErr) => {
+        if (regenerateErr) {
+          console.error('Session regenerate error:', regenerateErr);
+          return res.status(500).json({ message: "Session error" });
         }
-        res.json({ 
-          user: { 
-            id: user.id, 
-            email: user.email, 
-            name: user.name,
-            emailVerified: user.emailVerified 
-          },
-          message: "Registration successful! You can now access all features."
+        req.session.userId = user.id;
+        req.session.save((err) => {
+          if (err) {
+            console.error('Session save error:', err);
+            return res.status(500).json({ message: "Session save failed" });
+          }
+          res.json({
+            user: {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              emailVerified: user.emailVerified
+            },
+            message: "Registration successful! You can now access all features."
+          });
         });
       });
     } catch (error) {
@@ -214,21 +233,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      req.session.userId = user.id;
-
-      // Save session and respond
-      req.session.save((err) => {
-        if (err) {
-          console.error('[Auth] Session save error');
-          return res.status(500).json({ message: "Session save failed" });
+      // Regenerate session to prevent session fixation
+      req.session.regenerate((regenerateErr) => {
+        if (regenerateErr) {
+          console.error('[Auth] Session regenerate error');
+          return res.status(500).json({ message: "Session error" });
         }
-        res.json({
-          user: {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            emailVerified: user.emailVerified
+        req.session.userId = user.id;
+        req.session.save((err) => {
+          if (err) {
+            console.error('[Auth] Session save error');
+            return res.status(500).json({ message: "Session save failed" });
           }
+          res.json({
+            user: {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              emailVerified: user.emailVerified
+            }
+          });
         });
       });
     } catch (error) {
@@ -287,7 +311,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/restaurants", requireAuth, async (req, res) => {
     try {
       const restaurants = await storage.getRestaurantsByUserId(req.session.userId!);
-      res.json(restaurants);
+      res.json(stripSensitiveRestaurantArray(restaurants));
     } catch (error) {
       res.status(500).json({ message: handleError(error) });
     }
@@ -296,6 +320,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/restaurants/:id/favorites-title", requireAuth, async (req, res) => {
     try {
       const { favoritesTitle } = req.body;
+      if (typeof favoritesTitle !== "string" || favoritesTitle.length > 100) {
+        return res.status(400).json({ message: "Invalid favorites title" });
+      }
       const restaurant = await storage.getRestaurant(req.params.id);
       
       if (!restaurant || restaurant.userId !== req.session.userId) {
@@ -313,7 +340,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      res.json(updatedRestaurant);
+      res.json(stripSensitiveRestaurantFields(updatedRestaurant));
     } catch (error) {
       res.status(500).json({ message: handleError(error) });
     }
@@ -335,7 +362,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updatedRestaurant = await storage.updateRestaurant(req.params.id, { language });
-      res.json(updatedRestaurant);
+      res.json(stripSensitiveRestaurantFields(updatedRestaurant));
     } catch (error) {
       res.status(500).json({ message: handleError(error) });
     }
@@ -354,7 +381,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...restaurantData,
         userId: req.session.userId!,
       });
-      res.status(201).json(restaurant);
+      res.status(201).json(stripSensitiveRestaurantFields(restaurant));
     } catch (error) {
       res.status(400).json({ message: handleError(error) });
     }
@@ -366,7 +393,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!restaurant || restaurant.userId !== req.session.userId) {
         return res.status(404).json({ message: "Restaurant not found" });
       }
-      res.json(restaurant);
+      res.json(stripSensitiveRestaurantFields(restaurant));
     } catch (error) {
       res.status(500).json({ message: handleError(error) });
     }
@@ -386,9 +413,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         (lang: string) => !oldTargetLanguages.includes(lang)
       );
 
-      console.log(`[Restaurant Update] Received data:`, JSON.stringify(req.body, null, 2));
-      const updatedRestaurant = await storage.updateRestaurant(req.params.id, req.body);
-      console.log(`[Restaurant Update] Updated result:`, JSON.stringify(updatedRestaurant, null, 2));
+      // Whitelist allowed fields to prevent mass assignment
+      const allowedFields = ['name', 'city', 'phone', 'currency', 'language', 'targetLanguages', 'logo', 'banner', 'design', 'aiProvider', 'aiToken', 'aiModel', 'favoritesTitle'];
+      const sanitizedData: Record<string, any> = {};
+      for (const key of allowedFields) {
+        if (key in req.body) {
+          sanitizedData[key] = req.body[key];
+        }
+      }
+
+      const updatedRestaurant = await storage.updateRestaurant(req.params.id, sanitizedData);
 
       // Invalidate cache for this restaurant's public menu
       if (restaurant.slug) {
@@ -428,7 +462,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Return updated restaurant with optional translation job ID
       res.json({
-        ...updatedRestaurant,
+        ...stripSensitiveRestaurantFields(updatedRestaurant),
         translationJobId
       });
     } catch (error) {
@@ -658,7 +692,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const category = await storage.getCategory(dish.categoryId);
-      const restaurant = await storage.getRestaurant(category!.restaurantId);
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      const restaurant = await storage.getRestaurant(category.restaurantId);
       if (!restaurant || restaurant.userId !== req.session.userId) {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -673,13 +710,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         tags: req.body.tags || null,
         image: req.body.image || null,
         nutrition: req.body.nutrition || null,
+        discountEnabled: req.body.discountEnabled ?? false,
+        discountPrice: req.body.discountEnabled && req.body.discountPrice ? req.body.discountPrice : null,
       };
 
-      console.log('[Dish Update] Request body:', JSON.stringify(req.body, null, 2));
-      console.log('[Dish Update] Update data:', JSON.stringify(updateData, null, 2));
-
       const updatedDish = await storage.updateDish(req.params.id, updateData);
-      console.log('[Dish Update] Updated dish:', JSON.stringify(updatedDish, null, 2));
 
       // Check if translatable fields changed and re-translate
       const translatableFieldsChanged =
@@ -743,7 +778,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const category = await storage.getCategory(dish.categoryId);
-      const restaurant = await storage.getRestaurant(category!.restaurantId);
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      const restaurant = await storage.getRestaurant(category.restaurantId);
       if (!restaurant || restaurant.userId !== req.session.userId) {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -769,13 +807,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/dishes/:id/favorite", requireAuth, async (req, res) => {
     try {
       const { isFavorite } = req.body;
+      if (typeof isFavorite !== "boolean") {
+        return res.status(400).json({ message: "isFavorite must be a boolean" });
+      }
       const dish = await storage.getDish(req.params.id);
       if (!dish) {
         return res.status(404).json({ message: "Dish not found" });
       }
 
       const category = await storage.getCategory(dish.categoryId);
-      const restaurant = await storage.getRestaurant(category!.restaurantId);
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      const restaurant = await storage.getRestaurant(category.restaurantId);
       if (!restaurant || restaurant.userId !== req.session.userId) {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -804,13 +848,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/dishes/:id/visibility", requireAuth, async (req, res) => {
     try {
       const { isHidden } = req.body;
+      if (typeof isHidden !== "boolean") {
+        return res.status(400).json({ message: "isHidden must be a boolean" });
+      }
       const dish = await storage.getDish(req.params.id);
       if (!dish) {
         return res.status(404).json({ message: "Dish not found" });
       }
 
       const category = await storage.getCategory(dish.categoryId);
-      const restaurant = await storage.getRestaurant(category!.restaurantId);
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+      const restaurant = await storage.getRestaurant(category.restaurantId);
       if (!restaurant || restaurant.userId !== req.session.userId) {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -950,7 +1000,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/ai/analyze-text", requireAuth, getAiLimiter(), async (req, res) => {
     try {
       const { restaurantId, text } = req.body;
-      
+
+      // Limit input size to prevent excessive API costs
+      if (typeof text === "string" && text.length > 50000) {
+        return res.status(400).json({ message: "Text too long (max 50,000 characters)" });
+      }
+
       const restaurant = await storage.getRestaurant(restaurantId);
       if (!restaurant || restaurant.userId !== req.session.userId) {
         return res.status(404).json({ message: "Restaurant not found" });
@@ -1046,8 +1101,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/upload", requireAuth, async (req, res) => {
     try {
       const { url } = req.body;
-      if (!url) {
+      if (!url || typeof url !== "string") {
         return res.status(400).json({ message: "File URL is required" });
+      }
+
+      // Verify that the file belongs to one of the user's restaurants
+      const userRestaurants = await storage.getRestaurantsByUserId(req.session.userId!);
+      const isOwnedFile = userRestaurants.some(r =>
+        r.logo === url || r.banner === url
+      );
+
+      if (!isOwnedFile) {
+        // Also check dishes
+        let isDishFile = false;
+        for (const r of userRestaurants) {
+          const restaurantData = await storage.getRestaurantWithCategories(r.id);
+          if (restaurantData?.categories.some(c => c.dishes.some(d => d.image === url))) {
+            isDishFile = true;
+            break;
+          }
+        }
+        if (!isDishFile) {
+          return res.status(403).json({ message: "Access denied" });
+        }
       }
 
       await deleteUploadedFile(url);
@@ -1289,13 +1365,21 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
   });
 
   // Search dishes
-  app.get("/api/restaurants/:id/search", async (req, res) => {
+  app.get("/api/restaurants/:id/search", requireAuth, async (req, res) => {
     try {
+      const restaurant = await storage.getRestaurant(req.params.id);
+      if (!restaurant || restaurant.userId !== req.session.userId) {
+        return res.status(404).json({ message: "Restaurant not found" });
+      }
+
       const { q: query, tags } = req.query;
+      if (!query || typeof query !== "string") {
+        return res.status(400).json({ message: "Query parameter 'q' is required" });
+      }
       const tagsArray = tags ? (Array.isArray(tags) ? tags : [tags]) : undefined;
-      
-      const dishes = await storage.searchDishes(req.params.id, query as string, tagsArray as string[]);
-      res.json(dishes);
+
+      const results = await storage.searchDishes(req.params.id, query, tagsArray as string[]);
+      res.json(results);
     } catch (error) {
       res.status(500).json({ message: handleError(error) });
     }
@@ -1459,6 +1543,11 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
 
   // Initialization endpoint - check configuration and setup
   app.get("/api/init", async (req, res) => {
+    // Return minimal info for unauthenticated requests (used by healthcheck)
+    if (!req.session?.userId) {
+      return res.json({ configured: true, status: "ok" });
+    }
+
     const status = {
       configured: true,
       database: { connected: false, message: "" },

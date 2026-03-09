@@ -2,6 +2,7 @@ import { type User, type InsertUser, type Restaurant, type InsertRestaurant, typ
 import { randomUUID } from "crypto";
 import { db } from "./db";
 import { eq, and, or, ilike, asc, sql } from "drizzle-orm";
+import { encryptToken, decryptToken } from "./utils/crypto";
 
 export interface IStorage {
   // User operations
@@ -42,6 +43,22 @@ export interface IStorage {
 
 
 
+// Decrypt aiToken when reading restaurant from DB
+function decryptRestaurant<T extends { aiToken?: string | null }>(r: T): T {
+  if (r && r.aiToken) {
+    return { ...r, aiToken: decryptToken(r.aiToken) };
+  }
+  return r;
+}
+
+// Encrypt aiToken when writing restaurant to DB
+function encryptRestaurantData<T extends { aiToken?: string | null }>(data: T): T {
+  if (data && data.aiToken) {
+    return { ...data, aiToken: encryptToken(data.aiToken) };
+  }
+  return data;
+}
+
 export class DatabaseStorage implements IStorage {
   // User operations
   async getUser(id: string): Promise<User | undefined> {
@@ -79,30 +96,31 @@ export class DatabaseStorage implements IStorage {
   // Restaurant operations
   async getRestaurant(id: string): Promise<Restaurant | undefined> {
     const [restaurant] = await db.select().from(restaurants).where(eq(restaurants.id, id));
-    return restaurant || undefined;
+    return restaurant ? decryptRestaurant(restaurant) : undefined;
   }
 
   async getRestaurantBySlug(slug: string): Promise<Restaurant | undefined> {
     const [restaurant] = await db.select().from(restaurants).where(eq(restaurants.slug, slug));
-    return restaurant || undefined;
+    return restaurant ? decryptRestaurant(restaurant) : undefined;
   }
 
   async getRestaurantsByUserId(userId: string): Promise<Restaurant[]> {
-    return await db.select().from(restaurants).where(eq(restaurants.userId, userId));
+    const results = await db.select().from(restaurants).where(eq(restaurants.userId, userId));
+    return results.map(decryptRestaurant);
   }
 
   async createRestaurant(restaurantData: InsertRestaurant & { userId: string }): Promise<Restaurant> {
     // Generate slug from restaurant name
     const slug = this.generateSlug(restaurantData.name);
-    
+
     const [restaurant] = await db
       .insert(restaurants)
-      .values({
+      .values(encryptRestaurantData({
         ...restaurantData,
         slug,
-      })
+      }))
       .returning();
-    return restaurant;
+    return decryptRestaurant(restaurant);
   }
 
   private generateSlug(name: string): string {
@@ -116,10 +134,10 @@ export class DatabaseStorage implements IStorage {
   async updateRestaurant(id: string, restaurantData: Partial<Restaurant>): Promise<Restaurant> {
     const [restaurant] = await db
       .update(restaurants)
-      .set(restaurantData)
+      .set(encryptRestaurantData(restaurantData))
       .where(eq(restaurants.id, id))
       .returning();
-    return restaurant;
+    return decryptRestaurant(restaurant);
   }
 
   async deleteRestaurant(id: string): Promise<void> {
@@ -297,20 +315,30 @@ export class DatabaseStorage implements IStorage {
   }
 
   async searchDishes(restaurantId: string, query: string, tags?: string[]): Promise<Dish[]> {
-    // This is a simplified search - in production you'd want full-text search
-    let whereCondition = eq(dishes.categoryId, restaurantId);
-    
-    if (query) {
-      whereCondition = and(
-        whereCondition,
-        or(
-          ilike(dishes.name, `%${query}%`),
-          ilike(dishes.description, `%${query}%`)
-        )
-      ) as any;
-    }
+    // Get category IDs for this restaurant first
+    const restaurantCategories = await this.getCategoriesByRestaurantId(restaurantId);
+    if (restaurantCategories.length === 0) return [];
 
-    return await db.select().from(dishes).where(whereCondition);
+    const categoryIds = restaurantCategories.map(c => c.id);
+
+    // Escape ILIKE wildcards in user input
+    const escapeIlike = (str: string) => str.replace(/%/g, '\\%').replace(/_/g, '\\_');
+    const safeQuery = escapeIlike(query);
+
+    const results = await db
+      .select()
+      .from(dishes)
+      .where(
+        and(
+          sql`${dishes.categoryId} IN (${sql.join(categoryIds.map(id => sql`${id}`), sql`, `)})`,
+          or(
+            ilike(dishes.name, `%${safeQuery}%`),
+            ilike(dishes.description, `%${safeQuery}%`)
+          )
+        )
+      );
+
+    return results;
   }
 }
 

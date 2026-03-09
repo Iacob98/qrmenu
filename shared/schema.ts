@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, decimal, boolean, integer, timestamp, jsonb, index } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, decimal, boolean, integer, timestamp, jsonb, index, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -28,6 +28,7 @@ export const users = pgTable("users", {
   emailVerificationExpires: timestamp("email_verification_expires"),
   onboarded: boolean("onboarded").default(false),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => ({
   emailIdx: index("users_email_idx").on(table.email),
   emailVerificationTokenIdx: index("users_email_verification_token_idx").on(table.emailVerificationToken),
@@ -51,6 +52,7 @@ export const restaurants = pgTable("restaurants", {
   banner: text("banner"),
   design: jsonb("design"),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => ({
   userIdIdx: index("restaurants_user_id_idx").on(table.userId),
   slugIdx: index("restaurants_slug_idx").on(table.slug),
@@ -64,6 +66,7 @@ export const categories = pgTable("categories", {
   icon: text("icon"),
   translations: jsonb("translations").$type<CategoryTranslations>(), // { [lang]: { name } }
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => ({
   restaurantIdIdx: index("categories_restaurant_id_idx").on(table.restaurantId),
   sortOrderIdx: index("categories_sort_order_idx").on(table.sortOrder),
@@ -83,11 +86,15 @@ export const dishes = pgTable("dishes", {
   available: boolean("available").default(true),
   isFavorite: boolean("is_favorite").default(false),
   isHidden: boolean("is_hidden").default(false),
+  discountEnabled: boolean("discount_enabled").default(false),
+  discountPrice: decimal("discount_price", { precision: 10, scale: 2 }),
   sortOrder: integer("sort_order").default(0),
   imageGenerationsCount: integer("image_generations_count").default(0), // Track image generation count
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => ({
   categoryIdIdx: index("dishes_category_id_idx").on(table.categoryId),
+  categoryNameIdx: uniqueIndex("dishes_category_id_name_idx").on(table.categoryId, table.name),
   sortOrderIdx: index("dishes_sort_order_idx").on(table.sortOrder),
   isFavoriteIdx: index("dishes_is_favorite_idx").on(table.isFavorite),
   isHiddenIdx: index("dishes_is_hidden_idx").on(table.isHidden),
@@ -108,7 +115,7 @@ export const translationCache = pgTable("translation_cache", {
   updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => ({
   // Unique constraint for hash + target language + field type
-  contentHashLangTypeIdx: index("translation_cache_hash_lang_type_idx").on(table.contentHash, table.targetLang, table.fieldType),
+  contentHashLangTypeIdx: uniqueIndex("translation_cache_hash_lang_type_idx").on(table.contentHash, table.targetLang, table.fieldType),
   contentHashIdx: index("translation_cache_content_hash_idx").on(table.contentHash),
 }));
 
@@ -136,6 +143,9 @@ export const feedback = pgTable("feedback", {
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
+}).extend({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters").max(128),
 });
 
 export const insertRestaurantSchema = createInsertSchema(restaurants).omit({

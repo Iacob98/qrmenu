@@ -72,7 +72,7 @@ export function useRealTimeMenu(restaurantSlug: string) {
 
     websocket.onopen = () => {
       setIsConnected(true);
-      reconnectAttemptRef.current = 0; // Reset backoff on successful connection
+      reconnectAttemptRef.current = 0;
     };
 
     websocket.onmessage = (event) => {

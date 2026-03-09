@@ -13,8 +13,8 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=5000
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-qrmenu}:${POSTGRES_PASSWORD:-qrmenu_password}@db:5432/${POSTGRES_DB:-qrmenu}
-      - SESSION_SECRET=${SESSION_SECRET:-change-this-to-a-secure-random-string-min-32-chars}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-qrmenu}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@db:5432/${POSTGRES_DB:-qrmenu}
+      - SESSION_SECRET=${SESSION_SECRET:?SESSION_SECRET is required}
       - BASE_URL=${BASE_URL:-https://dinelink.info}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-https://dinelink.info}
       # Supabase Storage
@@ -33,7 +33,7 @@ services:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       - REPLICATE_API_TOKEN=${REPLICATE_API_TOKEN:-}
       # Redis (with authentication)
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_secure_password_change_me}@redis:6379
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379
       # Proxy settings (for Cloudflare/nginx)
       - TRUST_PROXY=${TRUST_PROXY:-false}
       - COOKIE_SECURE=${COOKIE_SECURE:-false}
@@ -62,15 +62,14 @@ services:
     image: redis:7-alpine
     container_name: qrmenu-redis
     restart: unless-stopped
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
+    # ports removed — Redis only accessible within Docker network
     volumes:
       - redis_data:/data
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru --requirepass ${REDIS_PASSWORD:-redis_secure_password_change_me}
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
     networks:
       - qrmenu-network
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis_secure_password_change_me}", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:?REDIS_PASSWORD is required}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -85,12 +84,11 @@ services:
     restart: unless-stopped
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-qrmenu}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-qrmenu_password}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       - POSTGRES_DB=${POSTGRES_DB:-qrmenu}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "${DB_PORT:-5432}:5432"
+    # ports removed — DB only accessible within Docker network
     networks:
       - qrmenu-network
     healthcheck:
@@ -108,14 +106,13 @@ services:
     container_name: qrmenu-supabase-db
     restart: unless-stopped
     environment:
-      POSTGRES_PASSWORD: ${SUPABASE_DB_PASSWORD:-your-super-secret-supabase-password}
+      POSTGRES_PASSWORD: ${SUPABASE_DB_PASSWORD:?SUPABASE_DB_PASSWORD is required}
       POSTGRES_DB: postgres
-      JWT_SECRET: ${SUPABASE_JWT_SECRET:-your-super-secret-jwt-token-with-at-least-32-characters-long}
+      JWT_SECRET: ${SUPABASE_JWT_SECRET:?SUPABASE_JWT_SECRET is required}
       JWT_EXP: 3600
     volumes:
       - supabase_db_data:/var/lib/postgresql/data
-    ports:
-      - "${SUPABASE_DB_PORT:-5433}:5432"
+    # ports removed — Supabase DB only accessible within Docker network
     networks:
       - qrmenu-network
     healthcheck:
@@ -142,10 +139,10 @@ services:
       supabase-db:
         condition: service_healthy
     environment:
-      PGRST_DB_URI: postgres://postgres:${SUPABASE_DB_PASSWORD:-your-super-secret-supabase-password}@supabase-db:5432/postgres
+      PGRST_DB_URI: postgres://postgres:${SUPABASE_DB_PASSWORD:?SUPABASE_DB_PASSWORD is required}@supabase-db:5432/postgres
       PGRST_DB_SCHEMAS: public,storage
       PGRST_DB_ANON_ROLE: anon
-      PGRST_JWT_SECRET: ${SUPABASE_JWT_SECRET:-your-super-secret-jwt-token-with-at-least-32-characters-long}
+      PGRST_JWT_SECRET: ${SUPABASE_JWT_SECRET:?SUPABASE_JWT_SECRET is required}
       PGRST_DB_USE_LEGACY_GUCS: "false"
     networks:
       - qrmenu-network
@@ -168,8 +165,8 @@ services:
       ANON_KEY: ${SUPABASE_ANON_KEY}
       SERVICE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
       POSTGREST_URL: http://supabase-rest:3000
-      PGRST_JWT_SECRET: ${SUPABASE_JWT_SECRET:-your-super-secret-jwt-token-with-at-least-32-characters-long}
-      DATABASE_URL: postgres://supabase_storage_admin:${SUPABASE_DB_PASSWORD:-your-super-secret-supabase-password}@supabase-db:5432/postgres
+      PGRST_JWT_SECRET: ${SUPABASE_JWT_SECRET:?SUPABASE_JWT_SECRET is required}
+      DATABASE_URL: postgres://supabase_storage_admin:${SUPABASE_DB_PASSWORD:?SUPABASE_DB_PASSWORD is required}@supabase-db:5432/postgres
       FILE_SIZE_LIMIT: 52428800
       STORAGE_BACKEND: file
       FILE_STORAGE_BACKEND_PATH: /var/lib/storage
@@ -192,8 +189,7 @@ services:
     image: kong:2.8.1
     container_name: qrmenu-supabase-kong
     restart: unless-stopped
-    ports:
-      - "${SUPABASE_KONG_PORT:-8000}:8000"
+    # ports removed — Kong only accessible within Docker network
     depends_on:
       supabase-storage:
         condition: service_healthy

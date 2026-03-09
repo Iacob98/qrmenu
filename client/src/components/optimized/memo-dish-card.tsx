@@ -155,15 +155,35 @@ export const MemoDishCard = memo(function DishCard({
 
             {/* Price and Action */}
             <div className="flex flex-col items-end gap-2">
-              <span 
-                className={cn(
-                  "font-bold text-gray-900",
-                  isCompact ? "text-sm" : "text-lg"
-                )}
-                style={{ color: 'var(--primary, #1f2937)' }}
-              >
-                {dish.price} {getCurrencySymbol(currency)}
-              </span>
+              {dish.discountEnabled && dish.discountPrice ? (
+                <div className="text-right">
+                  <span
+                    className={cn(
+                      "font-bold text-gray-900",
+                      isCompact ? "text-sm" : "text-lg"
+                    )}
+                    style={{ color: 'var(--primary, #1f2937)' }}
+                  >
+                    {dish.discountPrice} {getCurrencySymbol(currency)}
+                  </span>
+                  <span className={cn(
+                    "block text-muted-foreground line-through",
+                    isCompact ? "text-xs" : "text-sm"
+                  )}>
+                    {dish.price} {getCurrencySymbol(currency)}
+                  </span>
+                </div>
+              ) : (
+                <span
+                  className={cn(
+                    "font-bold text-gray-900",
+                    isCompact ? "text-sm" : "text-lg"
+                  )}
+                  style={{ color: 'var(--primary, #1f2937)' }}
+                >
+                  {dish.price} {getCurrencySymbol(currency)}
+                </span>
+              )}
               
               <Button
                 variant="outline"
@@ -189,6 +209,8 @@ export const MemoDishCard = memo(function DishCard({
     prevProps.dish.id === nextProps.dish.id &&
     prevProps.dish.name === nextProps.dish.name &&
     prevProps.dish.price === nextProps.dish.price &&
+    prevProps.dish.discountEnabled === nextProps.dish.discountEnabled &&
+    prevProps.dish.discountPrice === nextProps.dish.discountPrice &&
     prevProps.dish.isFavorite === nextProps.dish.isFavorite &&
     prevProps.dish.image === nextProps.dish.image &&
     prevProps.currency === nextProps.currency &&
