@@ -13,6 +13,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { AuthGuard } from "@/components/auth/auth-guard";
 import { useTranslation } from "react-i18next";
+import { trackEvent } from "@/lib/analytics";
 import { LanguageSelector } from "@/components/ui/language-selector";
 
 export default function Register() {
@@ -95,6 +96,7 @@ export default function Register() {
 
     try {
       await register(formData.email, formData.password);
+      trackEvent("sign_up", { method: "email" });
       setStep(2);
     } catch (error: any) {
       toast({

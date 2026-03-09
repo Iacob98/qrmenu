@@ -14,6 +14,7 @@ import { ErrorBoundary, ErrorFallback } from "@/components/error-boundary";
 import { useRealTimeMenu } from "@/hooks/useRealTimeMenu";
 import { Search, X, Utensils } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/analytics";
 import type { PublicMenu, Dish } from "@shared/schema";
 
 function getCurrencySymbol(currency: string): string {
@@ -300,11 +301,13 @@ function PublicMenuContent() {
   }, [designString, menu?.restaurant?.design]);
 
   const handleTagFilter = useCallback((tag: string) => {
-    setActiveTags(prev => 
-      prev.includes(tag) 
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag]
-    );
+    setActiveTags(prev => {
+      const removing = prev.includes(tag);
+      if (!removing) {
+        trackEvent("menu_filter_tag", { tag });
+      }
+      return removing ? prev.filter(t => t !== tag) : [...prev, tag];
+    });
   }, []);
 
   const clearFilters = useCallback(() => {
@@ -478,7 +481,12 @@ function PublicMenuContent() {
               type="text"
               placeholder={t('searchPlaceholder')}
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                if (e.target.value.length >= 2) {
+                  trackEvent("menu_search", { search_term: e.target.value });
+                }
+              }}
               className="pl-10 h-10 text-base border-gray-300"
             />
             {searchQuery && (
@@ -499,7 +507,11 @@ function PublicMenuContent() {
           <MemoCategoryTabs
             categories={menuWithFavorites?.categories || []}
             activeCategory={selectedCategory}
-            onCategoryChange={setSelectedCategory}
+            onCategoryChange={(id) => {
+              setSelectedCategory(id);
+              const cat = menuWithFavorites?.categories.find(c => c.id === id);
+              if (cat) trackEvent("menu_filter_category", { category: cat.name });
+            }}
           />
         </div>
 
@@ -557,7 +569,10 @@ function PublicMenuContent() {
                 key={dish.id}
                 dish={dish}
                 currency={menu?.restaurant?.currency || 'EUR'}
-                onViewDetails={setSelectedDish}
+                onViewDetails={(dish) => {
+                  trackEvent("menu_view_dish", { dish_name: dish.name, dish_id: dish.id });
+                  setSelectedDish(dish);
+                }}
                 isCompact={false}
                 onFilterByTag={handleTagFilter}
                 showImages={(menu?.restaurant?.design as any)?.showImages !== false}

@@ -12,6 +12,7 @@ import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { trackEvent } from "@/lib/analytics";
 import { LanguageSelector } from "@/components/ui/language-selector";
 
 const createLoginSchema = (t: (key: string) => string) => z.object({
@@ -57,6 +58,7 @@ export default function Login() {
       return response.json();
     },
     onSuccess: () => {
+      trackEvent("login", { method: "email" });
       toast({
         title: t('success'),
         description: t('loginSuccess'),

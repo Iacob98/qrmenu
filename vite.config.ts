@@ -5,6 +5,14 @@ import path from "path";
 export default defineConfig({
   plugins: [
     react(),
+    {
+      name: 'html-env-replace',
+      transformIndexHtml(html) {
+        return html
+          .replace(/%VITE_GTM_ID%/g, process.env.VITE_GTM_ID || '')
+          .replace(/%VITE_GA_MEASUREMENT_ID%/g, process.env.VITE_GA_MEASUREMENT_ID || '');
+      },
+    },
   ],
   resolve: {
     alias: {
@@ -12,6 +20,7 @@ export default defineConfig({
       "@shared": path.resolve(import.meta.dirname, "shared"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
     },
+    dedupe: ["react", "react-dom"],
   },
   root: path.resolve(import.meta.dirname, "client"),
   build: {
