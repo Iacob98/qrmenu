@@ -18,6 +18,12 @@ import QRPage from "@/pages/dashboard/qr";
 import Feedback from "@/pages/dashboard/feedback";
 import PublicMenu from "@/pages/public-menu/[restaurantId]";
 import NotFound from "@/pages/not-found";
+import AdminDashboard from "@/pages/admin";
+import AdminUsers from "@/pages/admin/users";
+import AdminUserDetail from "@/pages/admin/user-detail";
+import AdminRestaurants from "@/pages/admin/restaurants";
+import AdminAiLogs from "@/pages/admin/ai-logs";
+import AdminFeedback from "@/pages/admin/feedback";
 
 function Router() {
   usePageTracking();
@@ -62,6 +68,12 @@ function Router() {
         </AuthGuard>
       </Route>
       <Route path="/menu/:slug" component={PublicMenu} />
+      <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin/users" component={AdminUsers} />
+      <Route path="/admin/users/:id" component={AdminUserDetail} />
+      <Route path="/admin/restaurants" component={AdminRestaurants} />
+      <Route path="/admin/ai-logs" component={AdminAiLogs} />
+      <Route path="/admin/feedback" component={AdminFeedback} />
       <Route component={NotFound} />
     </Switch>
   );

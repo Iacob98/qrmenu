@@ -3,8 +3,9 @@ import express from "express";
 import path from "path";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertRestaurantSchema, insertCategorySchema, insertDishSchema, insertFeedbackSchema, feedback, users, type Dish, type Feedback } from "@shared/schema";
+import { insertUserSchema, insertRestaurantSchema, insertCategorySchema, insertDishSchema, insertFeedbackSchema, feedback, users, aiUsageLogs, type Dish, type Feedback } from "@shared/schema";
 import { sql, eq } from "drizzle-orm";
+import { registerAdminRoutes } from "./routes/admin";
 import { createAIService } from "./services/ai";
 import { qrService } from "./services/qr";
 import { upload, saveUploadedImage, deleteUploadedFile, saveImageFromURL } from "./middleware/upload";
@@ -40,6 +41,33 @@ const stripSensitiveRestaurantFields = (restaurant: any) => {
 
 const stripSensitiveRestaurantArray = (restaurants: any[]) =>
   restaurants.map(stripSensitiveRestaurantFields);
+
+// Log AI usage to DB (fire-and-forget — never blocks the main response)
+function logAiUsage(data: {
+  userId: string;
+  restaurantId?: string | null;
+  requestType: string;
+  model?: string;
+  provider?: string;
+  promptTokens?: number;
+  completionTokens?: number;
+  totalTokens?: number;
+  success?: boolean;
+  errorMessage?: string;
+}) {
+  db.insert(aiUsageLogs).values({
+    userId: data.userId,
+    restaurantId: data.restaurantId ?? null,
+    requestType: data.requestType,
+    model: data.model ?? null,
+    provider: data.provider ?? null,
+    promptTokens: data.promptTokens ?? 0,
+    completionTokens: data.completionTokens ?? 0,
+    totalTokens: data.totalTokens ?? 0,
+    success: data.success ?? true,
+    errorMessage: data.errorMessage ?? null,
+  }).catch(err => console.error("[AI Log] Failed to save usage log:", err));
+}
 
 let menuWebSocketManager: MenuWebSocketManager;
 
@@ -948,7 +976,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/ai/analyze-pdf", requireAuth, getAiLimiter(), async (req, res) => {
     try {
       const { restaurantId, base64Data } = req.body;
-      
+
       const restaurant = await storage.getRestaurant(restaurantId);
       if (!restaurant || restaurant.userId !== req.session.userId) {
         return res.status(404).json({ message: "Restaurant not found" });
@@ -964,9 +992,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const model = restaurant.aiModel || (provider === 'openrouter' ? 'anthropic/claude-3.5-sonnet' : 'gpt-4o');
       const aiService = createAIService(apiKey, provider, model);
       const result = await aiService.analyzePDF(base64Data);
-      
+      logAiUsage({ userId: req.session.userId!, restaurantId, requestType: "analyze-pdf", model: aiService.model, provider, ...aiService.lastUsage });
+
       res.json(result);
     } catch (error) {
+      logAiUsage({ userId: req.session.userId!, restaurantId: req.body?.restaurantId, requestType: "analyze-pdf", success: false, errorMessage: handleError(error) });
       res.status(500).json({ message: handleError(error) });
     }
   });
@@ -990,9 +1020,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const model = restaurant.aiModel || (provider === 'openrouter' ? 'anthropic/claude-3.5-sonnet' : 'gpt-4o');
       const aiService = createAIService(apiKey, provider, model);
       const result = await aiService.analyzePhoto(base64Image);
-      
+      logAiUsage({ userId: req.session.userId!, restaurantId, requestType: "analyze-photo", model: aiService.model, provider, ...aiService.lastUsage });
+
       res.json(result);
     } catch (error) {
+      logAiUsage({ userId: req.session.userId!, restaurantId: req.body?.restaurantId, requestType: "analyze-photo", success: false, errorMessage: handleError(error) });
       res.status(500).json({ message: handleError(error) });
     }
   });
@@ -1021,9 +1053,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const model = restaurant.aiModel || (provider === 'openrouter' ? 'anthropic/claude-3.5-sonnet' : 'gpt-4o');
       const aiService = createAIService(apiKey, provider, model);
       const result = await aiService.analyzeText(text);
-      
+      logAiUsage({ userId: req.session.userId!, restaurantId, requestType: "analyze-text", model: aiService.model, provider, ...aiService.lastUsage });
+
       res.json(result);
     } catch (error) {
+      logAiUsage({ userId: req.session.userId!, restaurantId: req.body?.restaurantId, requestType: "analyze-text", success: false, errorMessage: handleError(error) });
       res.status(500).json({ message: handleError(error) });
     }
   });
@@ -1208,11 +1242,13 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
       
       const prompt = prompts[language as keyof typeof prompts] || prompts.ru;
       const improvedDescription = await aiService.improveText(prompt);
-      
+      logAiUsage({ userId: req.session.userId!, restaurantId, requestType: "improve-description", model: aiService.model, provider: restaurant.aiProvider || 'openai', ...aiService.lastUsage });
+
       console.log(`[AI Description] Improved successfully`);
       res.json({ improvedDescription: improvedDescription.trim() });
     } catch (error) {
       console.error('[AI Description] Error:', error);
+      logAiUsage({ userId: req.session.userId!, restaurantId: req.body?.restaurantId, requestType: "improve-description", success: false, errorMessage: handleError(error) });
       res.status(500).json({ message: handleError(error) });
     }
   });
@@ -1281,13 +1317,15 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
       const remainingGenerations = MAX_GENERATIONS - updatedGenerationsCount;
       
       console.log(`[AI Image] Generation count incremented. Used: ${updatedGenerationsCount}/${MAX_GENERATIONS}`);
-      res.json({ 
+      logAiUsage({ userId: req.session.userId!, restaurantId, requestType: "generate-image", model: "imagen-4", provider: "replicate", ...aiService.lastUsage });
+      res.json({
         imageUrl: localImageUrl,
         remainingGenerations,
         totalGenerations: updatedGenerationsCount
       });
     } catch (error) {
       console.error('[AI Image] Error:', error);
+      logAiUsage({ userId: req.session.userId!, restaurantId: req.body?.restaurantId, requestType: "generate-image", success: false, errorMessage: handleError(error) });
       res.status(500).json({ message: handleError(error) });
     }
   });
@@ -1658,6 +1696,9 @@ Gib nur die verbesserte Beschreibung ohne zusätzlichen Text zurück.`
       });
     }
   });
+
+  // Admin platform routes
+  registerAdminRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

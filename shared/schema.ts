@@ -27,6 +27,7 @@ export const users = pgTable("users", {
   emailVerificationToken: text("email_verification_token"),
   emailVerificationExpires: timestamp("email_verification_expires"),
   onboarded: boolean("onboarded").default(false),
+  isAdmin: boolean("is_admin").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => ({
@@ -139,6 +140,27 @@ export const feedback = pgTable("feedback", {
   createdAtIdx: index("feedback_created_at_idx").on(table.createdAt),
 }));
 
+// AI usage logs for admin monitoring
+export const aiUsageLogs = pgTable("ai_usage_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  restaurantId: varchar("restaurant_id").references(() => restaurants.id, { onDelete: "set null" }),
+  requestType: text("request_type").notNull(), // "analyze-text" | "analyze-pdf" | "analyze-photo" | "generate-image" | "improve-description" | "translate"
+  model: text("model"),
+  provider: text("provider"), // "openai" | "openrouter" | "replicate"
+  promptTokens: integer("prompt_tokens").default(0),
+  completionTokens: integer("completion_tokens").default(0),
+  totalTokens: integer("total_tokens").default(0),
+  success: boolean("success").default(true),
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("ai_usage_logs_user_id_idx").on(table.userId),
+  restaurantIdIdx: index("ai_usage_logs_restaurant_id_idx").on(table.restaurantId),
+  createdAtIdx: index("ai_usage_logs_created_at_idx").on(table.createdAt),
+  requestTypeIdx: index("ai_usage_logs_request_type_idx").on(table.requestType),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -189,6 +211,8 @@ export type Feedback = typeof feedback.$inferSelect;
 export type InsertFeedback = z.infer<typeof insertFeedbackSchema>;
 
 export type TranslationCache = typeof translationCache.$inferSelect;
+
+export type AiUsageLog = typeof aiUsageLogs.$inferSelect;
 
 // Extended types for API responses
 export type RestaurantWithCategories = Restaurant & {

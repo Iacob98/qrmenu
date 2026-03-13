@@ -37,6 +37,11 @@ export class AIService {
   private replicate?: Replicate;
   public model: string;
   public provider: string;
+  public lastUsage: { promptTokens: number; completionTokens: number; totalTokens: number } = {
+    promptTokens: 0,
+    completionTokens: 0,
+    totalTokens: 0,
+  };
 
   constructor(apiKey: string, provider: string = "openai", model?: string) {
     this.provider = provider;
@@ -75,6 +80,20 @@ export class AIService {
           error instanceof Error ? error.message : error);
       },
     });
+  }
+
+  /** Wrapper around chat.completions.create that also tracks token usage */
+  private async createCompletion(params: Omit<Parameters<OpenAI["chat"]["completions"]["create"]>[0], "stream">) {
+    if (!this.openai) throw new Error("OpenAI client not initialized");
+    const response = await this.openai.chat.completions.create({ ...params, stream: false });
+    if (response.usage) {
+      this.lastUsage = {
+        promptTokens: response.usage.prompt_tokens,
+        completionTokens: response.usage.completion_tokens,
+        totalTokens: response.usage.total_tokens,
+      };
+    }
+    return response;
   }
 
   async analyzePDF(base64Data: string): Promise<AIGeneratedMenuResult> {
@@ -149,7 +168,7 @@ export class AIService {
 
 ОБЯЗАТЕЛЬНО создай массив categories и назначь каждому блюду категорию.`;
       
-      const response = await this.openai.chat.completions.create({
+      const response = await this.createCompletion({
         model: modelToUse,
         messages: [
           {
@@ -248,7 +267,7 @@ Return a JSON object with:
         throw new Error("OpenAI client not initialized for photo analysis");
       }
       
-      const response = await this.openai.chat.completions.create({
+      const response = await this.createCompletion({
         model: this.model,
         messages: [
           {
@@ -335,7 +354,7 @@ Return a JSON object with:
         throw new Error("OpenAI client not initialized for text analysis");
       }
       
-      const response = await this.openai.chat.completions.create({
+      const response = await this.createCompletion({
         model: this.model,
         messages: [
           {
@@ -545,7 +564,7 @@ Simple photo, no text, no watermarks, no garnishes, no extra decorations.`;
         return this.fallbackTranslate(text);
       }
 
-      const response = await this.openai.chat.completions.create({
+      const response = await this.createCompletion({
         model: this.model,
         messages: [
           {
@@ -611,7 +630,7 @@ Simple photo, no text, no watermarks, no garnishes, no extra decorations.`;
         throw new Error("OpenAI client not initialized for dish enhancement");
       }
       
-      const response = await this.openai.chat.completions.create({
+      const response = await this.createCompletion({
         model: this.model,
         messages: [
           {
@@ -640,7 +659,7 @@ Simple photo, no text, no watermarks, no garnishes, no extra decorations.`;
         throw new Error("OpenAI client not initialized for text improvement");
       }
 
-      const response = await this.openai.chat.completions.create({
+      const response = await this.createCompletion({
         model: this.model,
         messages: [
           {
@@ -758,7 +777,7 @@ Simple photo, no text, no watermarks, no garnishes, no extra decorations.`;
       }
 
       try {
-        const response = await this.openai.chat.completions.create({
+        const response = await this.createCompletion({
           model: this.model,
           messages: [
             {
@@ -892,7 +911,7 @@ Only include fields that exist in the original content.`
     }
 
     try {
-      const response = await this.openai.chat.completions.create({
+      const response = await this.createCompletion({
         model: this.model,
         messages: [
           {
