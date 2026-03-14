@@ -199,8 +199,8 @@ export function registerAdminRoutes(app: Express) {
             city: restaurants.city,
             aiProvider: restaurants.aiProvider,
             createdAt: restaurants.createdAt,
-            categoryCount: sql<number>`(SELECT COUNT(*) FROM categories WHERE categories.restaurant_id = ${restaurants.id})`,
-            dishCount: sql<number>`(SELECT COUNT(*) FROM dishes d JOIN categories c ON d.category_id = c.id WHERE c.restaurant_id = ${restaurants.id})`,
+            categoryCount: sql<number>`(SELECT COUNT(*) FROM categories WHERE categories.restaurant_id = restaurants.id)`,
+            dishCount: sql<number>`(SELECT COUNT(*) FROM dishes d JOIN categories c ON d.category_id = c.id WHERE c.restaurant_id = restaurants.id)`,
           })
           .from(restaurants)
           .where(eq(restaurants.userId, id)),
@@ -243,8 +243,8 @@ export function registerAdminRoutes(app: Express) {
 
       res.json({ user, restaurants: userRestaurants, recentLogs: recentLogsWithCost, stats: { totalTokens: Number(totalTokens), totalRequests: Number(totalRequests), estimatedCost: Math.round(userEstimatedCost * 10000) / 10000 } });
     } catch (error) {
-      console.error("[Admin] User detail error:", error);
-      res.status(500).json({ message: "Failed to fetch user details" });
+      console.error("[Admin] User detail error:", error instanceof Error ? error.message : error);
+      res.status(500).json({ message: "Failed to fetch user details", detail: error instanceof Error ? error.message : String(error) });
     }
   });
 
