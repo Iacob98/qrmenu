@@ -25,6 +25,10 @@ interface FeedbackResponse {
   pagination: { page: number; total: number; pages: number };
 }
 
+const STATUS_LABELS: Record<string, string> = { open: "Открыт", in_progress: "В работе", resolved: "Решён", closed: "Закрыт" };
+const PRIORITY_LABELS: Record<string, string> = { low: "Низкий", medium: "Средний", high: "Высокий", critical: "Критичный" };
+const TYPE_LABELS: Record<string, string> = { bug: "Баг", suggestion: "Предложение", feature_request: "Запрос фичи" };
+
 const STATUS_COLORS: Record<string, string> = {
   open: "bg-blue-100 text-blue-800",
   in_progress: "bg-yellow-100 text-yellow-800",
@@ -95,9 +99,9 @@ export default function AdminFeedback() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-medium text-sm">{fb.title}</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${PRIORITY_COLORS[fb.priority] || ""}`}>{fb.priority}</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[fb.status] || ""}`}>{fb.status}</span>
-                            <Badge variant="outline" className="text-xs">{fb.type}</Badge>
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${PRIORITY_COLORS[fb.priority] || ""}`}>{PRIORITY_LABELS[fb.priority] || fb.priority}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[fb.status] || ""}`}>{STATUS_LABELS[fb.status] || fb.status}</span>
+                            <Badge variant="outline" className="text-xs">{TYPE_LABELS[fb.type] || fb.type}</Badge>
                           </div>
                           <div className="text-xs text-gray-500 mt-1">
                             {fb.userEmail || fb.email || "Аноним"} · {new Date(fb.createdAt).toLocaleString("ru-RU")}
@@ -112,7 +116,7 @@ export default function AdminFeedback() {
 
                         <div className="flex gap-2 mt-4 flex-wrap">
                           <span className="text-xs text-gray-500 self-center">Статус:</span>
-                          {["open", "in_progress", "resolved", "closed"].map((s) => (
+                          {(["open", "in_progress", "resolved", "closed"] as const).map((s) => (
                             <Button
                               key={s}
                               size="sm"
@@ -120,11 +124,11 @@ export default function AdminFeedback() {
                               className="h-7 text-xs"
                               onClick={() => update.mutate({ id: fb.id, status: s })}
                             >
-                              {s}
+                              {STATUS_LABELS[s]}
                             </Button>
                           ))}
                           <span className="text-xs text-gray-500 self-center ml-2">Приоритет:</span>
-                          {["low", "medium", "high", "critical"].map((p) => (
+                          {(["low", "medium", "high", "critical"] as const).map((p) => (
                             <Button
                               key={p}
                               size="sm"
@@ -132,7 +136,7 @@ export default function AdminFeedback() {
                               className="h-7 text-xs"
                               onClick={() => update.mutate({ id: fb.id, priority: p })}
                             >
-                              {p}
+                              {PRIORITY_LABELS[p]}
                             </Button>
                           ))}
                         </div>

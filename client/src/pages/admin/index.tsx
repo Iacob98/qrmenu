@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { AdminGuard } from "@/components/admin/admin-guard";
 import { AdminLayout } from "./layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, UtensilsCrossed, Zap, TrendingUp, Cpu } from "lucide-react";
+import { Users, UtensilsCrossed, Zap, TrendingUp, Cpu, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   BarChart,
   Bar,
@@ -49,7 +50,17 @@ export default function AdminDashboard() {
     <AdminGuard>
       <AdminLayout>
         <div className="space-y-6">
-          <h1 className="text-2xl font-bold text-gray-900">Обзор платформы</h1>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <h1 className="text-2xl font-bold text-gray-900">Обзор платформы</h1>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" asChild>
+                <a href="/api/admin/export/users" download><Download className="h-3.5 w-3.5 mr-1" />Пользователи CSV</a>
+              </Button>
+              <Button variant="outline" size="sm" asChild>
+                <a href="/api/admin/export/ai-logs" download><Download className="h-3.5 w-3.5 mr-1" />AI логи CSV</a>
+              </Button>
+            </div>
+          </div>
 
           {isError ? (
             <Card><CardContent className="py-8 text-center text-gray-500">Не удалось загрузить статистику</CardContent></Card>

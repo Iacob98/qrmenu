@@ -58,7 +58,7 @@ export default function AdminUserDetail() {
                   </div>
                   <div>
                     <span className="text-gray-500">Роль:</span>{" "}
-                    {data.user.isAdmin ? <Badge>Admin</Badge> : <Badge variant="outline">User</Badge>}
+                    {data.user.isAdmin ? <Badge>Админ</Badge> : <Badge variant="outline">Пользователь</Badge>}
                   </div>
                   <div><span className="text-gray-500">AI запросов:</span> <span className="font-medium">{data.stats.totalRequests}</span></div>
                   <div><span className="text-gray-500">Всего токенов:</span> <span className="font-medium font-mono">{data.stats.totalTokens.toLocaleString()}</span></div>

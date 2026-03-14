@@ -120,8 +120,8 @@ export default function AdminUsers() {
                           <td className="p-3 text-right">{user.aiRequestCount}</td>
                           <td className="p-3 text-center">
                             <div className="flex justify-center gap-1 flex-wrap">
-                              {user.isAdmin && <Badge variant="default" className="text-xs">Admin</Badge>}
-                              {user.emailVerified && <Badge variant="outline" className="text-xs">Verified</Badge>}
+                              {user.isAdmin && <Badge variant="default" className="text-xs">Админ</Badge>}
+                              {user.emailVerified && <Badge variant="outline" className="text-xs">Подтверждён</Badge>}
                             </div>
                           </td>
                           <td className="p-3 text-right text-gray-500 text-xs">

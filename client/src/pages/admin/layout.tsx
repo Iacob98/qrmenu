@@ -37,7 +37,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       <div className="p-5 border-b border-gray-700 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-blue-400" />
-          <span className="font-semibold text-sm">Admin Panel</span>
+          <span className="font-semibold text-sm">Админ-панель</span>
         </div>
         <button className="lg:hidden text-gray-400 hover:text-white" onClick={() => setSidebarOpen(false)}>
           <X className="h-5 w-5" />
@@ -90,7 +90,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           <Menu className="h-5 w-5" />
         </button>
         <Shield className="h-4 w-4 text-blue-400" />
-        <span className="font-semibold text-sm">Admin</span>
+        <span className="font-semibold text-sm">Админ</span>
       </div>
 
       {/* Mobile overlay */}

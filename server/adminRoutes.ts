@@ -404,6 +404,86 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
+  // GET /api/admin/export/users — export all users as CSV
+  app.get("/api/admin/export/users", requireAdmin, async (req, res) => {
+    try {
+      const allUsers = await db
+        .select({
+          email: users.email,
+          name: users.name,
+          isAdmin: users.isAdmin,
+          emailVerified: users.emailVerified,
+          createdAt: users.createdAt,
+        })
+        .from(users)
+        .orderBy(desc(users.createdAt));
+
+      const csvEscape = (val: unknown): string => {
+        const str = val == null ? "" : String(val);
+        if (str.includes('"') || str.includes(",") || str.includes("\n")) {
+          return '"' + str.replace(/"/g, '""') + '"';
+        }
+        return str;
+      };
+
+      const header = "email,name,isAdmin,emailVerified,createdAt";
+      const rows = allUsers.map(u =>
+        [u.email, u.name, u.isAdmin, u.emailVerified, u.createdAt].map(csvEscape).join(",")
+      );
+      const csv = [header, ...rows].join("\n");
+
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader("Content-Disposition", 'attachment; filename="users-export.csv"');
+      res.send(csv);
+    } catch (error) {
+      console.error("[Admin] Export users error:", error);
+      res.status(500).json({ message: "Failed to export users" });
+    }
+  });
+
+  // GET /api/admin/export/ai-logs — export AI usage logs as CSV
+  app.get("/api/admin/export/ai-logs", requireAdmin, async (req, res) => {
+    try {
+      const logs = await db
+        .select({
+          requestType: aiUsageLogs.requestType,
+          model: aiUsageLogs.model,
+          provider: aiUsageLogs.provider,
+          promptTokens: aiUsageLogs.promptTokens,
+          completionTokens: aiUsageLogs.completionTokens,
+          totalTokens: aiUsageLogs.totalTokens,
+          success: aiUsageLogs.success,
+          createdAt: aiUsageLogs.createdAt,
+          userEmail: users.email,
+        })
+        .from(aiUsageLogs)
+        .leftJoin(users, eq(users.id, aiUsageLogs.userId))
+        .orderBy(desc(aiUsageLogs.createdAt))
+        .limit(10000);
+
+      const csvEscape = (val: unknown): string => {
+        const str = val == null ? "" : String(val);
+        if (str.includes('"') || str.includes(",") || str.includes("\n")) {
+          return '"' + str.replace(/"/g, '""') + '"';
+        }
+        return str;
+      };
+
+      const header = "requestType,model,provider,promptTokens,completionTokens,totalTokens,success,createdAt,userEmail";
+      const rows = logs.map(l =>
+        [l.requestType, l.model, l.provider, l.promptTokens, l.completionTokens, l.totalTokens, l.success, l.createdAt, l.userEmail].map(csvEscape).join(",")
+      );
+      const csv = [header, ...rows].join("\n");
+
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader("Content-Disposition", 'attachment; filename="ai-logs-export.csv"');
+      res.send(csv);
+    } catch (error) {
+      console.error("[Admin] Export AI logs error:", error);
+      res.status(500).json({ message: "Failed to export AI logs" });
+    }
+  });
+
   // GET /api/admin/me — check if current user is admin
   app.get("/api/admin/me", async (req, res) => {
     try {
