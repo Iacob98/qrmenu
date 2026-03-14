@@ -206,7 +206,18 @@ export function registerAdminRoutes(app: Express) {
           .where(eq(restaurants.userId, id)),
 
         db
-          .select()
+          .select({
+            id: aiUsageLogs.id,
+            requestType: aiUsageLogs.requestType,
+            model: aiUsageLogs.model,
+            provider: aiUsageLogs.provider,
+            promptTokens: aiUsageLogs.promptTokens,
+            completionTokens: aiUsageLogs.completionTokens,
+            totalTokens: aiUsageLogs.totalTokens,
+            success: aiUsageLogs.success,
+            errorMessage: aiUsageLogs.errorMessage,
+            createdAt: aiUsageLogs.createdAt,
+          })
           .from(aiUsageLogs)
           .where(eq(aiUsageLogs.userId, id))
           .orderBy(desc(aiUsageLogs.createdAt))
