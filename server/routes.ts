@@ -5,7 +5,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUserSchema, insertRestaurantSchema, insertCategorySchema, insertDishSchema, insertFeedbackSchema, feedback, users, aiUsageLogs, type Dish, type Feedback } from "@shared/schema";
 import { sql, eq } from "drizzle-orm";
-import { registerAdminRoutes } from "./routes/admin";
+import { registerAdminRoutes } from "./adminRoutes";
 import { createAIService } from "./services/ai";
 import { qrService } from "./services/qr";
 import { upload, saveUploadedImage, deleteUploadedFile, saveImageFromURL } from "./middleware/upload";
