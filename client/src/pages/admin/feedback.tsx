@@ -20,6 +20,11 @@ interface FeedbackRow {
   userEmail: string | null;
 }
 
+interface FeedbackResponse {
+  feedback: FeedbackRow[];
+  pagination: { page: number; total: number; pages: number };
+}
+
 const STATUS_COLORS: Record<string, string> = {
   open: "bg-blue-100 text-blue-800",
   in_progress: "bg-yellow-100 text-yellow-800",
@@ -36,11 +41,17 @@ const PRIORITY_COLORS: Record<string, string> = {
 
 export default function AdminFeedback() {
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery<{ feedback: FeedbackRow[] }>({
-    queryKey: ["/api/admin/feedback"],
+  const { data, isLoading } = useQuery<FeedbackResponse>({
+    queryKey: ["/api/admin/feedback", page],
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/feedback?page=${page}`, { credentials: "include" });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || res.statusText);
+      return res.json();
+    },
   });
 
   const update = useMutation({
@@ -57,7 +68,10 @@ export default function AdminFeedback() {
     <AdminGuard>
       <AdminLayout>
         <div className="space-y-4">
-          <h1 className="text-2xl font-bold text-gray-900">Обратная связь</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-gray-900">Обратная связь</h1>
+            <span className="text-sm text-gray-500">Всего: {data?.pagination.total ?? "..."}</span>
+          </div>
 
           {isLoading ? (
             <div className="space-y-3">
@@ -127,6 +141,14 @@ export default function AdminFeedback() {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          )}
+
+          {data && data.pagination.pages > 1 && (
+            <div className="flex justify-center gap-2">
+              <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>Назад</Button>
+              <span className="text-sm text-gray-600 py-2">{page} / {data.pagination.pages}</span>
+              <Button variant="outline" size="sm" disabled={page >= data.pagination.pages} onClick={() => setPage((p) => p + 1)}>Вперёд</Button>
             </div>
           )}
         </div>

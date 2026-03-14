@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AdminGuard } from "@/components/admin/admin-guard";
 import { AdminLayout } from "./layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useLocation } from "wouter";
+import { Search } from "lucide-react";
 
 interface RestaurantRow {
   id: string;
@@ -28,13 +30,23 @@ interface RestaurantsResponse {
 }
 
 export default function AdminRestaurants() {
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [, setLocation] = useLocation();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    debounceRef.current = setTimeout(() => { setSearch(searchInput); setPage(1); }, 300);
+    return () => clearTimeout(debounceRef.current);
+  }, [searchInput]);
 
   const { data, isLoading } = useQuery<RestaurantsResponse>({
-    queryKey: ["/api/admin/restaurants", page],
+    queryKey: ["/api/admin/restaurants", page, search],
     queryFn: async () => {
-      const res = await fetch(`/api/admin/restaurants?page=${page}`, { credentials: "include" });
+      const params = new URLSearchParams({ page: String(page) });
+      if (search) params.set("search", search);
+      const res = await fetch(`/api/admin/restaurants?${params}`, { credentials: "include" });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || res.statusText);
       return res.json();
     },
@@ -47,6 +59,16 @@ export default function AdminRestaurants() {
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">Рестораны</h1>
             <span className="text-sm text-gray-500">Всего: {data?.pagination.total ?? "..."}</span>
+          </div>
+
+          <div className="relative">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Input
+              className="pl-9"
+              placeholder="Поиск по названию или городу..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
           </div>
 
           <Card>

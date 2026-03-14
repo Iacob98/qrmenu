@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminGuard } from "@/components/admin/admin-guard";
 import { AdminLayout } from "./layout";
@@ -30,11 +30,18 @@ interface UsersResponse {
 }
 
 export default function AdminUsers() {
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    debounceRef.current = setTimeout(() => { setSearch(searchInput); setPage(1); }, 300);
+    return () => clearTimeout(debounceRef.current);
+  }, [searchInput]);
 
   const { data, isLoading, isError } = useQuery<UsersResponse>({
     queryKey: ["/api/admin/users", page, search],
@@ -69,8 +76,8 @@ export default function AdminUsers() {
             <Input
               className="pl-9"
               placeholder="Поиск по email или имени..."
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
             />
           </div>
 
@@ -127,7 +134,12 @@ export default function AdminUsers() {
                                 variant="ghost"
                                 className="h-7 px-2"
                                 title={user.isAdmin ? "Снять admin" : "Сделать admin"}
-                                onClick={() => toggleAdmin.mutate({ id: user.id, isAdmin: !user.isAdmin })}
+                                onClick={() => {
+                                  const action = user.isAdmin ? "снять роль Admin" : "назначить роль Admin";
+                                  if (confirm(`${action} для ${user.email}?`)) {
+                                    toggleAdmin.mutate({ id: user.id, isAdmin: !user.isAdmin });
+                                  }
+                                }}
                               >
                                 {user.isAdmin ? <ShieldOff className="h-3.5 w-3.5" /> : <Shield className="h-3.5 w-3.5" />}
                               </Button>

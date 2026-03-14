@@ -228,30 +228,39 @@ export function registerAdminRoutes(app: Express) {
       const limit = 50;
       const offset = (page - 1) * limit;
 
-      const [allRestaurants, [{ total }]] = await Promise.all([
-        db
-          .select({
-            id: restaurants.id,
-            name: restaurants.name,
-            city: restaurants.city,
-            aiProvider: restaurants.aiProvider,
-            aiModel: restaurants.aiModel,
-            language: restaurants.language,
-            createdAt: restaurants.createdAt,
-            ownerEmail: users.email,
-            ownerName: users.name,
-            userId: restaurants.userId,
-            categoryCount: sql<number>`(SELECT COUNT(*) FROM categories WHERE categories.restaurant_id = ${restaurants.id})`,
-            dishCount: sql<number>`(SELECT COUNT(*) FROM dishes d JOIN categories c ON d.category_id = c.id WHERE c.restaurant_id = ${restaurants.id})`,
-            tokenUsage: sql<number>`COALESCE((SELECT SUM(total_tokens) FROM ai_usage_logs WHERE restaurant_id = ${restaurants.id}), 0)`,
-          })
-          .from(restaurants)
-          .leftJoin(users, eq(users.id, restaurants.userId))
-          .orderBy(desc(restaurants.createdAt))
-          .limit(limit)
-          .offset(offset),
+      const search = String(req.query.search || "");
 
-        db.select({ total: count() }).from(restaurants),
+      const searchCondition = search
+        ? or(ilike(restaurants.name, `%${search}%`), ilike(restaurants.city, `%${search}%`))
+        : undefined;
+
+      const baseQuery = db
+        .select({
+          id: restaurants.id,
+          name: restaurants.name,
+          city: restaurants.city,
+          aiProvider: restaurants.aiProvider,
+          aiModel: restaurants.aiModel,
+          language: restaurants.language,
+          createdAt: restaurants.createdAt,
+          ownerEmail: users.email,
+          ownerName: users.name,
+          userId: restaurants.userId,
+          categoryCount: sql<number>`(SELECT COUNT(*) FROM categories WHERE categories.restaurant_id = ${restaurants.id})`,
+          dishCount: sql<number>`(SELECT COUNT(*) FROM dishes d JOIN categories c ON d.category_id = c.id WHERE c.restaurant_id = ${restaurants.id})`,
+          tokenUsage: sql<number>`COALESCE((SELECT SUM(total_tokens) FROM ai_usage_logs WHERE restaurant_id = ${restaurants.id}), 0)`,
+        })
+        .from(restaurants)
+        .leftJoin(users, eq(users.id, restaurants.userId))
+        .orderBy(desc(restaurants.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+      const [allRestaurants, [{ total }]] = await Promise.all([
+        searchCondition ? baseQuery.where(searchCondition) : baseQuery,
+        searchCondition
+          ? db.select({ total: count() }).from(restaurants).where(searchCondition)
+          : db.select({ total: count() }).from(restaurants),
       ]);
 
       res.json({
@@ -323,24 +332,48 @@ export function registerAdminRoutes(app: Express) {
   // GET /api/admin/feedback — all feedback
   app.get("/api/admin/feedback", requireAdmin, async (req, res) => {
     try {
-      const allFeedback = await db
-        .select({
-          id: feedback.id,
-          type: feedback.type,
-          title: feedback.title,
-          description: feedback.description,
-          status: feedback.status,
-          priority: feedback.priority,
-          email: feedback.email,
-          createdAt: feedback.createdAt,
-          userEmail: users.email,
-        })
-        .from(feedback)
-        .leftJoin(users, eq(users.id, feedback.userId))
-        .orderBy(desc(feedback.createdAt))
-        .limit(200);
+      const page = parseInt(String(req.query.page || "1"), 10);
+      const limit = 50;
+      const offset = (page - 1) * limit;
 
-      res.json({ feedback: allFeedback });
+      const status = req.query.status ? String(req.query.status) : null;
+      const priority = req.query.priority ? String(req.query.priority) : null;
+      const type = req.query.type ? String(req.query.type) : null;
+
+      const conditions = [];
+      if (status) conditions.push(eq(feedback.status, status));
+      if (priority) conditions.push(eq(feedback.priority, priority));
+      if (type) conditions.push(eq(feedback.type, type));
+
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+      const [allFeedback, [{ total }]] = await Promise.all([
+        db
+          .select({
+            id: feedback.id,
+            type: feedback.type,
+            title: feedback.title,
+            description: feedback.description,
+            status: feedback.status,
+            priority: feedback.priority,
+            email: feedback.email,
+            createdAt: feedback.createdAt,
+            userEmail: users.email,
+          })
+          .from(feedback)
+          .leftJoin(users, eq(users.id, feedback.userId))
+          .where(whereClause)
+          .orderBy(desc(feedback.createdAt))
+          .limit(limit)
+          .offset(offset),
+
+        db.select({ total: count() }).from(feedback).where(whereClause),
+      ]);
+
+      res.json({
+        feedback: allFeedback,
+        pagination: { page, limit, total: Number(total), pages: Math.ceil(Number(total) / limit) },
+      });
     } catch (error) {
       console.error("[Admin] Feedback error:", error);
       res.status(500).json({ message: "Failed to fetch feedback" });
