@@ -8,6 +8,23 @@ import { z } from "zod";
 const VALID_FEEDBACK_STATUS = ["open", "in_progress", "resolved", "closed"] as const;
 const VALID_FEEDBACK_PRIORITY = ["low", "medium", "high", "critical"] as const;
 
+// Pricing per 1M tokens (USD)
+const MODEL_PRICING: Record<string, { input: number; output: number }> = {
+  // OpenAI
+  "gpt-4o": { input: 2.50, output: 10.00 },
+  "gpt-4o-mini": { input: 0.15, output: 0.60 },
+  "gpt-4-turbo": { input: 10.00, output: 30.00 },
+  "gpt-4": { input: 30.00, output: 60.00 },
+  "gpt-3.5-turbo": { input: 0.50, output: 1.50 },
+  // OpenRouter defaults
+  "default": { input: 2.50, output: 10.00 },
+};
+
+function estimateCost(model: string | null, promptTokens: number, completionTokens: number): number {
+  const pricing = MODEL_PRICING[model || ""] || MODEL_PRICING["default"];
+  return (promptTokens * pricing.input + completionTokens * pricing.output) / 1_000_000;
+}
+
 const updateFeedbackSchema = z.object({
   status: z.enum(VALID_FEEDBACK_STATUS).optional(),
   priority: z.enum(VALID_FEEDBACK_PRIORITY).optional(),
@@ -31,10 +48,32 @@ export function registerAdminRoutes(app: Express) {
           requestType: aiUsageLogs.requestType,
           count: count(),
           totalTokens: sql<number>`COALESCE(SUM(total_tokens), 0)`,
+          promptTokens: sql<number>`COALESCE(SUM(prompt_tokens), 0)`,
+          completionTokens: sql<number>`COALESCE(SUM(completion_tokens), 0)`,
         })
         .from(aiUsageLogs)
         .groupBy(aiUsageLogs.requestType)
         .orderBy(desc(sql`COALESCE(SUM(total_tokens), 0)`));
+
+      // Cost by model
+      const costByModel = await db
+        .select({
+          model: aiUsageLogs.model,
+          promptTokens: sql<number>`COALESCE(SUM(prompt_tokens), 0)`,
+          completionTokens: sql<number>`COALESCE(SUM(completion_tokens), 0)`,
+        })
+        .from(aiUsageLogs)
+        .groupBy(aiUsageLogs.model);
+
+      const totalEstimatedCost = costByModel.reduce(
+        (sum, row) => sum + estimateCost(row.model, Number(row.promptTokens), Number(row.completionTokens)),
+        0,
+      );
+
+      const tokensByTypeWithCost = tokensByType.map(row => ({
+        ...row,
+        estimatedCost: estimateCost(null, Number(row.promptTokens), Number(row.completionTokens)),
+      }));
 
       // New users last 30 days (daily)
       const thirtyDaysAgo = new Date();
@@ -69,8 +108,9 @@ export function registerAdminRoutes(app: Express) {
           dishes: Number(totalDishes),
           aiRequests: Number(totalAiRequests),
           tokens: Number(totalTokens),
+          estimatedCost: Math.round(totalEstimatedCost * 10000) / 10000,
         },
-        tokensByType,
+        tokensByType: tokensByTypeWithCost,
         newUsersDaily,
         aiRequestsDaily,
       });
@@ -151,7 +191,7 @@ export function registerAdminRoutes(app: Express) {
 
       if (!user) return res.status(404).json({ message: "User not found" });
 
-      const [userRestaurants, recentLogs, [{ totalTokens, totalRequests }]] = await Promise.all([
+      const [userRestaurants, recentLogs, [{ totalTokens, totalRequests, totalPromptTokens, totalCompletionTokens }]] = await Promise.all([
         db
           .select({
             id: restaurants.id,
@@ -176,12 +216,21 @@ export function registerAdminRoutes(app: Express) {
           .select({
             totalTokens: sql<number>`COALESCE(SUM(total_tokens), 0)`,
             totalRequests: count(),
+            totalPromptTokens: sql<number>`COALESCE(SUM(prompt_tokens), 0)`,
+            totalCompletionTokens: sql<number>`COALESCE(SUM(completion_tokens), 0)`,
           })
           .from(aiUsageLogs)
           .where(eq(aiUsageLogs.userId, id)),
       ]);
 
-      res.json({ user, restaurants: userRestaurants, recentLogs, stats: { totalTokens: Number(totalTokens), totalRequests: Number(totalRequests) } });
+      const recentLogsWithCost = recentLogs.map(log => ({
+        ...log,
+        estimatedCost: estimateCost(log.model, Number(log.promptTokens), Number(log.completionTokens)),
+      }));
+
+      const userEstimatedCost = estimateCost(null, Number(totalPromptTokens), Number(totalCompletionTokens));
+
+      res.json({ user, restaurants: userRestaurants, recentLogs: recentLogsWithCost, stats: { totalTokens: Number(totalTokens), totalRequests: Number(totalRequests), estimatedCost: Math.round(userEstimatedCost * 10000) / 10000 } });
     } catch (error) {
       console.error("[Admin] User detail error:", error);
       res.status(500).json({ message: "Failed to fetch user details" });
@@ -394,8 +443,13 @@ export function registerAdminRoutes(app: Express) {
         db.select({ total: count() }).from(aiUsageLogs).where(whereClause),
       ]);
 
+      const logsWithCost = logs.map(log => ({
+        ...log,
+        estimatedCost: estimateCost(log.model, Number(log.promptTokens), Number(log.completionTokens)),
+      }));
+
       res.json({
-        logs,
+        logs: logsWithCost,
         pagination: { page, limit, total: Number(total), pages: Math.ceil(Number(total) / limit) },
       });
     } catch (error) {

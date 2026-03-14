@@ -11,7 +11,7 @@ interface UserDetail {
   user: { id: string; email: string; name: string | null; isAdmin: boolean; emailVerified: boolean; createdAt: string };
   restaurants: { id: string; name: string; city: string | null; aiProvider: string | null; categoryCount: number; dishCount: number; createdAt: string }[];
   recentLogs: { id: string; requestType: string; model: string | null; provider: string | null; totalTokens: number; success: boolean; createdAt: string }[];
-  stats: { totalTokens: number; totalRequests: number };
+  stats: { totalTokens: number; totalRequests: number; estimatedCost: number | null };
 }
 
 export default function AdminUserDetail() {
@@ -62,6 +62,7 @@ export default function AdminUserDetail() {
                   </div>
                   <div><span className="text-gray-500">AI запросов:</span> <span className="font-medium">{data.stats.totalRequests}</span></div>
                   <div><span className="text-gray-500">Всего токенов:</span> <span className="font-medium font-mono">{data.stats.totalTokens.toLocaleString()}</span></div>
+                  <div><span className="text-gray-500">Примерная стоимость:</span> <span className="font-medium font-mono text-green-600">${data.stats.estimatedCost?.toFixed(2) || "0.00"}</span></div>
                   <div><span className="text-gray-500">Зарегистрирован:</span> <span>{new Date(data.user.createdAt).toLocaleString("ru-RU")}</span></div>
                 </CardContent>
               </Card>

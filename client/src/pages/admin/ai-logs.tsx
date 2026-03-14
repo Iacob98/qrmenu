@@ -23,6 +23,7 @@ interface LogRow {
   restaurantName: string | null;
   userId: string;
   restaurantId: string | null;
+  estimatedCost: number | null;
 }
 
 interface LogsResponse {
@@ -106,6 +107,7 @@ export default function AdminAiLogs() {
                     <th className="text-right p-3 font-medium text-gray-600">Prompt</th>
                     <th className="text-right p-3 font-medium text-gray-600">Completion</th>
                     <th className="text-right p-3 font-medium text-gray-600">Total</th>
+                    <th className="text-right p-3 font-medium text-gray-600">Цена</th>
                     <th className="text-center p-3 font-medium text-gray-600">OK</th>
                     <th className="text-right p-3 font-medium text-gray-600">Время</th>
                   </tr>
@@ -114,13 +116,13 @@ export default function AdminAiLogs() {
                   {isLoading
                     ? Array.from({ length: 15 }).map((_, i) => (
                         <tr key={i} className="border-b">
-                          {Array.from({ length: 9 }).map((_, j) => (
+                          {Array.from({ length: 10 }).map((_, j) => (
                             <td key={j} className="p-3"><div className="h-4 bg-gray-100 rounded animate-pulse" /></td>
                           ))}
                         </tr>
                       ))
                     : data?.logs.length === 0 ? (
-                        <tr><td colSpan={9} className="p-8 text-center text-gray-500">AI логи не найдены</td></tr>
+                        <tr><td colSpan={10} className="p-8 text-center text-gray-500">AI логи не найдены</td></tr>
                       )
                     : data?.logs.map((log) => (
                         <tr key={log.id} className={`border-b hover:bg-gray-50 transition-colors ${!log.success ? "bg-red-50" : ""}`}>
@@ -135,6 +137,7 @@ export default function AdminAiLogs() {
                           <td className="p-3 text-right font-mono text-xs">{Number(log.promptTokens).toLocaleString()}</td>
                           <td className="p-3 text-right font-mono text-xs">{Number(log.completionTokens).toLocaleString()}</td>
                           <td className="p-3 text-right font-mono text-xs font-medium">{Number(log.totalTokens).toLocaleString()}</td>
+                          <td className="p-3 text-right font-mono text-xs text-green-600">{log.estimatedCost != null ? `$${log.estimatedCost.toFixed(4)}` : "—"}</td>
                           <td className="p-3 text-center">
                             {log.success
                               ? <CheckCircle className="inline h-3.5 w-3.5 text-green-500" />

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AdminGuard } from "@/components/admin/admin-guard";
 import { AdminLayout } from "./layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, UtensilsCrossed, Zap, TrendingUp, Cpu, Download } from "lucide-react";
+import { Users, UtensilsCrossed, Zap, TrendingUp, Cpu, Download, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   BarChart,
@@ -23,7 +23,8 @@ interface Stats {
     aiRequests: number;
     tokens: number;
   };
-  tokensByType: { requestType: string; count: number; totalTokens: number }[];
+  estimatedCost: number | null;
+  tokensByType: { requestType: string; count: number; totalTokens: number; estimatedCost: number | null }[];
   newUsersDaily: { date: string; count: number }[];
   aiRequestsDaily: { date: string; count: number; tokens: number }[];
 }
@@ -65,20 +66,21 @@ export default function AdminDashboard() {
           {isError ? (
             <Card><CardContent className="py-8 text-center text-gray-500">Не удалось загрузить статистику</CardContent></Card>
           ) : isLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              {Array.from({ length: 5 }).map((_, i) => (
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
                 <Card key={i}><CardContent className="pt-6"><div className="h-8 bg-gray-200 rounded animate-pulse" /></CardContent></Card>
               ))}
             </div>
           ) : stats ? (
             <>
               {/* Stats grid */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                 <StatCard title="Пользователи" value={stats.totals.users} icon={Users} />
                 <StatCard title="Рестораны" value={stats.totals.restaurants} icon={UtensilsCrossed} />
                 <StatCard title="Блюда" value={stats.totals.dishes} icon={TrendingUp} />
                 <StatCard title="AI запросов" value={stats.totals.aiRequests} icon={Zap} />
                 <StatCard title="Всего токенов" value={stats.totals.tokens.toLocaleString()} icon={Cpu} sub="за всё время" />
+                <StatCard title="Стоимость" value={`$${stats.estimatedCost?.toFixed(2) || "0.00"}`} icon={DollarSign} sub="примерная оценка" />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -137,6 +139,7 @@ export default function AdminDashboard() {
                         </div>
                         <span className="text-sm font-medium w-24 text-right">{Number(item.totalTokens).toLocaleString()}</span>
                         <span className="text-xs text-gray-400 w-16 text-right">{item.count} req</span>
+                        <span className="text-xs text-green-600 w-20 text-right">${item.estimatedCost?.toFixed(4) || "0.0000"}</span>
                       </div>
                     ))}
                   </div>
