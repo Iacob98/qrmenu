@@ -101,7 +101,11 @@ export default function AdminRestaurants() {
                       )
                     : data?.restaurants.map((r) => (
                         <tr key={r.id} className="border-b hover:bg-gray-50 transition-colors">
-                          <td className="p-3 font-medium">{r.name}</td>
+                          <td className="p-3 font-medium">
+                            <button className="hover:underline text-blue-600" onClick={() => setLocation(`/admin/restaurants/${r.id}`)}>
+                              {r.name}
+                            </button>
+                          </td>
                           <td className="p-3 text-gray-600 text-xs">
                             <button className="hover:underline" onClick={() => setLocation(`/admin/users/${r.userId}`)}>
                               {r.ownerEmail}

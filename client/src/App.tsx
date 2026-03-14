@@ -22,6 +22,7 @@ import AdminDashboard from "@/pages/admin";
 import AdminUsers from "@/pages/admin/users";
 import AdminUserDetail from "@/pages/admin/user-detail";
 import AdminRestaurants from "@/pages/admin/restaurants";
+import AdminRestaurantDetail from "@/pages/admin/restaurant-detail";
 import AdminAiLogs from "@/pages/admin/ai-logs";
 import AdminFeedback from "@/pages/admin/feedback";
 
@@ -72,6 +73,7 @@ function Router() {
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/users/:id" component={AdminUserDetail} />
       <Route path="/admin/restaurants" component={AdminRestaurants} />
+      <Route path="/admin/restaurants/:id" component={AdminRestaurantDetail} />
       <Route path="/admin/ai-logs" component={AdminAiLogs} />
       <Route path="/admin/feedback" component={AdminFeedback} />
       <Route component={NotFound} />

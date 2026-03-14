@@ -273,6 +273,81 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
+  // GET /api/admin/restaurants/:id — restaurant detail with categories, dishes, owner, AI stats
+  app.get("/api/admin/restaurants/:id", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const [restaurant] = await db
+        .select({
+          id: restaurants.id,
+          name: restaurants.name,
+          slug: restaurants.slug,
+          city: restaurants.city,
+          phone: restaurants.phone,
+          currency: restaurants.currency,
+          language: restaurants.language,
+          targetLanguages: restaurants.targetLanguages,
+          logo: restaurants.logo,
+          banner: restaurants.banner,
+          design: restaurants.design,
+          aiProvider: restaurants.aiProvider,
+          aiModel: restaurants.aiModel,
+          createdAt: restaurants.createdAt,
+          userId: restaurants.userId,
+          ownerEmail: users.email,
+          ownerName: users.name,
+        })
+        .from(restaurants)
+        .leftJoin(users, eq(users.id, restaurants.userId))
+        .where(eq(restaurants.id, id));
+
+      if (!restaurant) return res.status(404).json({ message: "Restaurant not found" });
+
+      // Fetch categories with dishes (same pattern as getRestaurantWithCategories)
+      const [categoryDishRows, [{ totalTokens, totalRequests }]] = await Promise.all([
+        db
+          .select({
+            category: categories,
+            dish: dishes,
+          })
+          .from(categories)
+          .leftJoin(dishes, eq(dishes.categoryId, categories.id))
+          .where(eq(categories.restaurantId, id))
+          .orderBy(categories.sortOrder, dishes.sortOrder),
+
+        db
+          .select({
+            totalTokens: sql<number>`COALESCE(SUM(total_tokens), 0)`,
+            totalRequests: count(),
+          })
+          .from(aiUsageLogs)
+          .where(eq(aiUsageLogs.restaurantId, id)),
+      ]);
+
+      // Group results by category
+      const categoriesMap = new Map<string, any>();
+      for (const row of categoryDishRows) {
+        const categoryId = row.category.id;
+        if (!categoriesMap.has(categoryId)) {
+          categoriesMap.set(categoryId, { ...row.category, dishes: [] });
+        }
+        if (row.dish) {
+          categoriesMap.get(categoryId)!.dishes.push(row.dish);
+        }
+      }
+
+      res.json({
+        restaurant,
+        categories: Array.from(categoriesMap.values()),
+        aiStats: { totalTokens: Number(totalTokens), totalRequests: Number(totalRequests) },
+      });
+    } catch (error) {
+      console.error("[Admin] Restaurant detail error:", error);
+      res.status(500).json({ message: "Failed to fetch restaurant details" });
+    }
+  });
+
   // GET /api/admin/ai-logs — AI usage log with filters
   app.get("/api/admin/ai-logs", requireAdmin, async (req, res) => {
     try {
