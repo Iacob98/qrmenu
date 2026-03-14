@@ -331,6 +331,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update user profile (name only, email is read-only)
+  app.patch("/api/auth/profile", requireAuth, async (req, res) => {
+    try {
+      const { name } = req.body;
+      if (typeof name !== "string" || name.trim().length === 0) {
+        return res.status(400).json({ message: "Name is required" });
+      }
+      if (name.trim().length > 100) {
+        return res.status(400).json({ message: "Name is too long" });
+      }
+      const user = await storage.updateUser(req.session.userId!, { name: name.trim() });
+      res.json({
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          emailVerified: user.emailVerified,
+          onboarded: user.onboarded,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ message: handleError(error) });
+    }
+  });
+
   // Email verification routes removed - using auto-verification for now
 
   // Test email route removed - using auto-verification for now

@@ -134,13 +134,30 @@ export default function Settings() {
     updateRestaurantMutation.mutate(restaurantForm);
   };
 
+  const updateProfileMutation = useMutation({
+    mutationFn: async (data: { name: string }) => {
+      const response = await apiRequest("PATCH", "/api/auth/profile", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      toast({
+        title: t('saveProfile'),
+        description: t('profileUpdated') || "Profile updated successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleProfileSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement profile update API
-    toast({
-      title: "Feature in development",
-      description: "Profile update will be available in the next version",
-    });
+    updateProfileMutation.mutate({ name: profileForm.name });
   };
 
   const copyPublicLink = () => {
@@ -483,8 +500,8 @@ export default function Settings() {
                     <Separator />
 
                     <div className="flex justify-between">
-                      <Button type="submit" variant="outline">
-                        {t('saveProfile')}
+                      <Button type="submit" variant="outline" disabled={updateProfileMutation.isPending}>
+                        {updateProfileMutation.isPending ? t('saving') || "Saving..." : t('saveProfile')}
                       </Button>
                       <Button type="button" variant="outline" onClick={logout}>
                         {t('logOut')}
