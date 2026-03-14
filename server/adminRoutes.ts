@@ -20,7 +20,16 @@ const MODEL_PRICING: Record<string, { input: number; output: number }> = {
   "default": { input: 2.50, output: 10.00 },
 };
 
-function estimateCost(model: string | null, promptTokens: number, completionTokens: number): number {
+// Fixed cost per request for non-token-based services (USD)
+const FIXED_COST_PER_REQUEST: Record<string, number> = {
+  "generate-image": 0.04, // Replicate Imagen-4 ~$0.04/image
+};
+
+function estimateCost(model: string | null, promptTokens: number, completionTokens: number, requestType?: string): number {
+  // For non-token-based services, use fixed cost
+  if (requestType && FIXED_COST_PER_REQUEST[requestType] && promptTokens === 0 && completionTokens === 0) {
+    return FIXED_COST_PER_REQUEST[requestType];
+  }
   const pricing = MODEL_PRICING[model || ""] || MODEL_PRICING["default"];
   return (promptTokens * pricing.input + completionTokens * pricing.output) / 1_000_000;
 }
@@ -65,14 +74,19 @@ export function registerAdminRoutes(app: Express) {
         .from(aiUsageLogs)
         .groupBy(aiUsageLogs.model);
 
-      const totalEstimatedCost = costByModel.reduce(
+      const tokenBasedCost = costByModel.reduce(
         (sum, row) => sum + estimateCost(row.model, Number(row.promptTokens), Number(row.completionTokens)),
         0,
       );
+      // Add fixed costs for non-token-based requests (e.g. image generation)
+      const fixedCostRequests = tokensByType
+        .filter(row => FIXED_COST_PER_REQUEST[row.requestType] && Number(row.promptTokens) === 0)
+        .reduce((sum, row) => sum + (FIXED_COST_PER_REQUEST[row.requestType] || 0) * Number(row.count), 0);
+      const totalEstimatedCost = tokenBasedCost + fixedCostRequests;
 
       const tokensByTypeWithCost = tokensByType.map(row => ({
         ...row,
-        estimatedCost: estimateCost(null, Number(row.promptTokens), Number(row.completionTokens)),
+        estimatedCost: estimateCost(null, Number(row.promptTokens), Number(row.completionTokens), row.requestType),
       }));
 
       // New users last 30 days (daily)
@@ -236,7 +250,7 @@ export function registerAdminRoutes(app: Express) {
 
       const recentLogsWithCost = recentLogs.map(log => ({
         ...log,
-        estimatedCost: estimateCost(log.model, Number(log.promptTokens), Number(log.completionTokens)),
+        estimatedCost: estimateCost(log.model, Number(log.promptTokens), Number(log.completionTokens), log.requestType),
       }));
 
       const userEstimatedCost = estimateCost(null, Number(totalPromptTokens), Number(totalCompletionTokens));
@@ -456,7 +470,7 @@ export function registerAdminRoutes(app: Express) {
 
       const logsWithCost = logs.map(log => ({
         ...log,
-        estimatedCost: estimateCost(log.model, Number(log.promptTokens), Number(log.completionTokens)),
+        estimatedCost: estimateCost(log.model, Number(log.promptTokens), Number(log.completionTokens), log.requestType),
       }));
 
       res.json({
