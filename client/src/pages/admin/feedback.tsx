@@ -67,6 +67,9 @@ export default function AdminFeedback() {
             </div>
           ) : (
             <div className="space-y-3">
+              {data?.feedback.length === 0 && (
+                <Card><CardContent className="py-8 text-center text-gray-500">Нет обратной связи</CardContent></Card>
+              )}
               {data?.feedback.map((fb) => (
                 <Card key={fb.id} className="overflow-hidden">
                   <CardContent className="p-0">

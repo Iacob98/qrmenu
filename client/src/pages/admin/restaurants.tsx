@@ -50,8 +50,8 @@ export default function AdminRestaurants() {
           </div>
 
           <Card>
-            <CardContent className="p-0">
-              <table className="w-full text-sm">
+            <CardContent className="p-0 overflow-x-auto">
+              <table className="w-full text-sm min-w-[800px]">
                 <thead>
                   <tr className="border-b bg-gray-50">
                     <th className="text-left p-3 font-medium text-gray-600">Ресторан</th>
@@ -74,6 +74,9 @@ export default function AdminRestaurants() {
                           ))}
                         </tr>
                       ))
+                    : data?.restaurants.length === 0 ? (
+                        <tr><td colSpan={9} className="p-8 text-center text-gray-500">Рестораны не найдены</td></tr>
+                      )
                     : data?.restaurants.map((r) => (
                         <tr key={r.id} className="border-b hover:bg-gray-50 transition-colors">
                           <td className="p-3 font-medium">{r.name}</td>

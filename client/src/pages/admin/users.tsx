@@ -75,8 +75,8 @@ export default function AdminUsers() {
           </div>
 
           <Card>
-            <CardContent className="p-0">
-              <table className="w-full text-sm">
+            <CardContent className="p-0 overflow-x-auto">
+              <table className="w-full text-sm min-w-[700px]">
                 <thead>
                   <tr className="border-b bg-gray-50">
                     <th className="text-left p-3 font-medium text-gray-600">Email</th>
@@ -98,6 +98,12 @@ export default function AdminUsers() {
                           ))}
                         </tr>
                       ))
+                    : isError ? (
+                        <tr><td colSpan={8} className="p-8 text-center text-gray-500">Не удалось загрузить пользователей</td></tr>
+                      )
+                    : data?.users.length === 0 ? (
+                        <tr><td colSpan={8} className="p-8 text-center text-gray-500">Пользователи не найдены</td></tr>
+                      )
                     : data?.users.map((user) => (
                         <tr key={user.id} className="border-b hover:bg-gray-50 transition-colors">
                           <td className="p-3 font-medium">{user.email}</td>

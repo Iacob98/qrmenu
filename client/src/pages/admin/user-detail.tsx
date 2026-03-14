@@ -49,7 +49,7 @@ export default function AdminUserDetail() {
               {/* User info */}
               <Card>
                 <CardHeader><CardTitle className="text-sm">Информация о пользователе</CardTitle></CardHeader>
-                <CardContent className="grid grid-cols-2 gap-4 text-sm">
+                <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div><span className="text-gray-500">Email:</span> <span className="font-medium">{data.user.email}</span></div>
                   <div><span className="text-gray-500">Имя:</span> <span>{data.user.name || "—"}</span></div>
                   <div>

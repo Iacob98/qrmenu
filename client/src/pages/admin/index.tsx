@@ -43,7 +43,7 @@ function StatCard({ title, value, icon: Icon, sub }: { title: string; value: str
 }
 
 export default function AdminDashboard() {
-  const { data: stats, isLoading } = useQuery<Stats>({ queryKey: ["/api/admin/stats"] });
+  const { data: stats, isLoading, isError } = useQuery<Stats>({ queryKey: ["/api/admin/stats"] });
 
   return (
     <AdminGuard>
@@ -51,8 +51,10 @@ export default function AdminDashboard() {
         <div className="space-y-6">
           <h1 className="text-2xl font-bold text-gray-900">Обзор платформы</h1>
 
-          {isLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {isError ? (
+            <Card><CardContent className="py-8 text-center text-gray-500">Не удалось загрузить статистику</CardContent></Card>
+          ) : isLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Card key={i}><CardContent className="pt-6"><div className="h-8 bg-gray-200 rounded animate-pulse" /></CardContent></Card>
               ))}
