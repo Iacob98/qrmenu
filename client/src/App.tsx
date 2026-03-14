@@ -25,6 +25,8 @@ import AdminRestaurants from "@/pages/admin/restaurants";
 import AdminRestaurantDetail from "@/pages/admin/restaurant-detail";
 import AdminAiLogs from "@/pages/admin/ai-logs";
 import AdminFeedback from "@/pages/admin/feedback";
+import PrivacyPolicy from "@/pages/privacy";
+import TermsOfUse from "@/pages/terms";
 
 function Router() {
   usePageTracking();
@@ -76,6 +78,8 @@ function Router() {
       <Route path="/admin/restaurants/:id" component={AdminRestaurantDetail} />
       <Route path="/admin/ai-logs" component={AdminAiLogs} />
       <Route path="/admin/feedback" component={AdminFeedback} />
+      <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/terms" component={TermsOfUse} />
       <Route component={NotFound} />
     </Switch>
   );

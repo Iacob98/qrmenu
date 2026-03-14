@@ -680,9 +680,9 @@ export default function Landing() {
                 <div className="mt-8 pt-6 border-t border-gray-800">
                   <p className="text-sm text-gray-400 mb-2">{t('legalInfo')}</p>
                   <div className="space-y-2 text-sm">
-                    <a href="#" className="block text-gray-400 hover:text-white transition-colors">{t('privacyPolicy')}</a>
-                    <a href="#" className="block text-gray-400 hover:text-white transition-colors">{t('termsOfUse')}</a>
-                    <a href="#" className="block text-gray-400 hover:text-white transition-colors">{t('cookieFiles')}</a>
+                    <a href="/privacy" className="block text-gray-400 hover:text-white transition-colors">{t('privacyPolicy')}</a>
+                    <a href="/terms" className="block text-gray-400 hover:text-white transition-colors">{t('termsOfUse')}</a>
+                    <a href="/privacy#cookies" className="block text-gray-400 hover:text-white transition-colors">{t('cookieFiles')}</a>
                   </div>
                 </div>
               </div>

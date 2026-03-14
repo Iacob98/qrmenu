@@ -164,7 +164,9 @@ export default function Register() {
                     <Label htmlFor="email">📧 {t('email')}</Label>
                     <Input
                       id="email"
+                      name="email"
                       type="email"
+                      autoComplete="email"
                       value={formData.email}
                       onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                       placeholder={t('emailPlaceholder')}
@@ -176,7 +178,9 @@ export default function Register() {
                     <Label htmlFor="password">🔒 {t('password')}</Label>
                     <Input
                       id="password"
+                      name="password"
                       type="password"
+                      autoComplete="new-password"
                       value={formData.password}
                       onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
                       placeholder={t('passwordMinLength')}
@@ -188,7 +192,9 @@ export default function Register() {
                     <Label htmlFor="confirmPassword">🔒 {t('confirmPassword')}</Label>
                     <Input
                       id="confirmPassword"
+                      name="confirmPassword"
                       type="password"
+                      autoComplete="new-password"
                       value={formData.confirmPassword}
                       onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
                       required

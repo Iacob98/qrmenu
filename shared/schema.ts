@@ -167,7 +167,11 @@ export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
 }).extend({
   email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters").max(128),
+  password: z.string()
+    .min(8, "Password must be at least 8 characters")
+    .max(128)
+    .regex(/[a-zA-Z]/, "Password must contain at least one letter")
+    .regex(/[0-9]/, "Password must contain at least one digit"),
 });
 
 export const insertRestaurantSchema = createInsertSchema(restaurants).omit({

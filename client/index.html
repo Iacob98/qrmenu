@@ -45,11 +45,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@300;400;600;700&family=Lato:wght@300;400;700&family=Nunito:wght@300;400;500;600;700&family=PT+Sans:wght@400;700&family=PT+Serif:wght@400;700&family=Fira+Sans:wght@300;400;500;600;700&family=Ubuntu:wght@300;400;500;700&subset=cyrillic,cyrillic-ext,latin,latin-ext&display=swap" rel="stylesheet">
   </head>
   <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript>
-      <iframe src="https://www.googletagmanager.com/ns.html?id=%VITE_GTM_ID%"
-        height="0" width="0" style="display:none;visibility:hidden"></iframe>
-    </noscript>
+    <!-- Google Tag Manager (noscript) — only rendered when GTM ID is set -->
+    <script>
+      (function(){
+        var id='%VITE_GTM_ID%';
+        if(!id)return;
+        var ns=document.createElement('noscript');
+        var iframe=document.createElement('iframe');
+        iframe.src='https://www.googletagmanager.com/ns.html?id='+id;
+        iframe.height='0';iframe.width='0';
+        iframe.style.display='none';iframe.style.visibility='hidden';
+        ns.appendChild(iframe);
+        document.body.insertBefore(ns,document.body.firstChild);
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

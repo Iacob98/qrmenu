@@ -110,10 +110,12 @@ export default function Login() {
                     <FormItem>
                       <FormLabel>{t('email')}</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="email" 
-                          placeholder={t('emailPlaceholder')} 
-                          {...field} 
+                        <Input
+                          type="email"
+                          name="email"
+                          autoComplete="email"
+                          placeholder={t('emailPlaceholder')}
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -131,6 +133,8 @@ export default function Login() {
                         <div className="relative">
                           <Input
                             type={showPassword ? "text" : "password"}
+                            name="password"
+                            autoComplete="current-password"
                             placeholder={t('passwordPlaceholder')}
                             {...field}
                           />

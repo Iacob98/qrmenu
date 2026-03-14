@@ -14,9 +14,25 @@ const app = express();
 
 // Security headers
 app.use(helmet({
-  contentSecurityPolicy: false, // Disabled for now — Vite injects inline scripts in dev
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "blob:", "https:", "http:"],
+      connectSrc: ["'self'", "ws:", "wss:", "https://www.google-analytics.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      frameSrc: ["'self'", "https://www.googletagmanager.com"],
+    },
+  },
   crossOriginEmbedderPolicy: false,
 }));
+
+// Permissions-Policy header
+app.use((_req, res, next) => {
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+  next();
+});
 
 // Compression middleware - reduces response size by ~70%
 app.use(compression({
@@ -34,28 +50,39 @@ app.use(compression({
 // CORS configuration for development and production
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
-  const isDevelopment = process.env.NODE_ENV !== 'production';
-  const isLocalhost = origin?.includes('localhost') || origin?.includes('127.0.0.1');
 
-  // Allow requests from configured origins; localhost only in development
-  const isAllowed = !origin ||
-    (isDevelopment && isLocalhost) ||
-    allowedOrigins.some(allowed => origin === allowed.trim() || origin === `https://${allowed.trim()}` || origin === `http://${allowed.trim()}`);
+  // No origin header (same-origin requests, curl, etc.) — allow through without CORS headers
+  if (!origin) {
+    if (req.method === 'OPTIONS') return res.sendStatus(204);
+    return next();
+  }
+
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean);
+
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+  const isLocalhost = origin.includes('localhost') || origin.includes('127.0.0.1');
+
+  // Allow configured origins; localhost only in development
+  const isAllowed =
+    allowedOrigins.includes(origin) ||
+    (isDevelopment && isLocalhost);
 
   if (isAllowed) {
-    res.header('Access-Control-Allow-Origin', origin || '*');
+    res.header('Access-Control-Allow-Origin', origin);
     res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,Authorization,X-CSRF-Protection');
+    res.header('Vary', 'Origin');
   }
-
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,Authorization,X-CSRF-Protection');
 
   if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
+    return res.sendStatus(204);
   }
+
+  next();
 });
 
 app.use(express.json({ limit: '10mb' })); // Increase limit for AI image uploads
