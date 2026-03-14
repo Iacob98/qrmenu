@@ -13,16 +13,26 @@ export let wsManager: MenuWebSocketManager;
 const app = express();
 
 // Security headers
+const isDev = process.env.NODE_ENV !== 'production';
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: [
+        "'self'",
+        "'unsafe-inline'", // Required for GTM inline scripts
+        ...(isDev ? ["'unsafe-eval'"] : []), // Only in dev for Vite HMR
+        "https://www.googletagmanager.com",
+        "https://www.google-analytics.com",
+      ],
+      styleSrc: ["'self'", "'unsafe-inline'"], // Required for Tailwind
       imgSrc: ["'self'", "data:", "blob:", "https:", "http:"],
-      connectSrc: ["'self'", "ws:", "wss:", "https://www.google-analytics.com"],
+      connectSrc: ["'self'", "ws:", "wss:", "https://www.google-analytics.com", "https://region1.google-analytics.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       frameSrc: ["'self'", "https://www.googletagmanager.com"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
     },
   },
   crossOriginEmbedderPolicy: false,

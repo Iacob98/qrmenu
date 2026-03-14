@@ -204,11 +204,12 @@ export default function Register() {
                   <div className="flex items-start space-x-2">
                     <Checkbox
                       id="terms"
+                      required
                       checked={formData.acceptTerms}
                       onCheckedChange={(checked) => setFormData(prev => ({ ...prev, acceptTerms: checked === true }))}
                     />
                     <Label htmlFor="terms" className="text-sm">
-                      {t('acceptTerms')}
+                      {t('acceptTerms')} <span className="text-red-500">*</span>
                     </Label>
                   </div>
                   
