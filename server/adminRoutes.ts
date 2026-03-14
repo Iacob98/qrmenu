@@ -1,8 +1,17 @@
 import type { Express } from "express";
 import { db } from "./db";
 import { users, restaurants, aiUsageLogs, feedback, categories, dishes } from "@shared/schema";
-import { eq, desc, sql, count, sum, and, gte, lte } from "drizzle-orm";
+import { eq, desc, sql, count, sum, and, gte, lte, or, ilike } from "drizzle-orm";
 import { requireAdmin } from "./middleware/adminAuth";
+import { z } from "zod";
+
+const VALID_FEEDBACK_STATUS = ["open", "in_progress", "resolved", "closed"] as const;
+const VALID_FEEDBACK_PRIORITY = ["low", "medium", "high", "critical"] as const;
+
+const updateFeedbackSchema = z.object({
+  status: z.enum(VALID_FEEDBACK_STATUS).optional(),
+  priority: z.enum(VALID_FEEDBACK_PRIORITY).optional(),
+}).refine(data => data.status || data.priority, { message: "At least one of status or priority is required" });
 
 export function registerAdminRoutes(app: Express) {
   // GET /api/admin/stats — platform-wide overview
@@ -100,11 +109,15 @@ export function registerAdminRoutes(app: Express) {
         .limit(limit)
         .offset(offset);
 
+      const searchCondition = search
+        ? or(ilike(users.email, `%${search}%`), ilike(users.name, `%${search}%`))
+        : undefined;
+
       const [allUsers, [{ total }]] = await Promise.all([
-        search
-          ? baseQuery.where(sql`${users.email} ILIKE ${'%' + search + '%'} OR ${users.name} ILIKE ${'%' + search + '%'}`)
-          : baseQuery,
-        db.select({ total: count() }).from(users),
+        searchCondition ? baseQuery.where(searchCondition) : baseQuery,
+        searchCondition
+          ? db.select({ total: count() }).from(users).where(searchCondition)
+          : db.select({ total: count() }).from(users),
       ]);
 
       res.json({
@@ -179,13 +192,28 @@ export function registerAdminRoutes(app: Express) {
   app.patch("/api/admin/users/:id", requireAdmin, async (req, res) => {
     try {
       const { id } = req.params;
-      const { isAdmin } = req.body;
+      const { isAdmin: newIsAdmin } = req.body;
+
+      if (typeof newIsAdmin !== "boolean") {
+        return res.status(400).json({ message: "isAdmin must be a boolean" });
+      }
 
       if (id === req.session.userId) {
         return res.status(400).json({ message: "Cannot modify your own admin status" });
       }
 
-      await db.update(users).set({ isAdmin: Boolean(isAdmin) }).where(eq(users.id, id));
+      // Prevent removing the last admin
+      if (!newIsAdmin) {
+        const [{ adminCount }] = await db.select({ adminCount: count() }).from(users).where(eq(users.isAdmin, true));
+        if (Number(adminCount) <= 1) {
+          return res.status(400).json({ message: "Cannot remove the last admin" });
+        }
+      }
+
+      const [updated] = await db.update(users).set({ isAdmin: newIsAdmin }).where(eq(users.id, id)).returning({ id: users.id });
+      if (!updated) {
+        return res.status(404).json({ message: "User not found" });
+      }
       res.json({ success: true });
     } catch (error) {
       console.error("[Admin] Update user error:", error);
@@ -323,13 +351,19 @@ export function registerAdminRoutes(app: Express) {
   app.patch("/api/admin/feedback/:id", requireAdmin, async (req, res) => {
     try {
       const { id } = req.params;
-      const { status, priority } = req.body;
+      const parsed = updateFeedbackSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ message: parsed.error.errors[0]?.message || "Invalid input" });
+      }
 
       const updateData: Record<string, string> = {};
-      if (status) updateData.status = status;
-      if (priority) updateData.priority = priority;
+      if (parsed.data.status) updateData.status = parsed.data.status;
+      if (parsed.data.priority) updateData.priority = parsed.data.priority;
 
-      await db.update(feedback).set(updateData).where(eq(feedback.id, id));
+      const [updated] = await db.update(feedback).set(updateData).where(eq(feedback.id, id)).returning({ id: feedback.id });
+      if (!updated) {
+        return res.status(404).json({ message: "Feedback not found" });
+      }
       res.json({ success: true });
     } catch (error) {
       console.error("[Admin] Update feedback error:", error);
@@ -339,8 +373,13 @@ export function registerAdminRoutes(app: Express) {
 
   // GET /api/admin/me — check if current user is admin
   app.get("/api/admin/me", async (req, res) => {
-    if (!req.session.userId) return res.json({ isAdmin: false });
-    const [user] = await db.select({ isAdmin: users.isAdmin }).from(users).where(eq(users.id, req.session.userId));
-    res.json({ isAdmin: Boolean(user?.isAdmin) });
+    try {
+      if (!req.session.userId) return res.json({ isAdmin: false });
+      const [user] = await db.select({ isAdmin: users.isAdmin }).from(users).where(eq(users.id, req.session.userId));
+      res.json({ isAdmin: Boolean(user?.isAdmin) });
+    } catch (error) {
+      console.error("[Admin] Me check error:", error);
+      res.json({ isAdmin: false });
+    }
   });
 }

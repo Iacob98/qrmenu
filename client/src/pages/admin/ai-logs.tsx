@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { AdminGuard } from "@/components/admin/admin-guard";
@@ -37,17 +37,23 @@ export default function AdminAiLogs() {
   const [filterType, setFilterType] = useState("");
   const [, setLocation] = useLocation();
 
-  // Read restaurantId from URL query params
-  const urlParams = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
-  const restaurantId = urlParams.get("restaurantId") || "";
+  // Initialize restaurantId from URL, then manage in React state
+  const [restaurantId, setRestaurantId] = useState(() => {
+    if (typeof window !== "undefined") {
+      return new URLSearchParams(window.location.search).get("restaurantId") || "";
+    }
+    return "";
+  });
 
   const { data, isLoading } = useQuery<LogsResponse>({
     queryKey: ["/api/admin/ai-logs", page, filterType, restaurantId],
-    queryFn: () => {
+    queryFn: async () => {
       const params = new URLSearchParams({ page: String(page) });
       if (filterType) params.set("requestType", filterType);
       if (restaurantId) params.set("restaurantId", restaurantId);
-      return fetch(`/api/admin/ai-logs?${params}`, { credentials: "include" }).then((r) => r.json());
+      const res = await fetch(`/api/admin/ai-logs?${params}`, { credentials: "include" });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || res.statusText);
+      return res.json();
     },
   });
 
@@ -59,7 +65,7 @@ export default function AdminAiLogs() {
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold text-gray-900">AI логи</h1>
               {restaurantId && (
-                <Badge variant="outline" className="cursor-pointer" onClick={() => setLocation("/admin/ai-logs")}>
+                <Badge variant="outline" className="cursor-pointer" onClick={() => setRestaurantId("")}>
                   Ресторан: {data?.logs[0]?.restaurantName || restaurantId} ✕
                 </Badge>
               )}

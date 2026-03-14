@@ -41,7 +41,6 @@ export default function AdminFeedback() {
 
   const { data, isLoading } = useQuery<{ feedback: FeedbackRow[] }>({
     queryKey: ["/api/admin/feedback"],
-    queryFn: () => fetch("/api/admin/feedback", { credentials: "include" }).then((r) => r.json()),
   });
 
   const update = useMutation({

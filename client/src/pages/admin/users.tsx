@@ -36,10 +36,13 @@ export default function AdminUsers() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery<UsersResponse>({
+  const { data, isLoading, isError } = useQuery<UsersResponse>({
     queryKey: ["/api/admin/users", page, search],
-    queryFn: () =>
-      fetch(`/api/admin/users?page=${page}&search=${encodeURIComponent(search)}`, { credentials: "include" }).then((r) => r.json()),
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/users?page=${page}&search=${encodeURIComponent(search)}`, { credentials: "include" });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || res.statusText);
+      return res.json();
+    },
   });
 
   const toggleAdmin = useMutation({

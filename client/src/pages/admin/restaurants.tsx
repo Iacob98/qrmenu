@@ -33,8 +33,11 @@ export default function AdminRestaurants() {
 
   const { data, isLoading } = useQuery<RestaurantsResponse>({
     queryKey: ["/api/admin/restaurants", page],
-    queryFn: () =>
-      fetch(`/api/admin/restaurants?page=${page}`, { credentials: "include" }).then((r) => r.json()),
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/restaurants?page=${page}`, { credentials: "include" });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message || res.statusText);
+      return res.json();
+    },
   });
 
   return (

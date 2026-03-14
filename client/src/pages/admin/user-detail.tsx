@@ -19,10 +19,9 @@ export default function AdminUserDetail() {
   const [, setLocation] = useLocation();
   const id = params?.id;
 
-  const { data, isLoading } = useQuery<UserDetail>({
+  const { data, isLoading, isError } = useQuery<UserDetail>({
     queryKey: [`/api/admin/users/${id}`],
     enabled: Boolean(id),
-    queryFn: () => fetch(`/api/admin/users/${id}`, { credentials: "include" }).then((r) => r.json()),
   });
 
   return (
@@ -38,7 +37,9 @@ export default function AdminUserDetail() {
             </h1>
           </div>
 
-          {isLoading ? (
+          {isError ? (
+            <Card><CardContent className="py-8 text-center text-gray-500">Не удалось загрузить данные пользователя</CardContent></Card>
+          ) : isLoading ? (
             <div className="animate-pulse space-y-4">
               <div className="h-32 bg-gray-100 rounded-lg" />
               <div className="h-48 bg-gray-100 rounded-lg" />
