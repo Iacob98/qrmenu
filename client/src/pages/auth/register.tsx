@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Utensils } from "lucide-react";
+import { Utensils, Mail, Lock, Home, Globe, Phone, DollarSign, Brain } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
@@ -161,7 +161,7 @@ export default function Register() {
               <CardContent>
                 <form onSubmit={handleStepOne} className="space-y-4">
                   <div>
-                    <Label htmlFor="email">📧 {t('email')}</Label>
+                    <Label htmlFor="email" className="flex items-center gap-1"><Mail className="h-4 w-4" /> {t('email')}</Label>
                     <Input
                       id="email"
                       name="email"
@@ -175,7 +175,7 @@ export default function Register() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="password">🔒 {t('password')}</Label>
+                    <Label htmlFor="password" className="flex items-center gap-1"><Lock className="h-4 w-4" /> {t('password')}</Label>
                     <Input
                       id="password"
                       name="password"
@@ -189,7 +189,7 @@ export default function Register() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="confirmPassword">🔒 {t('confirmPassword')}</Label>
+                    <Label htmlFor="confirmPassword" className="flex items-center gap-1"><Lock className="h-4 w-4" /> {t('confirmPassword')}</Label>
                     <Input
                       id="confirmPassword"
                       name="confirmPassword"
@@ -230,7 +230,7 @@ export default function Register() {
               <CardContent>
                 <form onSubmit={handleStepTwo} className="space-y-4">
                   <div>
-                    <Label htmlFor="restaurantName">🏠 {t('restaurantName')}</Label>
+                    <Label htmlFor="restaurantName" className="flex items-center gap-1"><Home className="h-4 w-4" /> {t('restaurantName')}</Label>
                     <Input
                       id="restaurantName"
                       value={formData.restaurantName}
@@ -241,7 +241,7 @@ export default function Register() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="city">🌍 {t('city')}</Label>
+                    <Label htmlFor="city" className="flex items-center gap-1"><Globe className="h-4 w-4" /> {t('city')}</Label>
                     <Input
                       id="city"
                       value={formData.city}
@@ -251,7 +251,7 @@ export default function Register() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="phone">📞 {t('phoneOptional')}</Label>
+                    <Label htmlFor="phone" className="flex items-center gap-1"><Phone className="h-4 w-4" /> {t('phoneOptional')}</Label>
                     <Input
                       id="phone"
                       type="tel"
@@ -262,7 +262,7 @@ export default function Register() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="currency">💱 {t('currency')}</Label>
+                    <Label htmlFor="currency" className="flex items-center gap-1"><DollarSign className="h-4 w-4" /> {t('currency')}</Label>
                     <Select
                       value={formData.currency}
                       onValueChange={(value) => setFormData(prev => ({ ...prev, currency: value }))}
@@ -280,7 +280,7 @@ export default function Register() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="aiToken">🧠 {t('aiTokenOptional')}</Label>
+                    <Label htmlFor="aiToken" className="flex items-center gap-1"><Brain className="h-4 w-4" /> {t('aiTokenOptional')}</Label>
                     <Input
                       id="aiToken"
                       value={formData.aiToken}

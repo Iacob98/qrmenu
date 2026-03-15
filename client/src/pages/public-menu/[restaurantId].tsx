@@ -521,7 +521,7 @@ function PublicMenuContent() {
             <div className="flex flex-wrap gap-1 text-xs">
               {searchQuery && (
                 <Badge variant="secondary" className="text-xs px-2 py-1">
-                  🔍 {searchQuery}
+                  <Search className="h-3 w-3" /> {searchQuery}
                   <X 
                     className="ml-1 h-3 w-3 cursor-pointer" 
                     onClick={() => setSearchQuery("")}
@@ -594,7 +594,7 @@ function PublicMenuContent() {
         {/* Connection Status - Minimal */}
         {!isConnected && (
           <div className="fixed bottom-4 right-4 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-medium shadow-lg">
-            ⏳
+            ...
           </div>
         )}
         

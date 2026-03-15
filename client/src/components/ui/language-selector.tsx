@@ -10,19 +10,34 @@ import {
 import { Globe } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useQueryClient } from '@tanstack/react-query';
+import { FlagIcon } from '@/components/ui/flag-icon';
+
+// Language code to country code mapping
+const langToCountry: Record<string, string> = {
+  en: 'us',
+  de: 'de',
+  ru: 'ru',
+  uk: 'ua',
+  es: 'es',
+  fr: 'fr',
+  it: 'it',
+  pl: 'pl',
+  tr: 'tr',
+  ro: 'ro',
+};
 
 // All supported languages with their metadata
-const allLanguages: Record<string, { name: string; flag: string }> = {
-  en: { name: 'English', flag: '🇺🇸' },
-  de: { name: 'Deutsch', flag: '🇩🇪' },
-  ru: { name: 'Русский', flag: '🇷🇺' },
-  uk: { name: 'Українська', flag: '🇺🇦' },
-  es: { name: 'Español', flag: '🇪🇸' },
-  fr: { name: 'Français', flag: '🇫🇷' },
-  it: { name: 'Italiano', flag: '🇮🇹' },
-  pl: { name: 'Polski', flag: '🇵🇱' },
-  tr: { name: 'Türkçe', flag: '🇹🇷' },
-  ro: { name: 'Română', flag: '🇷🇴' },
+const allLanguages: Record<string, { name: string; countryCode: string }> = {
+  en: { name: 'English', countryCode: 'us' },
+  de: { name: 'Deutsch', countryCode: 'de' },
+  ru: { name: 'Русский', countryCode: 'ru' },
+  uk: { name: 'Українська', countryCode: 'ua' },
+  es: { name: 'Español', countryCode: 'es' },
+  fr: { name: 'Français', countryCode: 'fr' },
+  it: { name: 'Italiano', countryCode: 'it' },
+  pl: { name: 'Polski', countryCode: 'pl' },
+  tr: { name: 'Türkçe', countryCode: 'tr' },
+  ro: { name: 'Română', countryCode: 'ro' },
 };
 
 // Default languages when no specific list provided
@@ -71,8 +86,8 @@ export function LanguageSelector({ availableLanguages }: LanguageSelectorProps) 
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="gap-2">
           <Globe className="h-4 w-4" />
-          <span className="hidden sm:inline">{currentLanguage.flag} {currentLanguage.name}</span>
-          <span className="sm:hidden">{currentLanguage.flag}</span>
+          <span className="hidden sm:inline"><FlagIcon code={currentLanguage.countryCode} size={16} /> {currentLanguage.name}</span>
+          <span className="sm:hidden"><FlagIcon code={currentLanguage.countryCode} size={16} /></span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -82,7 +97,7 @@ export function LanguageSelector({ availableLanguages }: LanguageSelectorProps) 
             onClick={() => handleLanguageChange(language.code)}
             className={i18n.language === language.code ? 'bg-accent' : ''}
           >
-            <span className="mr-2">{language.flag}</span>
+            <FlagIcon code={language.countryCode} size={16} className="mr-2" />
             {language.name}
           </DropdownMenuItem>
         ))}

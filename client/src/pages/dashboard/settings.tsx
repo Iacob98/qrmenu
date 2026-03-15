@@ -11,7 +11,8 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
-import { Copy, Check, AlertTriangle, Upload, X, Image, Loader2, Languages, BookOpen } from "lucide-react";
+import { Copy, Check, AlertTriangle, Upload, X, Image, Loader2, Languages, BookOpen, Home, Phone, DollarSign, Globe, User, UserCog, Lock } from "lucide-react";
+import { FlagIcon } from "@/components/ui/flag-icon";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FileUpload } from "@/components/ui/file-upload";
 import { useTranslation } from "react-i18next";
@@ -234,7 +235,7 @@ export default function Settings() {
                       <form onSubmit={handleRestaurantSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                           <div>
-                            <Label htmlFor="name">🏠 {t('restaurantNameSetting')}</Label>
+                            <Label htmlFor="name" className="flex items-center gap-1"><Home className="h-4 w-4" /> {t('restaurantNameSetting')}</Label>
                             <Input
                               id="name"
                               value={restaurantForm.name}
@@ -243,7 +244,7 @@ export default function Settings() {
                             />
                           </div>
                           <div>
-                            <Label htmlFor="city">🌍 {t('citySetting')}</Label>
+                            <Label htmlFor="city" className="flex items-center gap-1"><Globe className="h-4 w-4" /> {t('citySetting')}</Label>
                             <Input
                               id="city"
                               value={restaurantForm.city}
@@ -253,7 +254,7 @@ export default function Settings() {
                         </div>
                         
                         <div>
-                          <Label htmlFor="phone">📞 {t('phoneSetting')}</Label>
+                          <Label htmlFor="phone" className="flex items-center gap-1"><Phone className="h-4 w-4" /> {t('phoneSetting')}</Label>
                           <Input
                             id="phone"
                             type="tel"
@@ -286,7 +287,7 @@ export default function Settings() {
                       {/* Logo Section */}
                       <div>
                         <FileUpload
-                          label={`🏷️ ${t('logo')}`}
+                          label={t('logo')}
                           value={restaurantForm.logo}
                           onChange={(url) => setRestaurantForm(prev => ({ ...prev, logo: url }))}
                           endpoint="logo"
@@ -300,7 +301,7 @@ export default function Settings() {
                       {/* Banner Section */}
                       <div>
                         <FileUpload
-                          label={`🖼️ ${t('banner')}`}
+                          label={t('banner')}
                           value={restaurantForm.banner}
                           onChange={(url) => setRestaurantForm(prev => ({ ...prev, banner: url }))}
                           endpoint="banner"
@@ -331,7 +332,7 @@ export default function Settings() {
                     <CardContent>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="currency">💱 {t('currencySetting')}</Label>
+                          <Label htmlFor="currency" className="flex items-center gap-1"><DollarSign className="h-4 w-4" /> {t('currencySetting')}</Label>
                           <Select
                             value={restaurantForm.currency}
                             onValueChange={(value) => setRestaurantForm(prev => ({ ...prev, currency: value }))}
@@ -340,16 +341,16 @@ export default function Settings() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="EUR">💶 EUR</SelectItem>
-                              <SelectItem value="USD">💵 USD</SelectItem>
-                              <SelectItem value="PLN">🇵🇱 PLN</SelectItem>
-                              <SelectItem value="MDL">🇲🇩 MDL</SelectItem>
+                              <SelectItem value="EUR">EUR</SelectItem>
+                              <SelectItem value="USD">USD</SelectItem>
+                              <SelectItem value="PLN">PLN</SelectItem>
+                              <SelectItem value="MDL">MDL</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
                         
                         <div>
-                          <Label htmlFor="language">🌐 {t('languageSetting')}</Label>
+                          <Label htmlFor="language" className="flex items-center gap-1"><Globe className="h-4 w-4" /> {t('languageSetting')}</Label>
                           <Select
                             value={restaurantForm.language}
                             onValueChange={(value) => setRestaurantForm(prev => ({ ...prev, language: value }))}
@@ -358,8 +359,8 @@ export default function Settings() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="en">🇺🇸 English</SelectItem>
-                              <SelectItem value="de">🇩🇪 Deutsch</SelectItem>
+                              <SelectItem value="en"><span className="inline-flex items-center gap-1"><FlagIcon code="us" size={16} /> English</span></SelectItem>
+                              <SelectItem value="de"><span className="inline-flex items-center gap-1"><FlagIcon code="de" size={16} /> Deutsch</span></SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -393,15 +394,15 @@ export default function Settings() {
                       </p>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         {[
-                          { code: 'en', name: 'English', flag: '🇺🇸' },
-                          { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-                          { code: 'ru', name: 'Русский', flag: '🇷🇺' },
-                          { code: 'uk', name: 'Українська', flag: '🇺🇦' },
-                          { code: 'es', name: 'Español', flag: '🇪🇸' },
-                          { code: 'fr', name: 'Français', flag: '🇫🇷' },
-                          { code: 'it', name: 'Italiano', flag: '🇮🇹' },
-                          { code: 'pl', name: 'Polski', flag: '🇵🇱' },
-                          { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
+                          { code: 'en', name: 'English', countryCode: 'us' },
+                          { code: 'de', name: 'Deutsch', countryCode: 'de' },
+                          { code: 'ru', name: 'Русский', countryCode: 'ru' },
+                          { code: 'uk', name: 'Українська', countryCode: 'ua' },
+                          { code: 'es', name: 'Español', countryCode: 'es' },
+                          { code: 'fr', name: 'Français', countryCode: 'fr' },
+                          { code: 'it', name: 'Italiano', countryCode: 'it' },
+                          { code: 'pl', name: 'Polski', countryCode: 'pl' },
+                          { code: 'tr', name: 'Türkçe', countryCode: 'tr' },
                         ].map((lang) => (
                           <label
                             key={lang.code}
@@ -428,7 +429,7 @@ export default function Settings() {
                                 }
                               }}
                             />
-                            <span className="text-lg">{lang.flag}</span>
+                            <FlagIcon code={lang.countryCode} size={20} />
                             <span className="text-sm">{lang.name}</span>
                             {lang.code === restaurantForm.language && (
                               <span className="text-xs text-gray-400 ml-auto">({t('sourceLanguage') || 'source'})</span>
@@ -464,7 +465,7 @@ export default function Settings() {
                 <CardContent>
                   <form onSubmit={handleProfileSubmit} className="space-y-4">
                     <div>
-                      <Label htmlFor="email">👤 {t('email')}</Label>
+                      <Label htmlFor="email" className="flex items-center gap-1"><User className="h-4 w-4" /> {t('email')}</Label>
                       <Input
                         id="email"
                         type="email"
@@ -478,7 +479,7 @@ export default function Settings() {
                     </div>
                     
                     <div>
-                      <Label htmlFor="profileName">🧑‍💼 {t('name')}</Label>
+                      <Label htmlFor="profileName" className="flex items-center gap-1"><UserCog className="h-4 w-4" /> {t('name')}</Label>
                       <Input
                         id="profileName"
                         value={profileForm.name}
@@ -488,7 +489,7 @@ export default function Settings() {
                     </div>
 
                     <div>
-                      <Label>🔒 {t('password')}</Label>
+                      <Label className="flex items-center gap-1"><Lock className="h-4 w-4" /> {t('password')}</Label>
                       <Button type="button" variant="outline" className="w-full mt-1">
                         {t('changePassword')}
                       </Button>
@@ -514,7 +515,7 @@ export default function Settings() {
               {/* Tutorial Card */}
               <Card>
                 <CardHeader>
-                  <CardTitle>📚 Tutorial</CardTitle>
+                  <CardTitle className="flex items-center gap-2"><BookOpen className="h-5 w-5" /> Tutorial</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">

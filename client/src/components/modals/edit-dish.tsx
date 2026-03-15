@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { X, Wand2 } from "lucide-react";
+import { X, Wand2, Palette } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -512,7 +512,7 @@ export function EditDishModal({
           <div>
             <FileUpload
               key={formData.image || 'no-image'} // Force re-render when image changes
-              label={`🖼️ ${t('dishPhoto')}`}
+              label={t('dishPhoto')}
               value={formData.image}
               onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
               endpoint="image"
@@ -524,7 +524,7 @@ export function EditDishModal({
             />
             <div className="mt-2 space-y-2">
               <div>
-                <Label htmlFor="imagePrompt">🎨 Custom Image Prompt</Label>
+                <Label htmlFor="imagePrompt" className="flex items-center gap-1"><Palette className="h-4 w-4" /> Custom Image Prompt</Label>
                 <Textarea
                   id="imagePrompt"
                   value={formData.imagePrompt}
@@ -548,7 +548,7 @@ export function EditDishModal({
                 <p className="text-xs text-muted-foreground mt-1">
                   Generations used: {dish.imageGenerationsCount || 0}/5
                   {dish.imageGenerationsCount && dish.imageGenerationsCount >= 5 && (
-                    <span className="text-red-600 ml-2">⚠️ Limit reached</span>
+                    <span className="text-red-600 ml-2">Limit reached</span>
                   )}
                 </p>
               )}

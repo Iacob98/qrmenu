@@ -81,8 +81,8 @@ export function DishCard({
           <div className="flex items-start justify-between mb-1">
             <h3 className="font-semibold text-base truncate pr-2 leading-tight">
               {dish.name}
-              {dish.isFavorite && <span className="ml-1 text-red-500">❤️</span>}
-              {dish.isHidden && <span className="ml-1 text-gray-400">👁️‍🗨️</span>}
+              {dish.isFavorite && <Heart className="ml-1 h-4 w-4 text-red-500 fill-current inline" />}
+              {dish.isHidden && <EyeOff className="ml-1 h-4 w-4 text-gray-400 inline" />}
             </h3>
             <div className="text-right flex-shrink-0">
               {dish.discountEnabled && dish.discountPrice ? (
